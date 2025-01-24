@@ -1,0 +1,144 @@
+<GuiXml>
+	<Controls>
+	    <Label name="XelosesContactsRowLabel" virtual="true" inherits="ZO_FriendsListRowLabel" horizontalAlignment="LEFT" verticalAlignment="CENTER" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_NORMAL" wrapMode="ELLIPSIS" />
+    	<Label name="XelosesContactsRowNumLabel" virtual="true" inherits="XelosesContactsRowLabel" horizontalAlignment="RIGHT" />
+    	<Label name="XelosesContactsHeaderLabel" virtual="true"  font="ZoFontHeader" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_NORMAL" />
+    	<Label name="XelosesContactsFooterLabel" virtual="true"  font="ZoFontGameSmall" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_DISABLED" />
+
+		<Control name="XelosesContactsSearchFilter" virtual="true" resizeToFitDescendents="true" mouseEnabled="true">
+			<Controls>
+				<Backdrop name="$(parent)Field" inherits="ZO_SingleLineEditBackdrop_Keyboard">
+					<Anchor point="RIGHT" />
+					<Dimensions x="200" />
+					<Controls>
+						<EditBox name="$(parent)Box" inherits="ZO_DefaultEditForBackdrop ZO_EditDefaultText" />
+					</Controls>
+				</Backdrop>
+				<Label name="$(parent)Label" text="SI_SEARCH_FILTER_BY" inherits="XelosesContactsHeaderLabel">
+					<Anchor point="RIGHT" relativeTo="$(parent)Field" relativePoint="LEFT" offsetX="-8" />
+				</Label>
+				<Button name="$(parent)Reset" tier="HIGH" inherits="ZO_CloseButton" layer="OVERLAY">
+					<Anchor point="RIGHT" relativePoint="RIGHT" offsetX="-8" />
+					<Dimensions x="XELOSES_CONTACTS_LIST_BUTTON_SIZE_MINI" y="XELOSES_CONTACTS_LIST_BUTTON_SIZE_MINI" />
+				</Button>
+			</Controls>
+		</Control>
+
+		<Control name="XelosesContactsListRow" mouseEnabled="true" virtual="true">
+			<Dimensions y="XELOSES_CONTACTS_LIST_CELL_HEIGHT" />
+			<OnMouseEnter>
+				XelosesContactsList:onRowMouseEnter(self)
+			</OnMouseEnter>
+			<OnMouseExit>
+				XelosesContactsList:onRowMouseExit(self)
+			</OnMouseExit>
+			<OnMouseUp>
+				XelosesContactsList:onRowMouseUp(self, button, upInside)
+			</OnMouseUp>
+			<Controls>
+				<Texture name="$(parent)BG" inherits="ZO_ThinListBgStrip" />
+				<Label name="$(parent)Account" inherits="XelosesContactsRowLabel">
+					<Anchor point="LEFT" />
+					<Dimensions x="XELOSES_CONTACTS_LIST_COLUMN_ACCOUNT_WIDTH" y="XELOSES_CONTACTS_LIST_CELL_HEIGHT" />
+				</Label>
+				<Texture name="$(parent)GroupIcon" alpha="0.75" hidden="true" layer="OVERLAY">
+					<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)Account" offsetX="XELOSES_CONTACTS_LIST_ICON_PADDING" />
+					<Dimensions x="XELOSES_CONTACTS_LIST_ICON_SIZE" y="XELOSES_CONTACTS_LIST_ICON_SIZE" />
+				</Texture>
+				<Label name="$(parent)Group" inherits="XelosesContactsRowLabel">
+					<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)GroupIcon" offsetX="XELOSES_CONTACTS_LIST_ICON_SPACING" />
+					<Dimensions x="XELOSES_CONTACTS_LIST_CELL_GROUP_WIDTH" y="XELOSES_CONTACTS_LIST_CELL_HEIGHT" />
+				</Label>
+				<Label name="$(parent)Note" inherits="XelosesContactsRowLabel">
+					<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)Group" offsetX="XELOSES_CONTACTS_LIST_CELL_PADDING" />
+					<Dimensions x="XELOSES_CONTACTS_LIST_COLUMN_NOTE_WIDTH" y="XELOSES_CONTACTS_LIST_CELL_HEIGHT" />
+				</Label>
+				<Label name="$(parent)Timestamp" inherits="XelosesContactsRowNumLabel">
+					<Anchor point="RIGHT" relativePoint="RIGHT" offsetX="-XELOSES_CONTACTS_LIST_CELL_PADDING" />
+					<Dimensions x="XELOSES_CONTACTS_LIST_COLUMN_TIMESTAMP_WIDTH" y="XELOSES_CONTACTS_LIST_CELL_HEIGHT" />
+				</Label>
+			</Controls>
+		</Control>
+
+		<Control name="XelosesContactsFrame" inherits="ZO_RightPanelFootPrint" hidden="true">
+			<Controls>
+				<Button name="$(parent)AddContact" mouseOverBlendMode="ADD" inherits="ZO_ButtonBehaviorClickSound">
+                    <Anchor point="TOPLEFT" relativePoint="TOPLEFT" offsetX="28" offsetY="12" />
+                    <Dimensions x="XELOSES_CONTACTS_LIST_BUTTON_SIZE" y="XELOSES_CONTACTS_LIST_BUTTON_SIZE" />
+					<PressedOffset x="1" y="1" />
+                    <Textures
+						normal="/esoui/art/icons/mapkey/mapkey_grouparea.dds"
+                        mouseOver="/esoui/art/journal/journal_quest_group_area.dds"
+					/>
+                </Button>
+				<Control name="$(parent)CategoryFilter" inherits="ZO_ComboBox">
+					<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)AddContact" offsetX="10" offsetY="1" />
+					<Dimensions x="150" />
+				</Control>
+				<Control name="$(parent)GroupFilter" inherits="ZO_ComboBox">
+					<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)CategoryFilter" offsetX="10" />
+					<Dimensions x="150" />
+				</Control>
+				<Button name="$(parent)OpenSettings" mouseOverBlendMode="ADD" inherits="ZO_ButtonBehaviorClickSound">
+                    <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" offsetX="-50" offsetY="14" />
+                    <Dimensions x="XELOSES_CONTACTS_LIST_BUTTON_SIZE" y="XELOSES_CONTACTS_LIST_BUTTON_SIZE" />
+					<PressedOffset x="1" y="1" />
+                    <Textures
+						normal="/esoui/art/skillsadvisor/advisor_tabicon_settings_up.dds"
+						pressed="/esoui/art/skillsadvisor/advisor_tabicon_settings_down.dds"
+                        mouseOver="/esoui/art/skillsadvisor/advisor_tabicon_settings_over.dds"
+					/>
+                </Button>
+				<Control name="$(parent)Search" inherits="XelosesContactsSearchFilter">
+					<Anchor point="RIGHT" relativePoint="LEFT" relativeTo="$(parent)OpenSettings" offsetX="-5" />
+					<Dimensions x="150" />
+				</Control>
+				<Control name="$(parent)Headers">
+					<Anchor point="TOPLEFT" offsetX="30" offsetY="52" />
+					<Anchor point="TOPRIGHT" offsetX="-55" offsetY="52" constrains="X" />
+					<Dimensions y="XELOSES_CONTACTS_LIST_HEADER_HEIGHT" />
+					<Controls>
+						<Control name="$(parent)Account" inherits="ZO_SortHeader">
+							<Anchor point="LEFT" />
+							<Dimensions x="XELOSES_CONTACTS_LIST_COLUMN_ACCOUNT_WIDTH" y="XELOSES_CONTACTS_LIST_HEADER_HEIGHT" />
+							<OnInitialized>
+								ZO_SortHeader_Initialize(self, GetString(XELCONTACTS_UI_HEADER_ACCOUNT), "account", ZO_SORT_ORDER_UP, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
+							</OnInitialized>
+						</Control>
+						<Control name="$(parent)Group" inherits="ZO_SortHeader">
+							<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)Account" offsetX="XELOSES_CONTACTS_LIST_CELL_PADDING" />
+							<Dimensions x="XELOSES_LIST_COLUMN_GROUP_WIDTH" y="XELOSES_CONTACTS_LIST_HEADER_HEIGHT" />
+							<OnInitialized>
+								ZO_SortHeader_Initialize(self, GetString(XELCONTACTS_UI_HEADER_GROUP), "group", ZO_SORT_ORDER_UP, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
+							</OnInitialized>
+						</Control>
+						<Control name="$(parent)Note" inherits="ZO_SortHeader">
+							<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)Group" offsetX="XELOSES_CONTACTS_LIST_CELL_PADDING" />
+							<Dimensions x="XELOSES_CONTACTS_LIST_COLUMN_NOTE_WIDTH" y="XELOSES_CONTACTS_LIST_HEADER_HEIGHT" />
+							<OnInitialized>
+								ZO_SortHeader_Initialize(self, GetString(XELCONTACTS_UI_HEADER_NOTE), "note", ZO_SORT_ORDER_UP, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
+							</OnInitialized>
+						</Control>
+						<Control name="$(parent)Timestamp" inherits="ZO_SortHeader">
+							<Anchor point="RIGHT" relativePoint="RIGHT" offsetX="-XELOSES_CONTACTS_LIST_CELL_PADDING" />
+							<Dimensions x="XELOSES_CONTACTS_LIST_COLUMN_TIMESTAMP_WIDTH" y="XELOSES_CONTACTS_LIST_HEADER_HEIGHT" />
+							<OnInitialized>
+								ZO_SortHeader_Initialize(self, GetString(XELCONTACTS_UI_HEADER_TIMESTAMP), "timestamp", ZO_SORT_ORDER_DOWN, TEXT_ALIGN_RIGHT, "ZoFontGameLargeBold")
+							</OnInitialized>
+						</Control>
+					</Controls>
+				</Control>
+				<Control name="$(parent)List" inherits="ZO_ScrollList">
+					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="$(parent)Headers" offsetY="2" />
+					<Anchor point="BOTTOMRIGHT" offsetX="-35" offsetY="-32" />
+				</Control>
+				<Label name="$(parent)CounterContacts" inherits="XelosesContactsFooterLabel" horizontalAlignment="LEFT">
+					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="$(parent)List" offsetY="5" />
+				</Label>
+				<Label name="$(parent)CounterFiltered" inherits="XelosesContactsFooterLabel" horizontalAlignment="RIGHT">
+					<Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" relativeTo="$(parent)List" offsetY="5" />
+				</Label>
+			</Controls>
+		</Control>
+	</Controls>
+</GuiXml>

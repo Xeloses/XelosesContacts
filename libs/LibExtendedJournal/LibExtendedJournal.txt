@@ -1,0 +1,26 @@
+; This Add-on is not created by, affiliated with or sponsored by ZeniMax Media
+; Inc. or its affiliates. The Elder Scrolls and related logos are registered
+; trademarks or trademarks of ZeniMax Media Inc. in the United States and/or
+; other countries. All rights reserved.
+; https://account.elderscrollsonline.com/add-on-terms
+
+## Title: LibExtendedJournal
+## Description: Common framework for addons that provide a UI similar to the in-game journal
+## Author: @code65536
+## IsLibrary: true
+## Version: 2.2.2
+## AddOnVersion: 202020
+## APIVersion: 101043 101044
+## SavedVariables: LibExtendedJournalTooltipColors
+
+LibCodesCommonCode.lua
+
+l10n/default.lua
+l10n/$(language).lua
+
+Controls.xml
+Internal.lua
+SortFilterList.lua
+TooltipExtension.lua
+Public.lua
+Bindings.xml

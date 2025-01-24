@@ -1,0 +1,107 @@
+<GuiXml>
+	<Controls>
+		<!--
+			Main UI
+		-->
+
+		<Label name="ExtendedJournalHeaderLabel" font="ZoFontGameLargeBold" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_NORMAL" virtual="true" />
+		<Label name="ExtendedJournalFooterLabel" font="ZoFontGameSmall" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_DISABLED" virtual="true" />
+		<Label name="ExtendedJournalRowLabel" font="ZoFontGame" wrapMode="ELLIPSIS" horizontalAlignment="LEFT" verticalAlignment="CENTER" virtual="true" />
+
+		<Control name="ExtendedJournalSearchFilter" resizeToFitDescendents="true" mouseEnabled="true" virtual="true">
+			<Controls>
+				<Backdrop name="$(parent)Field" tier="HIGH" inherits="ZO_SingleLineEditBackdrop_Keyboard">
+					<Anchor point="RIGHT" />
+					<Dimensions x="250" />
+					<Controls>
+						<EditBox name="$(parent)Box" inherits="ZO_DefaultEditForBackdrop ZO_EditDefaultText" />
+					</Controls>
+				</Backdrop>
+				<Label name="$(parent)Label" text="SI_LEJ_SEARCH" inherits="ExtendedJournalHeaderLabel">
+					<Anchor point="RIGHT" relativePoint="LEFT" relativeTo="$(parent)Field" offsetX="-8" />
+				</Label>
+			</Controls>
+		</Control>
+
+		<Control name="ExtendedJournalFooterComboBox" resizeToFitDescendents="true" mouseEnabled="true" virtual="true">
+			<OnInitialized>
+				ZO_ComboBox:New(self).shouldOpenAbove = true
+			</OnInitialized>
+			<OnMouseUp>
+				if (button == MOUSE_BUTTON_INDEX_LEFT and upInside) then
+					ZO_ComboBox_OpenDropdown(self)
+				end
+			</OnMouseUp>
+			<Controls>
+				<Label name="$(parent)Caption" inherits="ExtendedJournalFooterLabel">
+					<Anchor point="TOPLEFT" />
+				</Label>
+				<Label name="$(parent)SelectedItemText" inherits="ExtendedJournalFooterLabel">
+					<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)Caption" offsetX="4" />
+				</Label>
+				<Label name="$(parent)Change" text="SI_LEJ_CHANGE" inherits="ExtendedJournalFooterLabel">
+					<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)SelectedItemText" offsetX="4" />
+				</Label>
+				<Button name="$(parent)OpenDropdown" inherits="ZO_DropdownButton" hidden="true" />
+			</Controls>
+		</Control>
+
+		<TopLevelControl name="ExtendedJournalFrame" inherits="ZO_RightPanelFootPrint" hidden="true">
+			<Controls>
+				<Control name="$(parent)MenuBar" inherits="ZO_LabelButtonBar">
+					<Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" offsetX="-40" offsetY="-11" />
+				</Control>
+			</Controls>
+		</TopLevelControl>
+
+
+		<!--
+			Tooltips
+		-->
+
+		<Label name="ExtendedJournalTooltipTop" font="ZoFontGameSmall" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_HIGHLIGHT" virtual="true" />
+
+		<Control name="ExtendedJournalTooltipSection" resizeToFitDescendents="true" hidden="true" virtual="true">
+			<Controls>
+				<Label name="$(parent)Header" font="$(BOLD_FONT)|$(KB_13)|soft-shadow-thin" horizontalAlignment="CENTER" modifyTextType="UPPERCASE" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_TOOLTIP_DEFAULT">
+					<Anchor point="TOPLEFT" />
+					<Anchor point="TOPRIGHT" constrains="X" />
+				</Label>
+				<Label name="$(parent)Body" font="$(MEDIUM_FONT)|$(KB_14)|soft-shadow-thin" horizontalAlignment="CENTER" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_BODY">
+					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="$(parent)Header" offsetY="-1" />
+					<Anchor point="RIGHT" constrains="X" />
+				</Label>
+			</Controls>
+		</Control>
+
+		<Control name="ExtendedJournalTooltipExtension" resizeToFitDescendents="true" virtual="true">
+			<Controls>
+				<Texture name="$(parent)Divider" inherits="ZO_BaseTooltipDivider">
+					<Anchor point="TOP" />
+				</Texture>
+				<Label name="$(parent)Left" inherits="ExtendedJournalTooltipTop">
+					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="$(parent)Divider" offsetX="16" />
+				</Label>
+				<Label name="$(parent)Right" inherits="ExtendedJournalTooltipTop">
+					<Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" relativeTo="$(parent)Divider" offsetX="-16" />
+				</Label>
+				<Control name="$(parent)Section" inherits="ExtendedJournalTooltipSection">
+					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="$(parent)Divider" offsetY="16" />
+					<Anchor point="RIGHT" constrains="X" />
+				</Control>
+			</Controls>
+		</Control>
+
+		<TopLevelControl name="ExtendedJournalItemTooltipTopLevel" inherits="TooltipTopLevel">
+			<Controls>
+				<Tooltip name="ExtendedJournalItemTooltip" inherits="ZO_ItemIconTooltip" />
+			</Controls>
+		</TopLevelControl>
+
+		<TopLevelControl name="ExtendedJournalTextTooltipTopLevel" inherits="TooltipTopLevel">
+			<Controls>
+				<Tooltip name="ExtendedJournalTextTooltip" inherits="ZO_ItemIconTooltip" />
+			</Controls>
+		</TopLevelControl>
+	</Controls>
+</GuiXml>
