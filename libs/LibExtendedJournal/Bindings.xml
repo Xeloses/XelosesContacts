@@ -1,0 +1,16 @@
+<Bindings>
+	<Layer name="SI_KEYBINDINGS_LAYER_GENERAL">
+		<Category name="SI_KEYBINDINGS_CATEGORY_EXTENDED_JOURNAL">
+			<Action name="EXTENDED_JOURNAL">
+				<Down>LibExtendedJournal.Show(nil, true)</Down>
+			</Action>
+		</Category>
+	</Layer>
+	<Layer name="SI_KEYBINDINGS_LAYER_USER_INTERFACE_SHORTCUTS">
+		<Category name="SI_KEYBINDINGS_CATEGORY_EXTENDED_JOURNAL">
+			<Action name="EXTENDED_JOURNAL_SETTINGS">
+				<Down>LibExtendedJournal.InvokeSettings()</Down>
+			</Action>
+		</Category>
+	</Layer>
+</Bindings>

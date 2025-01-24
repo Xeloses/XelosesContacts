@@ -1,0 +1,12 @@
+<Bindings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sir.insidi.at/or/schema/esobindings.xsd">
+	<Layer name="SI_KEYBINDINGS_LAYER_GENERAL">
+		<Category name="XELCONTACTS_ADDON_NAME">
+			<Action name="XELCONTACTS_UI_SHOW" rebindable="true">
+				<Up>LibExtendedJournal.Show(XelosesContacts.CONST.UI.TAB_NAME, true)</Up>
+			</Action>
+			<Action name="XELCONTACTS_ADD_CONTACT" rebindable="true">
+				<Up>XelosesContacts:AddContact()</Up>
+			</Action>
+		</Category>
+	</Layer>
+</Bindings>

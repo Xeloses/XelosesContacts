@@ -1,0 +1,70 @@
+<GuiXml>
+	<Controls>
+		<TopLevelControl name="XelosesContactDialogFrame" inherits="ZO_CustomDialogBase">
+			<DimensionConstraints minX="420" minY="400" />
+			<Anchor point="CENTER" offsetY="-45" />
+			<Controls>
+				<Control name="$(parent)XelosesContactDialogContent" inherits="ZO_DialogContentAnchors">
+					<Controls>
+						<Label name="$(parent)AccountNameLabel" font="ZoFontGame" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_NORMAL" horizontalAlignment="LEFT">
+							<Anchor point="TOPLEFT" relativeTo="$(parent)Title" relativePoint="BOTTOMLEFT" offsetY="16"/>
+							<Dimensions x="150" y="26" />
+						</Label>
+						<EditBox name="$(parent)AccountName" inherits="ZO_DefaultEditForBackdrop" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_SELECTED">
+							<Anchor point="LEFT" relativeTo="$(parent)AccountNameLabel" relativePoint="RIGHT" offsetX="16"/>
+							<Dimensions x="170" y="26" />
+							<Controls>
+								<Backdrop name="$(parent)Backdrop" inherits="ZO_EditBackdrop">
+									<AnchorFill/>
+								</Backdrop>
+							</Controls>
+						</EditBox>
+						<Button name="$(parent)EditAccountName" mouseOverBlendMode="ADD" inherits="ZO_ButtonBehaviorClickSound">
+							<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)AccountName" offsetX="4" />
+							<Dimensions x="26" y="26" />
+							<PressedOffset x="1" y="1" />
+							<Textures
+								normal="/esoui/art/buttons/edit_up.dds"
+						        pressed="/esoui/art/buttons/edit_down.dds"
+								mouseOver="/esoui/art/buttons/edit_over.dds"
+							/>
+						</Button>
+						<Label name="$(parent)CategoryLabel" font="ZoFontGame" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_NORMAL" horizontalAlignment="LEFT">
+							<Anchor point="TOPLEFT" relativeTo="$(parent)AccountNameLabel" relativePoint="BOTTOMLEFT" offsetY="16"/>
+							<Dimensions x="150" y="26" />
+						</Label>
+						<Control name="$(parent)Category" inherits="ZO_ComboBox">
+							<Anchor point="LEFT" relativeTo="$(parent)CategoryLabel" relativePoint="RIGHT" offsetX="16"/>
+							<Dimensions x="200" y="26" />
+						</Control>
+						<Label name="$(parent)GroupLabel" font="ZoFontGame" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_NORMAL" horizontalAlignment="LEFT">
+							<Anchor point="TOPLEFT" relativeTo="$(parent)CategoryLabel" relativePoint="BOTTOMLEFT" offsetY="16"/>
+							<Dimensions x="150" y="26" />
+						</Label>
+						<Control name="$(parent)Group" inherits="ZO_ComboBox">
+							<Anchor point="LEFT" relativeTo="$(parent)GroupLabel" relativePoint="RIGHT" offsetX="16"/>
+							<Dimensions x="200" y="26" />
+						</Control>
+
+						<Label name="$(parent)NoteLabel" font="ZoFontGame" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_NORMAL" horizontalAlignment="LEFT">
+							<Anchor point="TOPLEFT" relativeTo="$(parent)GroupLabel" relativePoint="BOTTOMLEFT" offsetY="16"/>
+							<Dimensions x="366" y="26" />
+						</Label>
+						<EditBox name="$(parent)Note" inherits="ZO_DefaultEditMultiLineForBackdrop" maxInputCharacters="200" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_SELECTED">
+							<Anchor point="TOPLEFT" relativeTo="$(parent)NoteLabel" relativePoint="BOTTOMLEFT" offsetY="4"/>
+							<Anchor point="TOPRIGHT" relativeTo="$(parent)NoteLabel" relativePoint="BOTTOMRIGHT" offsetY="4"/>
+							<Dimensions x="366" y="150"/>
+							<Controls>
+								<Backdrop name="$(parent)Backdrop" inherits="ZO_EditBackdrop">
+									<AnchorFill/>
+								</Backdrop>
+							</Controls>
+						</EditBox>
+					</Controls>
+				</Control>
+				<Control name="$(parent)Save" inherits="ZO_CustomDialogButton" />
+				<Control name="$(parent)Cancel" inherits="ZO_CustomDialogButton" />
+			</Controls>
+		</TopLevelControl>
+	</Controls>
+</GuiXml>
