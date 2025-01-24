@@ -95,7 +95,20 @@ Please cover the following points in your report:
 Screenshots are also very useful to figure out what is going wrong.
 
 ## Donations
-If you like my work you can support me by sending some thank you gift or in-game gold to **@Savaoth** on **EU** server. Feel free to contact me via ingame mail to check which DLC I don't own :)
+If you like my work you can support me by sending some thanking gift or in-game gold to **@Savaoth** on **EU** server. Feel free to contact me via ingame mail to check which DLC I don't own :)
+
+## Roadmap / Future plans
+**[!]** *No guarantees or time frames when it will be implemented.*
+
+* Add player to contacts using context menu on group/raid frames.
+* Show contact status (online/afk/offline) in Contacts window.
+* Target (player under reticle) marking (if target is Friend or Villain).
+* Mark Friends or Villains in group/raid frames.
+* Mark Friends or Villains in group window.
+* Backup/export contacts.
+* [LibChatMenuButton](https://www.esoui.com/downloads/info3805-LibChatMenuButton.html) integration.
+* [OdySupportIcons](https://www.esoui.com/downloads/info2834-OdySupportIcons-GroupRoleIconsMore.html) integration.
+* Import contacts from [Namez](https://www.esoui.com/downloads/info3411-Namez-Moreinfowhenyouputyourreticleonotherplayers.html) addon.
 
 ## Special thanks
 * [**code65536**](https://www.esoui.com/forums/member.php?userid=24346) for allowing me to use his **LibExtendedJournal** library.
