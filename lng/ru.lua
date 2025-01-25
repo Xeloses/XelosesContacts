@@ -1,10 +1,13 @@
 local S = GetString
-local _L = ZO_CreateStringId
+
+--Do not use ZO_CreateStringId for the same string constant twice! Use SafeAddString function and increase the version number by +1 instead. Described here:
+--https://wiki.esoui.com/How_to_add_localization_support
+local _SAV = SafeAddString
 
 local function L(id, value, ...)
     local params = { ... }
     if (params and #params > 0) then value = string.format(value, ...) end
-    return _L("XELCONTACTS_" .. id, value)
+    return _SAV(_G["XELCONTACTS_" .. tostring(id)], value, 2)
 end
 
 -- ============================
@@ -160,5 +163,5 @@ L("SLASHCMD_ADD_CONTACT_TOOLTIP", "Добавить в контакты")
 L("SLASHCMD_OPEN_SETTINGS_TOOLTIP", "Открыть настройки аддона")
 
 -- Keybinds:
-_L("SI_BINDING_NAME_XELCONTACTS_UI_SHOW", "Список контактов")
-_L("SI_BINDING_NAME_XELCONTACTS_ADD_CONTACT", "Добавить цель в Контакты")
+_SAV("SI_BINDING_NAME_XELCONTACTS_UI_SHOW", "Список контактов", 2)
+_SAV("SI_BINDING_NAME_XELCONTACTS_ADD_CONTACT", "Добавить цель в Контакты", 2)

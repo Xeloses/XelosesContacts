@@ -1,5 +1,5 @@
 local S = GetString
-local _L = ZO_CreateStringId
+local _L = ZO_CreateStringId --This will add the String constant with version = 1, so the other language files should add version 2 or higher to overwrite it via function SafeAddString
 
 local function L(id, value, ...)
     local params = { ... }
