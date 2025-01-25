@@ -45,15 +45,22 @@ end
 
 --Get the @displayName from the current chat message where one opened the player contextMenu (if pChat is loaded and
 --the pChat settings add the @displayName at the currently clicked chat message)
+local pChatData
 local function getPChatMessageDisplayName(player_name)
-    --As the XelosesContacts.txt adds an optional dependency to pChat, pChat's player contextmenu should be executed before
-    --XelosesContacts chat player contextmenu appears. Means: pChat will return the currently found displayName in the variable
+    --As the XelosesContacts.txt adds an optional dependency to pChat, pChat's player contextmenu (via LibCustomMenu) will be executed before
+    --XelosesContacts chat player contextmenu appears. Means: pChat will return the currently found displayName or characterName or displayName/characterName
+    --or whatever formatting the user chose in pChat already in LibCustomMenu's player context menu hook via variables player_name, raw_Name
+    --And in addition with pChat v10006020 in the variable
     --pChat.lastCheckDisplayNameData = { displayName=guildMemberOrFriendDisplayname, index=guildOrFriendIndexFound, isOnline=isOnline, type = "guild" or "friend"}
     -->This variable is currently only filled if the user activated pChat settings to add the "Teleport to" context menu entries
-    if pChat and pChat.lastCheckDisplayNameData then
-        return pChat.lastCheckDisplayNameData.displayName
+    if pChat then
+        pChatData = pChatData or pChat.pChatData
+
+        if pChat.lastCheckDisplayNameData then
+            return pChat.lastCheckDisplayNameData.displayName
+        end
     end
-    return player_name
+    return player_name --will be already @displayName or charactername, or @display/characterName etc. according to pChat's settings for the chat messages
 end
 
 function XC:SetupChatContextMenu()
@@ -74,6 +81,7 @@ function XC:SetupChatContextMenu()
    --Beartram 20250125 - Example how to use LibCustomMenu here
    --AddCustomMenuItem function accepts the same params as AddMenuItem, and LibCustomMenu supports submenus too (benefit) if needed
    local function chatPlayerContextMenuAddition(player_name, raw_Name)
+d("[XelosesContacts]PlayerContextMenuCallback-playerName: " ..tostring(player_name) ..", rawName: " .. tostring(raw_Name))
        player_name = getPChatMessageDisplayName(player_name)
        local target_name = XC:validateAccountName(player_name)
        if (target_name) then
