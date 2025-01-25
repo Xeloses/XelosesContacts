@@ -2,7 +2,9 @@
 
 **License**: [GNU GPL v3](https://github.com/Xeloses/XelosesContacts/blob/main/LICENSE)
 
-**Change log**: [read at GitHub](https://github.com/Xeloses/XelosesContacts/blob/master/CHANGELOG.md)
+**Change log**: [read](https://github.com/Xeloses/XelosesContacts/blob/master/CHANGELOG.md)
+
+**Addon page at ESOUI**: [link](https://www.esoui.com/downloads/info4025-XelosesContacts.html)
 
 ## Description
 
