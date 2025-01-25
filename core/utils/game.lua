@@ -137,7 +137,7 @@ function XCGame:TeleportTo(target_name)
 
     if IsMounted() then
         -- retry teleport after 1.5 sec delay (first teleport attempt will just dismount player, so we need to do teleport again)
-        zo_callLater(function() self:TeleportTo(name) end, 1500)
+        zo_callLater(function() self:TeleportTo(name) end, 2000)
     end
     CancelCast()
 
