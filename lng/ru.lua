@@ -1,10 +1,10 @@
 local S = GetString
-local _L = ZO_CreateStringId
+local _L = function(id, value, version) return SafeAddString(id, value, version or 2) end
 
 local function L(id, value, ...)
     local params = { ... }
     if (params and #params > 0) then value = string.format(value, ...) end
-    return _L("XELCONTACTS_" .. id, value)
+    return _L(_G["XELCONTACTS_" .. tostring(id)], value)
 end
 
 -- ============================
