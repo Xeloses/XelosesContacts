@@ -77,20 +77,6 @@ function XC:SetupFriendListContextMenu()
 end
 
 function XC:SetupIgnoreListContextMenu()
-    --[[
-    local onMouseUp = IGNORE_LIST.IgnoreListPanelRow_OnMouseUp
-    IGNORE_LIST.IgnoreListPanelRow_OnMouseUp = function(list, control, button, upInside)
-        onMouseUp(list, control, button, upInside)
-        
-        if (button == MOUSE_BUTTON_INDEX_RIGHT and upInside) then
-            local data = ZO_ScrollList_GetData(control)
-            local menu_item = createContactMenuItem(data.displayName, data.note, CONST.CONTACTS_VILLAINS_ID)
-            if (menu_item) then AddMenuItem(menu_item.name, menu_item.callback) end
-            list:ShowMenu(control)
-        end
-    end
-    ]]
-
     SecurePostHook(
         IGNORE_LIST,
         "IgnoreListPanelRow_OnMouseUp",
