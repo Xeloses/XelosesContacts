@@ -232,6 +232,19 @@ function XC:addPrefix(str)
 end
 
 --[[
+Returns formatted addon version.
+```
+@return string
+```
+]]
+function XC:getVersion()
+    local vMajor = math.floor(self.version / 10000)
+    local vMinor = math.floor((self.version - vMajor * 10000) / 100)
+    local vPatch = math.floor(self.version - vMajor * 10000 - vMinor * 100)
+    return ("%d.%d.%d"):format(vMajor, vMinor, vPatch)
+end
+
+--[[
 Retrieves and returns addon version from manifest file.
 ```
 @return number

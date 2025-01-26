@@ -244,15 +244,4 @@ XelosesContacts = XelosesContacts or {
     debug          = true, --false,
 }
 
--- ---------------
---  @SECTION Info
--- ---------------
-
-function XelosesContacts:getVersion()
-    local vMajor = math.ceil(self.version / 10000)
-    local vMinor = math.ceil((self.version - vMajor * 10000) / 100)
-    local vPatch = math.ceil(self.version - vMajor * 10000 - vMinor * 100)
-    return ("%d.%d.%d"):format(vMajor, vMinor, vPatch)
-end
-
 ZO_CreateStringId(ADDON_PREFIX .. "ADDON_NAME", XelosesContacts.displayName)
