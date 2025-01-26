@@ -7,9 +7,10 @@ local function L(id, value, ...)
     return _L(_G["XELCONTACTS_" .. tostring(id)], value, 2)
 end
 
--- ============================
--- === English localization ===
--- ============================
+-- ===========================
+-- === German localization ===
+-- ===========================
+-- by Baertram (https://www.esoui.com/forums/member.php?userid=2028)
 
 L("ALL", "Alle")
 L("DECLINED", "abgelehnt")
