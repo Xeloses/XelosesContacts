@@ -5,7 +5,7 @@
 ## Version: 1.0.0
 ## AddOnVersion: 10000
 ## APIVersion: 101044
-## DependsOn: LibAddonMenu-2.0>=36 LibSavedVars>=60005 LibExtendedJournal>=202010
+## DependsOn: LibAddonMenu-2.0>=36 LibSavedVars>=60005 LibCustomMenu>=722 LibExtendedJournal>=202010
 ## OptionalDependsOn: LibChatMessage>=113 LibDebugLogger>=263 LibSlashCommander>=36
 ## SavedVariables: XelosesContactsData
 
