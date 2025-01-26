@@ -1,13 +1,10 @@
 local S = GetString
-
---Do not use ZO_CreateStringId for the same string constant twice! Use SafeAddString function and increase the version number by +1 instead. Described here:
---https://wiki.esoui.com/How_to_add_localization_support
-local _SAV = SafeAddString
+local _L = SafeAddString
 
 local function L(id, value, ...)
     local params = { ... }
     if (params and #params > 0) then value = string.format(value, ...) end
-    return _SAV(_G["XELCONTACTS_" .. tostring(id)], value, 2)
+    return _L(_G["XELCONTACTS_" .. tostring(id)], value, 2)
 end
 
 -- ============================
@@ -86,7 +83,7 @@ L("UI_DIALOG_CONTACT_ACCOUNT_NAME", "Kontoname:")
 L("UI_DIALOG_CONTACT_CATEGORY", "Typ:")
 L("UI_DIALOG_CONTACT_GROUP", "Gruppe:")
 L("UI_DIALOG_CONTACT_NOTE", "Persönliche Notiz:")
-L("UI_DIALOG_BUTTON_SAVE", "Speichern")
+L("UI_DIALOG_BUTTONE", "Speichern")
 
 -- Kontextmenü:
 L("MENU_ADD_CONTACT", "Zu Kontakten hinzufügen")
@@ -164,5 +161,5 @@ L("SLASHCMD_OPEN_SETTINGS_TOOLTIP", "AddOn-Einstellungsfenster öffnen")
 
 
 -- Keybinds:
-_SAV("SI_BINDING_NAME_XELCONTACTS_UI_SHOW", "Kontakte öffnen", 2)
-_SAV("SI_BINDING_NAME_XELCONTACTS_ADD_CONTACT", "Ziel zu Kontakten hinzufügen", 2)
+_L("SI_BINDING_NAME_XELCONTACTS_UI_SHOW", "Kontakte öffnen", 2)
+_L("SI_BINDING_NAME_XELCONTACTS_ADD_CONTACT", "Ziel zu Kontakten hinzufügen", 2)
