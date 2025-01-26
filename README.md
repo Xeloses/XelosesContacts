@@ -66,6 +66,7 @@ With [LibSlashCommander](https://esoui.com/downloads/info1508-LibSlashCommander.
 #### Required libraries:
 * [LibAddonMenu-2.0](https://www.esoui.com/downloads/info7-libaddonmenu.html)
 * [LibSavedVars](https://esoui.com/downloads/info2161-LibSavedVars.html)
+* [LibCustomMenu](https://www.esoui.com/downloads/info1146-LibCustomMenu.html)
 
 #### Optional:
 * [LibChatMessage](https://esoui.com/downloads/info2382-LibChatMessage.html) *(highly reccomended)*
@@ -75,6 +76,7 @@ With [LibSlashCommander](https://esoui.com/downloads/info1508-LibSlashCommander.
 ## Language support
 * **English**
 * **Russian**
+* **German** by **[Baertram](https://www.esoui.com/forums/member.php?u=2028)**
 
 *I'm sorry for my english, its not my native language and I didn't learn it at schooll/college, so I can make some mistakes.*
 
