@@ -1,7 +1,7 @@
 # CHANGELOG
 
 ### Version 1.0.2 *(2025-01-26)*
-* Added German translation (by **[Baertram](https://www.esoui.com/forums/member.php?u=2028)**).
+* Added **German** translation (by **[Baertram](https://www.esoui.com/forums/member.php?u=2028)**).
 * Code improvements for better compatibility with other addons.
 * **LibCustomMenu** added to dependencies.
 
