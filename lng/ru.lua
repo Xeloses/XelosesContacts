@@ -160,5 +160,5 @@ L("SLASHCMD_ADD_CONTACT_TOOLTIP", "Добавить в контакты")
 L("SLASHCMD_OPEN_SETTINGS_TOOLTIP", "Открыть настройки аддона")
 
 -- Keybinds:
-_SAV("SI_BINDING_NAME_XELCONTACTS_UI_SHOW", "Список контактов")
-_SAV("SI_BINDING_NAME_XELCONTACTS_ADD_CONTACT", "Добавить цель в Контакты")
+_L("SI_BINDING_NAME_XELCONTACTS_UI_SHOW", "Список контактов")
+_L("SI_BINDING_NAME_XELCONTACTS_ADD_CONTACT", "Добавить цель в Контакты")
