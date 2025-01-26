@@ -1,10 +1,10 @@
 local S = GetString
-local _L = SafeAddString
+local _L = function(id, value, version) return SafeAddString(id, value, version or 2) end
 
 local function L(id, value, ...)
     local params = { ... }
     if (params and #params > 0) then value = string.format(value, ...) end
-    return _L(_G["XELCONTACTS_" .. tostring(id)], value, 2)
+    return _L(_G["XELCONTACTS_" .. tostring(id)], value)
 end
 
 -- ===========================
@@ -160,7 +160,6 @@ L("SLASHCMD_NEW_CONTACT_TOOLTIP", "Dialogfeld \'Neuen Kontakt öffnen\'")
 L("SLASHCMD_ADD_CONTACT_TOOLTIP", "Neuen Kontakt hinzufügen")
 L("SLASHCMD_OPEN_SETTINGS_TOOLTIP", "AddOn-Einstellungsfenster öffnen")
 
-
 -- Keybinds:
-_L("SI_BINDING_NAME_XELCONTACTS_UI_SHOW", "Kontakte öffnen", 2)
-_L("SI_BINDING_NAME_XELCONTACTS_ADD_CONTACT", "Ziel zu Kontakten hinzufügen", 2)
+_L("SI_BINDING_NAME_XELCONTACTS_UI_SHOW", "Kontakte öffnen")
+_L("SI_BINDING_NAME_XELCONTACTS_ADD_CONTACT", "Ziel zu Kontakten hinzufügen")
