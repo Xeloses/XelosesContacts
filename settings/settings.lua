@@ -164,9 +164,6 @@ function XC:CreateConfigMenu()
     addItem("checkbox", "RETICLE_MARKER_ENABLE", {
         getFunc = function() return self.config.reticle.enabled end,
         setFunc = function(val)
-            -- @DEBUG
-            self:Debug("SETTINGS: reticle marker enabled = %s", tostring(val))
-
             self.config.reticle.enabled = val
             self:ToggleHook("ReticleTarget")
         end,
@@ -254,9 +251,6 @@ function XC:CreateConfigMenu()
     addItem("checkbox", "RETICLE_MARKER_ICON_ENABLE", {
         getFunc = function() return self.config.reticle.icon.enabled end,
         setFunc = function(val)
-            -- @DEBUG
-            self:Debug("SETTINGS: reticle marker icon enabled = %s", tostring(val))
-
             self.config.reticle.icon.enabled = val
             self.UI.ReticleMarker:SetIconVisibility(val)
         end,

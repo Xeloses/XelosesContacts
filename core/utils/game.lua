@@ -107,24 +107,13 @@ end
 
 ---@private
 function XCGame:isGuildmate(target_name)
-    if (not self.__guildmates) then
-        -- @DEBUG
-        XC:Debug("isGuildmate() -> loadGuildData()")
-
-        self:loadGuildData()
-    end
-
+    if (not self.__guildmates) then self:loadGuildData() end
     return self.__guildmates:hasKey(target_name)
 end
 
 ---@private
 function XCGame:getGuildName(target_name)
-    if (not self.__guilds) then
-        -- @DEBUG
-        XC:Debug("getGuildName() -> loadGuildData()")
-
-        self:loadGuildData()
-    end
+    if (not self.__guilds) then self:loadGuildData() end
 
     local guild_index = self.__guildmates:get(target_name)
     if (not guild_index) then return end
@@ -141,12 +130,7 @@ end
 
 ---@private
 function XCGame:isFriend(target_name)
-    if (not self.__friends) then
-        -- @DEBUG
-        XC:Debug("isFriend() -> loadSocialData()")
-
-        self:loadSocialData()
-    end
+    if (not self.__friends) then self:loadSocialData() end
     return self.__friends:has(target_name)
 end
 
@@ -171,12 +155,7 @@ end
 
 ---@private
 function XCGame:isIgnored(target_name)
-    if (not self.__ignored) then
-        -- @DEBUG
-        XC:Debug("isIgnored() -> loadSocialData()")
-
-        self:loadSocialData()
-    end
+    if (not self.__ignored) then self:loadSocialData() end
     return self.__ignored:has(target_name)
 end
 
@@ -242,28 +221,18 @@ local __social_events = { friends = false, ignored = false, guild = false }
 function XCGame:loadSocialData(reset_data)
     XC:RemoveHook("SocialDataLoad")
 
-    -- @DEBUG
-    XC:Debug("loadSocialData(force_data_reset = %s)", tostring(reset_data))
+    if ((self.__friends ~= nil and self.__ignored ~= nil) and not reset_data) then return end
 
-    -- @TODO add check: self.__friends:len() == getNumFriends() // and same for ignored and guild
-    if ((self.__friends ~= nil and self.__ignored ~= nil) and not reset_data) then
-        -- @DEBUG
-        XC:Debug("  -> data already loaded => exit")
+    local num_friends = GetNumFriends()
+    if (not reset_data and self.__friends and self.__friends:len() == num_friends) then return end
 
-        return
-    end
-
-    -- @DEBUG
-    XC:Debug("  -> call resetSocialData()")
+    local num_ignored = GetNumIgnored()
+    if (not reset_data and self.__ignored and self.__ignored:len() == num_ignored) then return end
 
     self:resetSocialData()
 
-    -- @DEBUG
-    XC:Debug("  -> initial friends: %d", self.__friends and self.__friends:len() or 0)
-    XC:Debug("  -> initial ignored: %d", self.__ignored and self.__ignored:len() or 0)
-
     -- Friends list
-    for i = 1, GetNumFriends() do
+    for i = 1, num_friends do
         local name, _, _, _ = GetFriendInfo(i)
         self.__friends:insert(name)
     end
@@ -289,7 +258,7 @@ function XCGame:loadSocialData(reset_data)
     end
 
     -- Ignored players list
-    for i = 1, GetNumIgnored() do
+    for i = 1, num_ignored do
         local name, _, _, _ = GetIgnoredInfo(i)
         self.__ignored:insert(name)
     end
@@ -313,33 +282,14 @@ function XCGame:loadSocialData(reset_data)
 
         __social_events.ignored = true
     end
-
-    -- @DEBUG
-    XC:Debug("  -> final friends: %d", self.__friends:len())
-    XC:Debug("  -> final ignored: %d", self.__ignored:len())
 end
 
 function XCGame:loadGuildData(reset_data)
     XC:RemoveHook("GuildDataLoad")
 
-    -- @DEBUG
-    XC:Debug("loadGuildData(force_data_reset = %s)", tostring(reset_data))
-
-    if ((self.__guildmates ~= nil and self.__guilds ~= nil) and not reset_data) then
-        -- @DEBUG
-        XC:Debug("  -> data already loaded => exit")
-
-        return
-    end
-
-    -- @DEBUG
-    XC:Debug("  -> call resetGuildData()")
+    if ((self.__guildmates ~= nil and self.__guilds ~= nil) and not reset_data) then return end
 
     self:resetGuildData()
-
-    -- @DEBUG
-    XC:Debug("  -> initial guilds: %d", self.__guilds and self.__guilds:len() or 0)
-    XC:Debug("  -> initial guildmates: %d", self.__guildmates and self.__guildmates:len() or 0)
 
     for i = 1, GetNumGuilds() do
         local gID = GetGuildId(i)
@@ -360,12 +310,7 @@ function XCGame:loadGuildData(reset_data)
             EVENT_GUILD_MEMBER_ADDED,
             function(_, guild_id, display_name)
                 if (not self.__guildmates:hasKey(display_name)) then
-                    if (not self.__guilds or not self.__guildmates) then
-                        -- @DEBUG
-                        XC:Debug("EVENT_GUILD_MEMBER_ADDED -> loadGuildData()")
-
-                        self:loadGuildData()
-                    end
+                    if (not self.__guilds or not self.__guildmates) then self:loadGuildData() end
 
                     if (self.__guildmates:hasKey(display_name)) then return end
 
@@ -387,21 +332,11 @@ function XCGame:loadGuildData(reset_data)
         EM:RegisterForEvent(
             self.__namespace,
             EVENT_GUILD_MEMBER_REMOVED,
-            --function(_, guild_id, display_name, character_name) --[[ ... ]] end
-            function()
-                -- @DEBUG
-                XC:Debug("EVENT_GUILD_MEMBER_REMOVED -> loadGuildData()")
-
-                self:loadGuildData(true)
-            end
+            function() self:loadGuildData(true) end
         )
 
         __social_events.guild = true
     end
-
-    -- @DEBUG
-    XC:Debug("  -> final guilds: %d", self.__guilds:len())
-    XC:Debug("  -> final guildmates: %d", self.__guildmates:len())
 end
 
 function XCGame:resetSocialData()

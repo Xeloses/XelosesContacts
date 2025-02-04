@@ -293,7 +293,7 @@ XelosesContacts = XelosesContacts or {
         }
     },
 
-    debug          = true, --false,
+    debug          = false,
 }
 
 ZO_CreateStringId(ADDON_PREFIX .. "ADDON_NAME", XelosesContacts.displayName)

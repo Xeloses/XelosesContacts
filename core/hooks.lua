@@ -79,41 +79,21 @@ function XC:InitHooks()
         -- Handle social/guilds data load
         SocialDataLoad = {
             event    = EVENT_SOCIAL_DATA_LOADED,
-            callback = function(...)
-                -- @DEBUG
-                self:Debug("EVENT_SOCIAL_DATA_LOADED -> loadSocialData()")
-
-                return self.Game:loadSocialData()
-            end,
+            callback = function(...) return self.Game:loadSocialData() end,
         },
         GuildDataLoad = {
             event    = EVENT_GUILD_DATA_LOADED,
-            callback = function(...)
-                -- @DEBUG
-                self:Debug("EVENT_GUILD_DATA_LOADED -> loadGuildData()")
-
-                return self.Game:loadGuildData()
-            end,
+            callback = function(...) return self.Game:loadGuildData() end,
         },
 
         -- Player join/left guild
         GuildJoin = {
             event    = EVENT_GUILD_SELF_JOINED_GUILD,
-            callback = function(...)
-                -- @DEBUG
-                self:Debug("EVENT_GUILD_SELF_JOINED_GUILD -> loadGuildData()")
-
-                return self.Game:loadGuildData(true)
-            end,
+            callback = function(...) return self.Game:loadGuildData(true) end,
         },
         GuildLeave = {
             event    = EVENT_GUILD_SELF_LEFT_GUILD,
-            callback = function(...)
-                -- @DEBUG
-                self:Debug("EVENT_GUILD_SELF_LEFT_GUILD -> loadGuildData()")
-
-                return self.Game:loadGuildData(true)
-            end,
+            callback = function(...) return self.Game:loadGuildData(true) end,
         },
 
         -- Friend' account ID changed
@@ -136,15 +116,10 @@ end
 
 ---@private
 function XC:SetupHook(hook_name)
-    -- @DEBUG
-    self:Debug("XC:SetupHook(%s)", hook_name)
-
     local hook = self.__hooks[hook_name]
     if (not hook or hook.injected) then return end
 
     local hook_enabled = (hook.enabled) == nil or (T(hook.enabled) == "function" and hook.enabled()) or hook.enabled
-    -- @DEBUG
-    self:Debug("  -> hook enabled: %s", tostring(hook_enabled))
     if (not hook_enabled) then return end
 
     local fn_callback = function(...) return hook.callback(self, ...) end
@@ -161,16 +136,10 @@ end
 
 ---@private
 function XC:ToggleHook(hook_name)
-    -- @DEBUG
-    self:Debug("XC:ToggleHook(%s)", hook_name)
-
     local hook = self.__hooks[hook_name]
     if (not hook) then return end
 
     local hook_enabled = hook.enabled == nil or (T(hook.enabled) == "function" and hook.enabled()) or hook.enabled
-
-    -- @DEBUG
-    self:Debug("  -> action: %s", hook_enabled and "setup" or "remove")
 
     if (hook_enabled) then
         self:SetupHook(hook_name)
@@ -181,9 +150,6 @@ end
 
 ---@private
 function XC:RemoveHook(hook_name)
-    -- @DEBUG
-    self:Debug("XC:RemoveHook(%s)", hook_name)
-
     local hook = self.__hooks[hook_name]
     if (not hook or not hook.injected) then return end
 
