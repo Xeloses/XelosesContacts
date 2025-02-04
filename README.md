@@ -39,12 +39,16 @@ This addon works with account names, not character names, so no matter which cha
   - configure groups of Villains to hide chat messages from;
   - configure chat channels where messages from selected groups of Villains should be hidden;
 * auto decline friend and group invites from Villains (*optional*);
+* display a marker near the reticle when targeting Friends or Villains:
+  - display icon and group name of targeted Friend or Villain;
+  - may also display marker for guildmates, ESO ingame friends, ignored players (*optional*);
+  - option to disable target scanning in combat, in PvP-zones, in Trials;
 * notifications:
   - notification when joining group with Villain (*optional*);
   - notification when Villain joins your group (*optional*);
   - notification when Villain invites you to group (*optional*);
   - notification when Villain sends you a friend request (*optional*);
-  - confirmation dialog when adding Villain to ESO ingame Friends (*optional*).
+  - confirmation dialog when adding Villain to ESO ingame Friends (*optional*);
 * import contacts from ingame Friends and Ignored list (including their correspondend notes).
 
 ### UI:
@@ -119,5 +123,3 @@ If you like my work you can support me by sending some thanking gift or in-game 
 
 ## Disclaimer
 > This Add-on is not created by, affiliated with or sponsored by ZeniMax Media Inc. or its affiliates. The Elder Scrolls® and related logos are registered trademarks or trademarks of ZeniMax Media Inc. in the United States and/or other countries. All rights reserved.
-
-***GitHub** repository: [https://github.com/Xeloses/XelosesContacts](https://github.com/Xeloses/XelosesContacts)*

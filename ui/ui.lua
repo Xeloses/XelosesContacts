@@ -9,8 +9,10 @@ local L     = XC.getString
 -- ---------------
 
 function XC:InitUI()
-	self.DataChanged = false
-	self.UI.isReady  = false
+	self.UI.ReticleMarker = XelosesReticleMarker:Init(self.config.reticle)
+
+	self.DataChanged      = false
+	self.UI.isReady       = false
 
 	LUI.RegisterTab(
 		CONST.UI.TAB_NAME,
@@ -39,6 +41,7 @@ end
 
 function XC:LazyInitUI()
 	if (self.UI.isReady) then return end
+
 	self.UI.ContactsList = XelosesContactsList:New()
 	self.DataChanged     = true -- indicate data loaded from SV
 	self.UI.isReady      = true
@@ -50,12 +53,14 @@ end
 
 function XC:RefreshUI(noActiveCheck)
 	if (not self.UI.isReady) then return end
+
 	if (noActiveCheck or XC:isUIShown()) then
 		if (self.DataChanged) then
 			self.UI.ContactsList:RefreshList()
 		else
 			self.UI.ContactsList:RefreshFilters()
 		end
+
 		self.DataChanged = false
 	end
 end

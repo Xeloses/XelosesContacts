@@ -17,6 +17,24 @@ function XC:InitHooks()
             callback = self.onZoneChange,
         },
 
+        -- Handle combat state change
+        CombatState = {
+            event    = EVENT_PLAYER_COMBAT_STATE,
+            callback = self.onCombatStateChange,
+        },
+
+        -- Handle attempt to start chat input
+        ChatInput = {
+            fn_name  = "StartChatInput",
+            callback = self.handleStartChatInput,
+        },
+
+        -- Handle incoming chat messages
+        IncomingChatMessage = {
+            fn_name  = { CHAT_ROUTER, "FormatAndAddChatMessage" },
+            callback = self.handleChatMessages,
+        },
+
         -- Handle attemp to add someone to ESO ingame friends to check if target is a Villain
         AddFriend = {
             fn_name  = "ZO_Dialogs_ShowDialog",
@@ -38,27 +56,78 @@ function XC:InitHooks()
             enabled  = function() return self.config.notifications.groupInvite.enabled end,
         },
 
-        -- Handle group changing (player join/leave group, group members joined/left) to check for Villains in a group
+        -- Handle group change (player join/leave group, group members joined/left) to check for Villains in a group
         GroupChange = {
             event    = EVENT_GROUP_MEMBER_JOINED,
             callback = self.onGroupChange,
             enabled  = function() return (self.config.notifications.groupJoin.enabled or self.config.notifications.groupMember.enabled) end,
-        }
+        },
+
+        -- Handle reticle target change
+        ReticleTarget = {
+            event    = EVENT_RETICLE_TARGET_CHANGED,
+            callback = self.handleReticleTarget,
+            enabled  = function() return self.config.reticle.enabled end,
+        },
+
+        -- Handle reticle target visibility change
+        ReticleTargetVisibility = {
+            event    = EVENT_RETICLE_HIDDEN_UPDATE,
+            callback = self.handleReticleHiddenState,
+        },
+
+        -- Handle social/guilds data load
+        SocialDataLoad = {
+            event    = EVENT_SOCIAL_DATA_LOADED,
+            callback = function(...)
+                -- @DEBUG
+                self:Debug("EVENT_SOCIAL_DATA_LOADED -> loadSocialData()")
+
+                return self.Game:loadSocialData()
+            end,
+        },
+        GuildDataLoad = {
+            event    = EVENT_GUILD_DATA_LOADED,
+            callback = function(...)
+                -- @DEBUG
+                self:Debug("EVENT_GUILD_DATA_LOADED -> loadGuildData()")
+
+                return self.Game:loadGuildData()
+            end,
+        },
+
+        -- Player join/left guild
+        GuildJoin = {
+            event    = EVENT_GUILD_SELF_JOINED_GUILD,
+            callback = function(...)
+                -- @DEBUG
+                self:Debug("EVENT_GUILD_SELF_JOINED_GUILD -> loadGuildData()")
+
+                return self.Game:loadGuildData(true)
+            end,
+        },
+        GuildLeave = {
+            event    = EVENT_GUILD_SELF_LEFT_GUILD,
+            callback = function(...)
+                -- @DEBUG
+                self:Debug("EVENT_GUILD_SELF_LEFT_GUILD -> loadGuildData()")
+
+                return self.Game:loadGuildData(true)
+            end,
+        },
+
+        -- Friend' account ID changed
+        FriendRenamed = {
+            event    = EVENT_FRIEND_DISPLAY_NAME_CHANGED,
+            callback = self.handleFriendRenamed,
+        },
     }
 
-    self.Game.__friends = table:new()
-    self.Game.__ignored = table:new()
-    self.Game.__guildmates = table:new()
-
-    ZO_PreHook(CHAT_ROUTER, "FormatAndAddChatMessage", function(...) return self:handleChatMessages(...) end)
-    ZO_PreHook("StartChatInput", function(...) return self:handleStartChatInput(...) end)
-    EM:RegisterForEvent(self.__namespace, EVENT_PLAYER_COMBAT_STATE, function(...) return self:onCombatStateChange(...) end)
-    EM:RegisterForEvent(self.__namespace, EVENT_SOCIAL_DATA_LOADED, function() return self.Game:loadSocialData() end)
-    EM:RegisterForEvent(self.__namespace, EVENT_GUILD_DATA_LOADED, function() return self.Game:loadGuildData() end)
-    self:SetupHook("AddFriend")
-    self:SetupHook("IncomingGroupInvite")
-    self:SetupHook("GroupChange")
-    self:SetupHook("IncomingFriendInvite")
+    for hook_name, hook in pairs(self.__hooks) do
+        if (not hook.injected) then
+            self:SetupHook(hook_name)
+        end
+    end
 end
 
 -- -----------------------
@@ -66,46 +135,63 @@ end
 -- -----------------------
 
 ---@private
-function XC:SetupHook(hook)
-    if (T(hook) == "string") then
-        hook = self.__hooks[hook]
-        if (not hook) then return end
-        local hook_enabled = hook.enabled == nil or (T(hook.enabled) == "function" and hook.enabled()) or hook.enabled
-        if (not hook_enabled) then return end
-    end
-    if (hook.injected) then return end -- prevent duplicate hooks
+function XC:SetupHook(hook_name)
+    -- @DEBUG
+    self:Debug("XC:SetupHook(%s)", hook_name)
+
+    local hook = self.__hooks[hook_name]
+    if (not hook or hook.injected) then return end
+
+    local hook_enabled = (hook.enabled) == nil or (T(hook.enabled) == "function" and hook.enabled()) or hook.enabled
+    -- @DEBUG
+    self:Debug("  -> hook enabled: %s", tostring(hook_enabled))
+    if (not hook_enabled) then return end
+
     local fn_callback = function(...) return hook.callback(self, ...) end
+
     if (hook.fn_name) then
-        ZO_PreHook(hook.fn_name, fn_callback)
+        local f = table:new(hook.fn_name)
+        ZO_PreHook(f:unpack(), fn_callback)
     elseif (hook.event) then
         EM:RegisterForEvent(self.__namespace, hook.event, fn_callback)
     end
+
     hook.injected = true -- flag to prevent duplicate hooks
 end
 
 ---@private
-function XC:UpdateHook(hook_name)
+function XC:ToggleHook(hook_name)
+    -- @DEBUG
+    self:Debug("XC:ToggleHook(%s)", hook_name)
+
     local hook = self.__hooks[hook_name]
     if (not hook) then return end
+
     local hook_enabled = hook.enabled == nil or (T(hook.enabled) == "function" and hook.enabled()) or hook.enabled
+
+    -- @DEBUG
+    self:Debug("  -> action: %s", hook_enabled and "setup" or "remove")
+
     if (hook_enabled) then
-        self:SetupHook(hook)
+        self:SetupHook(hook_name)
     else
-        self:RemoveHook(hook)
+        self:RemoveHook(hook_name)
     end
 end
 
 ---@private
-function XC:RemoveHook(hook)
-    if (T(hook) == "string") then
-        hook = self.__hooks[hook]
-    end
-    if (not hook) then return end
-    if (not hook.injected) then return end
+function XC:RemoveHook(hook_name)
+    -- @DEBUG
+    self:Debug("XC:RemoveHook(%s)", hook_name)
+
+    local hook = self.__hooks[hook_name]
+    if (not hook or not hook.injected) then return end
+
     if (hook.event) then
         EM:UnregisterForEvent(self.__namespace, hook.event)
-        hook.injected = false
     end
+
+    hook.injected = false
 end
 
 -- ----------------
@@ -133,9 +219,12 @@ end
 function XC:handleChatMessages(_, event_code, channel, from_name, raw_message_text, is_customer_service, from_display_name)
     if (not from_display_name or from_display_name == "") then return end
     if (event_code ~= EVENT_CHAT_MESSAGE_CHANNEL) then return end
-    if (is_customer_service) then return end        -- do not process customer service
-    local sender = IsDecoratedDisplayName(from_display_name) and ("@%s"):format(UndecorateDisplayName(from_display_name)) or from_display_name
+    if (is_customer_service) then return end -- do not process customer service
+
+    local sender = self:validateAccountName(from_display_name)
+    if (not sender) then return end
     if (sender == self.accountName) then return end -- do not process local player
+
     local contact = self:getContactData(sender)
     if (contact) then
         if (self:isChatBlocked(contact)) then
@@ -183,6 +272,66 @@ end
 
 function XC:onCombatStateChange(_, in_combat)
     self.inCombat = in_combat
+end
+
+-- -------------------------
+--  @SECTION Reticle Target
+-- -------------------------
+
+function XC:handleReticleTarget()
+    if (not self.config.reticle.enabled) then return end
+
+    self.UI.ReticleMarker:Reset()
+
+    if (not DoesUnitExist("reticleover")) then return end
+    if (not IsUnitPlayer('reticleover')) then return end
+
+    if (self.config.reticle.disable.combat and self.inCombat) then return end
+    if (self.config.reticle.disable.trial and self.Game:isInTrial()) then return end
+    if (self.config.reticle.disable.pvp and self.Game:isInPvPZone()) then return end
+
+    local target_name = self:validateAccountName(GetUnitDisplayName("reticleover"), true)
+    if (not target_name) then return end
+
+    local contact     = XC:getContactData(target_name)
+    local isGuildmate = self.config.reticle.markers.guildmate.enabled and self.Game:isGuildmate(target_name)
+    local isFriend    = self.config.reticle.markers.friend.enabled and self.Game:isFriend(target_name)
+    local isIgnored   = self.config.reticle.markers.ignored.enabled and self.Game:isIgnored(target_name)
+
+    if (not contact and not isGuildmate and not isFriend and not isIgnored) then return end
+
+    local markers_config = self.config.reticle.markers
+
+    local icon, color
+    local info = table:new()
+
+    if (contact) then
+        icon  = XC:getGroupIcon(contact.category, contact.group)
+        color = XC:getCategoryColor(contact.category)
+        info:insert(XC:getContactGroupName(contact, true, true))
+    end
+
+    if (isIgnored) then
+        icon = icon or self.ICONS.SOCIAL.IGNORED
+        color = color or markers_config.ignored.color
+        info:insert(L("ESO_IGNORED"):colorize(markers_config.ignored.color))
+    elseif (isFriend) then
+        icon = icon or self.ICONS.SOCIAL.FRIEND
+        color = color or markers_config.friend.color
+        info:insert(L("ESO_FRIEND"):colorize(markers_config.friend.color))
+    end
+    if (isGuildmate) then
+        icon = icon or self.ICONS.SOCIAL.GUILDMATE
+        color = color or markers_config.guildmate.color
+        local g_name = self.Game:getGuildName(target_name)
+        info:insert(L("ESO_GUILDMATE"):zo_format(g_name):colorize(markers_config.guildmate.color))
+    end
+
+    self.UI.ReticleMarker:Show(info:concat(", "), icon, color and color)
+end
+
+function XC:handleReticleHiddenState()
+    self.UI.ReticleMarker:Hide()
 end
 
 -- ----------------
@@ -253,6 +402,22 @@ function XC:handleIncomingFriendInvite(_, inviter_name)
         self:Warn(s, contact)
         if (not x and self.config.notifications.friendInvite.announce) then
             self:Announce(s, { title = L("WARNING"), textParams = contact, icon = self:getContactGroupIcon(contact) })
+        end
+    end
+end
+
+function XC:handleFriendRenamed(_, old_display_name, new_display_name)
+    if XC:isInContacts(old_display_name) then
+        XC:RenameContact(old_display_name, new_display_name)
+    end
+
+    if (self.Game.__friends) then
+        local x = self.Game.__friends:len()
+        for i = 1, x do
+            if (self.Game.__friends[i] == old_display_name) then
+                self.Game.__friends[i] = new_display_name
+                break
+            end
         end
     end
 end

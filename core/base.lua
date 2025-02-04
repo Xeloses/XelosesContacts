@@ -25,11 +25,12 @@ XelosesContacts = XelosesContacts or {
 
     name           = "Xeloses' Contacts",
     displayName    = "|cee55eeXeloses|r' Contacts",
+    authorID       = "@Savaoth",
     author         = "|cee55eeXeloses|r (|c7799ee@Savaoth|r [PC/EU])",
     tag            = "Contacts",
-    -- url = "https://www.esoui.com/",
-    version        = 10000, -- default (fallback) version: 1.00.00
-    svVersion      = 1,     -- versions of Saved Variables
+    url            = "https://www.esoui.com/downloads/info4025-XelosesContacts.html",
+    url_dev        = "https://github.com/Xeloses/XelosesContacts/",
+    svVersion      = 1, -- Saved Variables version
 
     initialised    = false,
     loaded         = false,
@@ -59,7 +60,7 @@ XelosesContacts = XelosesContacts or {
         info      = "66ffff", -- color of info messages in chat
         warning   = "ffaa33", -- color of warning messages in chat
         error     = "ff3333", -- color of error messages in chat
-        chat_link = "eeeeee", -- color of links in the chat
+        chat_link = "eeeeee", -- color of chat links
         default   = "dddddd",
     },
     icons          = {
@@ -78,6 +79,7 @@ XelosesContacts = XelosesContacts or {
     UI             = {},
     Chat           = {},
     Game           = {},
+    Integrations   = {},
     config         = {},
     contacts       = table:new(),
 
@@ -140,20 +142,43 @@ XelosesContacts = XelosesContacts or {
             },
             -- notify when got a group invite from villain
             groupInvite = {
-                enabled = true,
+                enabled  = true,
                 announce = false,
-                decline = false,
+                decline  = false,
             },
             -- notify when got a friend request from villain
             friendInvite = {
-                enabled = true,
+                enabled  = true,
                 announce = false,
-                decline = false,
+                decline  = false,
             },
         },
         confirmation = {
             -- add villain to ESO ingame friends
             friend = true,
+        },
+        reticle = {
+            enabled  = true,
+            disable  = {
+                combat = false,
+                trial  = true,
+                pvp    = true,
+            },
+            position = 2, -- @REF XelosesContacts.CONST.UI.RETICLE_MARKER.POSITION
+            offset   = 5,
+            icon     = {
+                enabled = true,
+                size    = 48,
+            },
+            font     = {
+                size = 22,
+                style = "soft-shadow-thin",
+            },
+            markers  = {
+                friend    = { enabled = true, color = "FFFF33" },
+                ignored   = { enabled = true, color = "DD1188" },
+                guildmate = { enabled = true, color = "1188FF" },
+            }
         },
     },
 
@@ -168,16 +193,37 @@ XelosesContacts = XelosesContacts or {
             [VILLAINS_ID] = L("VILLAINS"),
         },
         ACCOUNT_NAME_MIN_LENGTH = 3,
-        ACCOUNT_NAME_MAX_LENGTH = 25,
-        GROUP_NAME_MAX_LENGTH   = 30,
+        ACCOUNT_NAME_MAX_LENGTH = 20,
+        GROUP_NAME_MAX_LENGTH   = 20,
         CONTACT_NOTE_MAX_LENGTH = 500,
         NOTIFICATION_CHANNELS   = {
             BOTH = 1,
             CHAT = 2,
             SCREEN = 3,
         },
+        FONT_STYLE              = {
+            "normal",
+            "outline",
+            "thick-outline",
+            "shadow",
+            "soft-shadow-thick",
+            "soft-shadow-thin"
+        },
         UI                      = {
             TAB_NAME = "Contacts",
+            RETICLE_MARKER = {
+                MIN_OFFSET = 0,
+                MAX_OFFSET = 50,
+                POSITION = {
+                    ABOVE = 1,
+                    BELOW = 2,
+                },
+                ICON_SIZE = {
+                    SMALL  = 32,
+                    MEDIUM = 48,
+                    BIG    = 64,
+                },
+            },
         },
         CHAT                    = {
             CHANNELS = {
@@ -232,13 +278,19 @@ XelosesContacts = XelosesContacts or {
                 [5] = "/esoui/art/tutorial/achievements_indexicon_summary_up.dds",
             },
             [VILLAINS_ID] = {
-                [1] = "/esoui/art/treeicons/gamepad/gp_tutorial_idexicon_death.dds", -- "/esoui/art/armory/buildicons/buildicon_53.dds",
+                [1] = "/esoui/art/treeicons/gamepad/gp_tutorial_idexicon_death.dds",
                 [2] = "/esoui/art/armory/buildicons/buildicon_13.dds",
                 [3] = "/esoui/art/contacts/tabicon_ignored_up.dds",
                 [4] = "/esoui/art/armory/buildicons/buildicon_59.dds",
                 [5] = "/esoui/art/armory/buildicons/buildicon_51.dds",
             },
         },
+
+        SOCIAL = {
+            FRIEND    = "/esoui/art/mainmenu/menubar_social_up.dds",
+            IGNORED   = "/esoui/art/contacts/tabicon_ignored_up.dds",
+            GUILDMATE = "/esoui/art/mainmenu/menubar_guilds_up.dds", --"/esoui/art/contacts/tabicon_friends_up.dds",
+        }
     },
 
     debug          = true, --false,

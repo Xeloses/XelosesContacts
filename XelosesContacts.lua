@@ -19,6 +19,7 @@ function XC:Init()
     self.accountName   = GetDisplayName()
     self.characterID   = GetCurrentCharacterId()
     self.characterName = GetUnitName("player")
+
     self:InitDialogs()
     self:InitUI()
     self:InitHooks()
@@ -40,6 +41,7 @@ function XC:onCharacterLoaded()
         self.loaded = true
         self:Log("%s v%s loaded.", self.name, self:getVersion())
     end
+
     self:onZoneChange()
     self:SetupHook("ZoneChange")
 end

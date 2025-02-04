@@ -128,6 +128,27 @@ function table:insertElem(key, value)
 end
 
 --[[
+Remove element with specified key from table and return element's value.
+
+```
+Table:removeElem(Key: any) -> Any
+```
+]]
+function table:removeKey(key)
+    if (#self == 0 or key == nil or not self[key]) then return end
+
+    local val = self[key]
+
+    if (type(key) == "number") then
+        self:remove(key)
+    else
+        self[key] = nil
+    end
+
+    return val
+end
+
+--[[
 Remove specified element from indexed table and return element's value.
 
 ```
@@ -135,7 +156,7 @@ Table:removeElem(Element: any) -> Any
 ```
 ]]
 function table:removeElem(elem)
-    if (#self == 0) then return end
+    if (#self == 0 or elem == nil) then return end
 
     for i, val in ipairs(self) do
         if (val == elem) then
@@ -227,6 +248,35 @@ table.unpack = (T(unpack) == "function") and unpack or (T(table.unpack) == "func
     return zo_strsplit(delim, t:concat(delim))
 end
 
+--[[
+Creates and returns clone of original table.
+
+```
+Table.clone(originalTable: Table, noMeta: Boolean) -> Table
+```
+]]
+function table.clone(original_table, no_meta)
+    local function deepcopy(t)
+        -- @REF http://lua-users.org/wiki/CopyTable
+        if (type(t) == "table") then
+            local copy = {}
+            for k, v in next, t, nil do
+                copy[deepcopy(k)] = deepcopy(v)
+            end
+
+            if (not no_meta) then
+                setmetatable(copy, deepcopy(getmetatable(t)))
+            end
+
+            return copy
+        else
+            return t -- number, string, boolean, etc
+        end
+    end
+
+    return deepcopy(original_table)
+end
+
 -- -----------------
 --  @SECTION String
 -- -----------------
@@ -311,7 +361,7 @@ end
 
 --[[
 Sanitize string: collapse multiple spaces, convert "\" to "/" (to prevent using escape sequnces),
-convers double quotes to single quotes, escapes spec. symbols and returns safe string;
+converts double quotes to single quotes, escapes spec. symbols and returns safe string;
 optionally can remove all symbols except alphanumeric, underscore, dash and dot from string.
 
 ```
@@ -365,19 +415,21 @@ end
 Return string prepended with icon
 
 ```
-string:addIcon(Icon: string, IconColor: string, SpaceBetween: boolean) -> String
+string:addIcon(Icon: string, IconColor: string, IconSize: number, SpaceBetween: boolean) -> String
 ```
 @param string Icon          - [optional] Icon texture (will be drawn before text).
 @param string IconColor     - [optional] Color of icon (HEX color).
-@param boolean SpaceBetween - [optional] Add space between Icon and Text (default FALSE)
+@param string IconSize      - [optional] Size of icon (default: 24).
+@param boolean SpaceBetween - [optional] Add space between Icon and Text (default: FALSE)
 ]]
-function string:addIcon(icon, icon_color, space_between)
+function string:addIcon(icon, icon_color, icon_size, space_between)
     local s = self
+    local size = icon_size or 24
 
     if (icon) then
         local color          = (T(icon_color) == "string" and icon_color:match("%x+")) and icon_color
-        local ICON_FORMATTER = color and "|t24:24:%s:inheritColor|t" or "|t24:24:%s|t"
-        local str_icon       = ICON_FORMATTER:format(icon):colorize(color)
+        local ICON_FORMATTER = color and "|t%d:%d:%s:inheritColor|t" or "|t%d:%d:%s|t"
+        local str_icon       = ICON_FORMATTER:format(size, size, icon):colorize(color)
 
         return s:prepend(str_icon, space_between)
     end

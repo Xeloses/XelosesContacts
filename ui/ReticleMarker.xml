@@ -1,0 +1,18 @@
+<GuiXml>
+    <Controls>
+        <TopLevelControl name="XelosesReticleMarkerFrame">
+            <Dimensions x="XELOSES_CONTACTS_RETICLE_SIZE" y="XELOSES_CONTACTS_RETICLE_SIZE"/>
+            <Anchor point="CENTER" relativeTo="ZO_ReticleContainerReticle" offsetX="0" offsetY="5" />
+            <Controls>
+                <Label name="$(parent)Caption" text="" hidden="true"  font="$(BOLD_FONT)|22|soft-shadow-thin" horizontalAlignment="CENTER" verticalAlignment="CENTER" wrapMode="ELLIPSIS">
+                    <Anchor point="TOP" relativePoint="BOTTOM" relativeTo="$(parent)" offsetX="0" offsetY="0" />
+                    <!-- <Dimensions x="1" y="1"/> -->
+                </Label>
+                <Texture name="$(parent)Icon" hidden="true" tier="HIGH">
+                    <Anchor point="TOP" relativePoint="BOTTOM" relativeTo="$(parent)Caption" offsetX="0" offsetY="0" />
+                    <Dimensions x="48" y="48"/>
+                </Texture>
+            </Controls>
+        </TopLevelControl>
+    </Controls>
+</GuiXml>

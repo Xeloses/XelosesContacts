@@ -26,24 +26,28 @@ function XelosesContactDialog:Initialize()
     self.initialized = false
     self.control = XelosesContactDialogFrame
     local dialogContent = GetControl(self.control, "XelosesContactDialogContent")
-    self.UI = {}
-    self.UI.lbAccountName = GetControl(dialogContent, "AccountNameLabel")
-    self.UI.edAccountName = GetControl(dialogContent, "AccountName")
+    self.UI = {
+        lbAccountName = GetControl(dialogContent, "AccountNameLabel"),
+        edAccountName = GetControl(dialogContent, "AccountName"),
+        btnEditAccountName = GetControl(dialogContent, "EditAccountName"),
+        lbCategory = GetControl(dialogContent, "CategoryLabel"),
+        cbCategory = GetControl(dialogContent, "Category"),
+        lbGroup = GetControl(dialogContent, "GroupLabel"),
+        cbGroup = GetControl(dialogContent, "Group"),
+        lbNote = GetControl(dialogContent, "NoteLabel"),
+        edNote = GetControl(dialogContent, "Note"),
+        btnSave = GetControl(self.control, "Save"),
+        btnCancel = GetControl(self.control, "Cancel"),
+    }
+
     self.UI.lbAccountName:SetText(L("UI_DIALOG_CONTACT_ACCOUNT_NAME"))
-    self.UI.edAccountName:SetHandler("OnLoseFocus", function(...) self:InvalidateAccountName() end)
-    self.UI.btnEditAccountName = GetControl(dialogContent, "EditAccountName")
+    self.UI.edAccountName:SetHandler("OnLoseFocus", function(...) self:TestAccountName() end)
     self.UI.btnEditAccountName:SetHandler("OnClicked", function(...) self:btnEditAccountName_onClick() end)
-    self.UI.lbCategory = GetControl(dialogContent, "CategoryLabel")
+
     self.UI.lbCategory:SetText(L("UI_DIALOG_CONTACT_CATEGORY"))
-    self.UI.cbCategory = GetControl(dialogContent, "Category")
-    self.UI.lbGroup = GetControl(dialogContent, "GroupLabel")
     self.UI.lbGroup:SetText(L("UI_DIALOG_CONTACT_GROUP"))
-    self.UI.cbGroup = GetControl(dialogContent, "Group")
-    self.UI.lbNote = GetControl(dialogContent, "NoteLabel")
-    self.UI.edNote = GetControl(dialogContent, "Note")
     self.UI.lbNote:SetText(L("UI_DIALOG_CONTACT_NOTE"))
-    self.UI.btnSave = GetControl(self.control, "Save")
-    self.UI.btnCancel = GetControl(self.control, "Cancel")
+
     XC:SetControlTooltip(self.UI.btnEditAccountName, "UI_BTN_EDIT_ACCOUNT_NAME_TOOLTIP")
     self:SetupContactCategories()
 
@@ -144,7 +148,7 @@ function XelosesContactDialog:btnEditAccountName_onClick()
     self:HideEditAccountNameButton()
 end
 
-function XelosesContactDialog:InvalidateAccountName()
+function XelosesContactDialog:TestAccountName()
     local name = self.UI.edAccountName:GetText()
     if (name) then
         local valid_name = XC:validateAccountName(name)

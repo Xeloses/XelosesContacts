@@ -140,7 +140,7 @@ function XC:getGroupsList(category_id, with_icons, colorized)
         if (with_icons) then
             local icon = self:getGroupIcon(category_id, group_id)
             local color = colorized and self:getCategoryColor(category_id)
-            name = name:addIcon(icon, color, true)
+            name = name:addIcon(icon, color, nil, true)
         end
         result:insert(group_id, name)
     end
@@ -314,24 +314,45 @@ function XC:CreateOrUpdateContact(contact_data)
     return true
 end
 
+function XC:RenameContact(contact, new_name)
+    local contact_data = XC:getContactData(contact)
+    local new_contact_data = table.clone(contact_data)
+
+    local old_name = contact_data.account
+    XC:DeleteContact(contact_data, true)
+
+    new_contact_data.account = new_name
+    XC:SaveContact(new_contact_data, true)
+
+    -- @LOG Contact renamed
+    XC:Log("Contact %s renamed to %s", old_name, new_name)
+
+    XC.DataChanged = true -- signal data was changed (to refresh contacts list UI on show)
+    XC:RefreshUI()
+end
+
 ---@private
-function XC:SaveContact(data, silent)
+function XC:SaveContact(contact_data, silent)
     local function createDataStr(data)
         return ("%s;%d;%d;%s"):format(tostring(data.timestamp), data.category, data.group, data.note or "")
     end
-    local isNew = (data.timestamp == nil)
-    local contact_name = data.account
-    local contact_data = table:new({
-        category  = data.category,
-        group     = data.group,
-        note      = data.note,
-        timestamp = data.timestamp or GetTimeStamp(),
+
+    local isNew = (contact_data.timestamp == nil)
+    local contact_name = contact_data.account
+    local new_contact_data = table:new({
+        category  = contact_data.category,
+        group     = contact_data.group,
+        note      = contact_data.note,
+        timestamp = contact_data.timestamp or GetTimeStamp(),
     })
-    self.SV.contacts[contact_name] = createDataStr(contact_data)
-    self.contacts[contact_name] = contact_data
+
+    self.SV.contacts[contact_name] = createDataStr(new_contact_data)
+    self.contacts[contact_name] = new_contact_data
+
     if (not silent) then
         -- @LOG Contact created
-        self:Log("Contact %s: %s%s", isNew and "added" or "updated", contact_name, isNew and (" <%s::%s>"):format(self:getCategoryName(data.category), self:getGroupName(data.category, data.group)) or "")
+        self:Log("Contact %s: %s%s", isNew and "added" or "updated", contact_name, isNew and (" <%s::%s>"):format(self:getCategoryName(contact_data.category), self:getGroupName(contact_data.category, contact_data.group)) or "")
+
         self.DataChanged = true -- signal data was changed (to refresh contacts list UI on show)
         self:RefreshUI()
     end
@@ -344,6 +365,7 @@ function XC:RemoveContact(contact_data, params)
         self:LogError("Error attempt to remove contact: contact does not exists.")
         return false
     end
+
     if (params and params.confirmed) then
         return self:DeleteContact(contact)
     else
@@ -352,16 +374,19 @@ function XC:RemoveContact(contact_data, params)
 end
 
 ---@private
-function XC:DeleteContact(data, silent)
-    self.SV.contacts[data.account] = nil
-    self.contacts[data.account] = nil
+function XC:DeleteContact(contact_data, silent)
+    self.SV.contacts[contact_data.account] = nil
+    self.contacts[contact_data.account] = nil
     self.DataChanged = true -- signal data was changed (to refresh contacts list on show)
+
     if (not silent) then
         -- @LOG Contact removed
-        self:Log("Player [%s] has been removed from Contacts.", data.account)
-        self:Notify(L("CONTACT_REMOVED"), data.account)
+        self:Log("Player [%s] has been removed from Contacts.", contact_data.account)
+
+        self:Notify(L("CONTACT_REMOVED"), contact_data.account)
         self:RefreshUI()
     end
+
     return true
 end
 

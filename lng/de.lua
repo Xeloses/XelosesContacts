@@ -41,6 +41,11 @@ L("DPS", "DPS")
 L("TANK", "Tank")
 L("HEAL", "Heiler")
 
+-- Social:
+L("ESO_FRIEND", "Freund")
+L("ESO_IGNORED", "Ignoriert") -- // Google translate
+L("ESO_GUILDMATE", "\"<<1>>\" gildenmitglied") -- // Google translate
+
 -- Notifications and Warnings:
 L("CONTACT_ADDED", "Spieler <<LINK>> wurde zu den Kontakten hinzugefügt.")
 L("CONTACT_REMOVED", "Kontakt <<1>> wurde entfernt.")
@@ -98,6 +103,45 @@ L("SETTINGS_UI_SEARCH_NOTE_TOOLTIP", "Kontakte nach Kontonamen und persönlichen
 L("SETTINGS_COLORS", "Farben")
 L("SETTINGS_COLORS_DESCRIPTION", "Hervorhebungsfarben für Kontakte.")
 L("SETTINGS_COLOR", "<<1>> Farbe")
+
+-- ==============================
+-- Start of untranslated strings:
+-- ------------------------------
+L("SETTINGS_RETICLE_MARKER", "Reticle target marker")
+L("SETTINGS_RETICLE_MARKER_DESCRIPTION", "Display a marker near the reticle when targeting Friends or Villains.")
+L("SETTINGS_RETICLE_MARKER_ENABLE", "Enable")
+L("SETTINGS_RETICLE_MARKER_DISABLE_COMBAT", "Disable in combat")
+L("SETTINGS_RETICLE_MARKER_DISABLE_COMBAT_TOOLTIP", "Disable reticle targets detecting in combat (may improve perfomance).")
+L("SETTINGS_RETICLE_MARKER_DISABLE_TRIAL", "Disable in trials")
+L("SETTINGS_RETICLE_MARKER_DISABLE_TRIAL_TOOLTIP", "Disable reticle targets detecting in trials (may improve perfomance in trials).")
+L("SETTINGS_RETICLE_MARKER_DISABLE_PVP", "Disable in PvP-zones")
+L("SETTINGS_RETICLE_MARKER_DISABLE_PVP_TOOLTIP", "Disable reticle targets detecting in PvP-zones: Cyrodiil, Imperial city, battlegrounds (may improve perfomance in those zones).")
+L("SETTINGS_RETICLE_MARKER_POSITION", "Marker position")
+L("SETTINGS_RETICLE_MARKER_POSITION_TOOLTIP", "Reticle target marker position.")
+L("SETTINGS_RETICLE_MARKER_POSITION_ABOVE", "Above reticle")
+L("SETTINGS_RETICLE_MARKER_POSITION_BELOW", "Below reticle")
+L("SETTINGS_RETICLE_MARKER_OFFSET", "Marker offset")
+L("SETTINGS_RETICLE_MARKER_OFFSET_TOOLTIP", "Offset upward if marker is above the reticle, or offset downward if marker is below the reticle.")
+L("SETTINGS_RETICLE_MARKER_FONT_SIZE", "Font size")
+L("SETTINGS_RETICLE_MARKER_FONT_STYLE", "Font decoration")
+L("SETTINGS_RETICLE_MARKER_ICON_ENABLE", "Display big icon")
+L("SETTINGS_RETICLE_MARKER_ICON_ENABLE_TOOLTIP", "Display additional big icon above or under text.")
+L("SETTINGS_RETICLE_MARKER_ICON_SIZE", "Icon size")
+L("SETTINGS_RETICLE_MARKER_ICON_SIZE_SMALL", "Small (32x32)")
+L("SETTINGS_RETICLE_MARKER_ICON_SIZE_MEDIUM", "Medium (48x48)")
+L("SETTINGS_RETICLE_MARKER_ICON_SIZE_BIG", "Big (64x64)")
+L("SETTINGS_RETICLE_MARKER_ADDITIONAL_MARKERS", "Additional markers")
+L("SETTINGS_RETICLE_MARKER_ADDITIONAL_MARKERS_DESCRIPTION", "additional markers may have slightly perfomance impact in places with many players aroud (e.g. cities).")
+L("SETTINGS_RETICLE_MARKER_ADDITIONAL_MARKER_FRIEND", "Add marker for <<1>>ESO friends")
+L("SETTINGS_RETICLE_MARKER_ADDITIONAL_MARKER_FRIEND_COLOR", "ESO friends marker color")
+L("SETTINGS_RETICLE_MARKER_ADDITIONAL_MARKER_IGNORED", "Add marker for <<1>>ignored players")
+L("SETTINGS_RETICLE_MARKER_ADDITIONAL_MARKER_IGNORED_COLOR", "Ignored players marker color")
+L("SETTINGS_RETICLE_MARKER_ADDITIONAL_MARKER_GUILDMATE", "Add marker for <<1>>guildmates")
+L("SETTINGS_RETICLE_MARKER_ADDITIONAL_MARKER_GUILDMATE_COLOR", "Guildmates marker color")
+-- ----------------------------
+-- /End of untranslated strings
+-- ============================
+
 L("SETTINGS_NOTIFICATION", "Benachrichtigungen und Warnungen")
 L("SETTINGS_NOTIFICATION_DESCRIPTION", "Bildschirm- und Chat-Benachrichtigungen/Warnungen für Kontakte.")
 L("SETTINGS_NOTIFICATION_CHANNEL", "Kanal für Benachrichtigungen und Infonachrichten")

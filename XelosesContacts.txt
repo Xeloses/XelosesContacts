@@ -2,10 +2,10 @@
 ## Title: |cee55eeXeloses|r' Contacts
 ## Description: Unlimited Friends and Villains list with additional features.
 ## Author: |cee55eeXeloses|r (|c7799ee@Savaoth|r [PC/EU])
-## Version: 1.0.2
-## AddOnVersion: 10002
-## APIVersion: 101044
-## DependsOn: LibAddonMenu-2.0>=36 LibSavedVars>=60005 LibCustomMenu>=722 LibExtendedJournal>=202010
+## Version: 1.1.0
+## AddOnVersion: 10100
+## APIVersion: 101044 101045
+## DependsOn: LibAddonMenu-2.0>=36 LibSavedVars>=60005 LibCustomMenu>=730 LibExtendedJournal>=203011
 ## OptionalDependsOn: LibChatMessage>=113 LibDebugLogger>=263 LibSlashCommander>=36
 ## SavedVariables: XelosesContactsData
 
@@ -24,6 +24,8 @@ lng/$(language).lua
 
 core/utils/globals.lua
 core/base.lua
+data/zones.lua
+
 core/utils/common.lua
 core/utils/chat.lua
 core/utils/notification.lua
@@ -36,11 +38,13 @@ core/contextmenu.lua
 core/slashcmd.lua
 
 settings/settings.lua
+ui/ReticleMarker.lua
+ui/ReticleMarker.xml
 ui/ContactDialog.lua
-ui/ContactsList.lua
-ui/ui.lua
-ui/ContactsList.xml
 ui/ContactDialog.xml
+ui/ContactsList.lua
+ui/ContactsList.xml
+ui/ui.lua
 
 XelosesContacts.lua
 

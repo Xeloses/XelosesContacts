@@ -1,13 +1,15 @@
 local EM     = GetEventManager()
 local XC     = XelosesContacts
 local XCGame = XC.Game
+local CONST  = XC.CONST
+local T      = type
 
 -- ------------------
 --  @SECTION Players
 -- ------------------
 
 ---@private
-function XCGame.getUnitInfo(unit_tag)
+function XCGame:getUnitInfo(unit_tag)
     if (not unit_tag or unit_tag == "" or unit_tag:lower() == "player") then return end
 
     return {
@@ -23,6 +25,34 @@ function XCGame.getUnitInfo(unit_tag)
         zone             = ZO_CachedStrFormat(SI_ZONE_NAME, GetUnitZone(unit_tag)),
         secondaryName    = ZO_GetSecondaryPlayerNameWithTitleFromUnitTag(unit_tag),
     }
+end
+
+-- ----------------
+--  @SECTION Zones
+-- ----------------
+
+function XCGame:isGroupDungeon(zone_id)
+    return zone_id and (CONST.ZONES.DUNGEON:has(zone_id) or CONST.ZONES.ARENA.GROUP:has(zone_id))
+end
+
+function XCGame:isInGroupDungeon()
+    return self:isGroupDungeon(XC.zoneID)
+end
+
+function XCGame:isTrial(zone_id)
+    return zone_id and CONST.ZONES.TRIAL:has(zone_id)
+end
+
+function XCGame:isInTrial()
+    return self:isTrial(XC.zoneID)
+end
+
+function XCGame:isPvPZone(zone_id)
+    return zone_id and CONST.ZONES.PVP:has(zone_id)
+end
+
+function XCGame:isInPvPZone()
+    return self:isPvPZone(XC.zoneID)
 end
 
 -- ----------------
@@ -77,8 +107,32 @@ end
 
 ---@private
 function XCGame:isGuildmate(target_name)
-    if (not self.__guildmates:len()) then self:loadGuildData() end
-    return self.__guildmates:has(target_name)
+    if (not self.__guildmates) then
+        -- @DEBUG
+        XC:Debug("isGuildmate() -> loadGuildData()")
+
+        self:loadGuildData()
+    end
+
+    return self.__guildmates:hasKey(target_name)
+end
+
+---@private
+function XCGame:getGuildName(target_name)
+    if (not self.__guilds) then
+        -- @DEBUG
+        XC:Debug("getGuildName() -> loadGuildData()")
+
+        self:loadGuildData()
+    end
+
+    local guild_index = self.__guildmates:get(target_name)
+    if (not guild_index) then return end
+
+    local guild = self.__guilds:get(guild_index)
+    if (not guild) then return end
+
+    return guild.name
 end
 
 -- ------------------
@@ -87,7 +141,12 @@ end
 
 ---@private
 function XCGame:isFriend(target_name)
-    if (not self.__friends:len()) then self:loadSocialData() end
+    if (not self.__friends) then
+        -- @DEBUG
+        XC:Debug("isFriend() -> loadSocialData()")
+
+        self:loadSocialData()
+    end
     return self.__friends:has(target_name)
 end
 
@@ -112,7 +171,12 @@ end
 
 ---@private
 function XCGame:isIgnored(target_name)
-    if (not self.__ignored:len()) then self:loadSocialData() end
+    if (not self.__ignored) then
+        -- @DEBUG
+        XC:Debug("isIgnored() -> loadSocialData()")
+
+        self:loadSocialData()
+    end
     return self.__ignored:has(target_name)
 end
 
@@ -173,112 +237,179 @@ end
 --  @SECTION Load data
 -- --------------------
 
-function XCGame:loadSocialData()
-    EM:UnregisterForEvent(self.__namespace, EVENT_SOCIAL_DATA_LOADED)
+local __social_events = { friends = false, ignored = false, guild = false }
+
+function XCGame:loadSocialData(reset_data)
+    XC:RemoveHook("SocialDataLoad")
+
+    -- @DEBUG
+    XC:Debug("loadSocialData(force_data_reset = %s)", tostring(reset_data))
+
+    -- @TODO add check: self.__friends:len() == getNumFriends() // and same for ignored and guild
+    if ((self.__friends ~= nil and self.__ignored ~= nil) and not reset_data) then
+        -- @DEBUG
+        XC:Debug("  -> data already loaded => exit")
+
+        return
+    end
+
+    -- @DEBUG
+    XC:Debug("  -> call resetSocialData()")
+
+    self:resetSocialData()
+
+    -- @DEBUG
+    XC:Debug("  -> initial friends: %d", self.__friends and self.__friends:len() or 0)
+    XC:Debug("  -> initial ignored: %d", self.__ignored and self.__ignored:len() or 0)
 
     -- Friends list
-    zo_callLater(
-        function()
-            for i = 1, GetNumFriends() do
-                local name, _, _, _ = GetFriendInfo(i)
-                self.__friends:insert(name)
+    for i = 1, GetNumFriends() do
+        local name, _, _, _ = GetFriendInfo(i)
+        self.__friends:insert(name)
+    end
+
+    if (not __social_events.friends) then
+        EM:RegisterForEvent(
+            self.__namespace,
+            EVENT_FRIEND_ADDED,
+            function(_, display_name)
+                self.__friends:insert(display_name)
             end
-        end,
-        100
-    )
+        )
 
-    EM:RegisterForEvent(
-        self.__namespace,
-        EVENT_FRIEND_ADDED,
-        function(_, display_name)
-            self.__friends:insert(display_name)
-        end
-    )
-
-    EM:RegisterForEvent(
-        self.__namespace,
-        EVENT_FRIEND_REMOVED,
-        function(_, display_name)
-            self.__friends:removeElem(display_name)
-        end
-    )
-
-    EM:RegisterForEvent(
-        self.__namespace,
-        EVENT_FRIEND_DISPLAY_NAME_CHANGED,
-        function(_, old_display_name, new_display_name)
-            local x = #self.__friends
-            for i = 1, x do
-                if (self.__friends[i] == old_display_name) then
-                    self.__friends[i] = new_display_name
-                    break
-                end
+        EM:RegisterForEvent(
+            self.__namespace,
+            EVENT_FRIEND_REMOVED,
+            function(_, display_name)
+                self.__friends:removeElem(display_name)
             end
-        end
-    )
+        )
 
-    -- Ignore list
-    zo_callLater(
-        function()
-            for i = 1, GetNumIgnored() do
-                local name, _, _, _ = GetIgnoredInfo(i)
-                self.__ignored:insert(name)
+        __social_events.friends = true
+    end
+
+    -- Ignored players list
+    for i = 1, GetNumIgnored() do
+        local name, _, _, _ = GetIgnoredInfo(i)
+        self.__ignored:insert(name)
+    end
+
+    if (not __social_events.ignored) then
+        EM:RegisterForEvent(
+            self.__namespace,
+            EVENT_IGNORE_ADDED,
+            function(_, display_name)
+                self.__ignored:insert(display_name)
             end
-        end,
-        200
-    )
+        )
 
-    EM:RegisterForEvent(
-        self.__namespace,
-        EVENT_IGNORE_ADDED,
-        function(_, display_name)
-            self.__ignored:insert(display_name)
-        end
-    )
+        EM:RegisterForEvent(
+            self.__namespace,
+            EVENT_IGNORE_REMOVED,
+            function(_, display_name)
+                self.__ignored:removeElem(display_name)
+            end
+        )
 
-    EM:RegisterForEvent(
-        self.__namespace,
-        EVENT_IGNORE_REMOVED,
-        function(_, display_name)
-            self.__ignored:removeElem(display_name)
-        end
-    )
+        __social_events.ignored = true
+    end
+
+    -- @DEBUG
+    XC:Debug("  -> final friends: %d", self.__friends:len())
+    XC:Debug("  -> final ignored: %d", self.__ignored:len())
 end
 
-function XCGame:loadGuildData()
-    EM:UnregisterForEvent(self.__namespace, EVENT_GUILD_DATA_LOADED)
+function XCGame:loadGuildData(reset_data)
+    XC:RemoveHook("GuildDataLoad")
 
-    -- Guilds
-    zo_callLater(
-        function()
-            for i = 1, GetNumGuilds() do
-                local gID = GetGuildId(i)
-                for j = 1, GetNumGuildMembers(gID) do
-                    local name, _, _, _ = GetGuildMemberInfo(gID, j)
-                    if (not self.__guildmates:has(name)) then
-                        self.__guildmates:insert(name)
+    -- @DEBUG
+    XC:Debug("loadGuildData(force_data_reset = %s)", tostring(reset_data))
+
+    if ((self.__guildmates ~= nil and self.__guilds ~= nil) and not reset_data) then
+        -- @DEBUG
+        XC:Debug("  -> data already loaded => exit")
+
+        return
+    end
+
+    -- @DEBUG
+    XC:Debug("  -> call resetGuildData()")
+
+    self:resetGuildData()
+
+    -- @DEBUG
+    XC:Debug("  -> initial guilds: %d", self.__guilds and self.__guilds:len() or 0)
+    XC:Debug("  -> initial guildmates: %d", self.__guildmates and self.__guildmates:len() or 0)
+
+    for i = 1, GetNumGuilds() do
+        local gID = GetGuildId(i)
+
+        self.__guilds:insertElem(i, { id = gID, name = GetGuildName(gID) })
+
+        for j = 1, GetNumGuildMembers(gID) do
+            local name, _, _, _ = GetGuildMemberInfo(gID, j)
+            if (not self.__guildmates:hasKey(name)) then
+                self.__guildmates:insertElem(name, i)
+            end
+        end
+    end
+
+    if (not __social_events.guild) then
+        EM:RegisterForEvent(
+            self.__namespace,
+            EVENT_GUILD_MEMBER_ADDED,
+            function(_, guild_id, display_name)
+                if (not self.__guildmates:hasKey(display_name)) then
+                    if (not self.__guilds or not self.__guildmates) then
+                        -- @DEBUG
+                        XC:Debug("EVENT_GUILD_MEMBER_ADDED -> loadGuildData()")
+
+                        self:loadGuildData()
+                    end
+
+                    if (self.__guildmates:hasKey(display_name)) then return end
+
+                    local n
+                    for i = 1, self.__guilds:len() do
+                        if (self.__guilds[i].id == guild_id) then
+                            n = i
+                            break
+                        end
+                    end
+
+                    if (n) then
+                        self.__guildmates:insertElem(display_name, n)
                     end
                 end
             end
-        end,
-        100
-    )
+        )
 
-    EM:RegisterForEvent(
-        self.__namespace,
-        EVENT_GUILD_MEMBER_ADDED,
-        function(_, guild_id, display_name)
-            if (not self.__guildmates:hasKey(display_name)) then
-                self.__guildmates:insert(display_name)
+        EM:RegisterForEvent(
+            self.__namespace,
+            EVENT_GUILD_MEMBER_REMOVED,
+            --function(_, guild_id, display_name, character_name) --[[ ... ]] end
+            function()
+                -- @DEBUG
+                XC:Debug("EVENT_GUILD_MEMBER_REMOVED -> loadGuildData()")
+
+                self:loadGuildData(true)
             end
-        end
-    )
+        )
 
-    EM:RegisterForEvent(
-        self.__namespace,
-        EVENT_GUILD_MEMBER_REMOVED,
-        function(_, guild_id, display_name, character_name)
-            self.__guildmates:removeElem(display_name)
-        end
-    )
+        __social_events.guild = true
+    end
+
+    -- @DEBUG
+    XC:Debug("  -> final guilds: %d", self.__guilds:len())
+    XC:Debug("  -> final guildmates: %d", self.__guildmates:len())
+end
+
+function XCGame:resetSocialData()
+    self.__friends = table:new()
+    self.__ignored = table:new()
+end
+
+function XCGame:resetGuildData()
+    self.__guilds = table:new()
+    self.__guildmates = table:new()
 end

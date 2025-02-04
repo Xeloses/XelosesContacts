@@ -181,14 +181,33 @@ function XC:formatTimestamp(t)
     end
 end
 
--- -------------
---  @SECTION UI
--- -------------
+-- ---------------------
+--  @SECTION Validation
+-- ---------------------
 
-function XC:SetControlTooltip(control, tooltip_text)
-    local str = L(tooltip_text)
-    control:SetHandler("OnMouseEnter", function() ZO_Tooltips_ShowTextTooltip(control, TOP, str) end)
-    control:SetHandler("OnMouseExit", function() ZO_Tooltips_HideTextTooltip() end)
+function XC:validateAccountName(name, noStrictTest)
+    if (T(name) == "string" and not name:isEmpty()) then
+        name = zo_strformat("<<C:1>>", name)
+
+        if (name == self.accountName) then return end -- do not process local player
+        if (name:sub(1, 1) ~= "@") then return end
+
+        local s = name:sub(2)
+        local l = s:len()
+
+        -- account name may have only 3..20 symbols
+        if (l < CONST.ACCOUNT_NAME_MIN_LENGTH or l > CONST.ACCOUNT_NAME_MAX_LENGTH) then return end
+
+        if (not noStrictTest) then
+            -- account name may contain only letters, numbers, dot, dash, single quote, underscore
+            if (s:find("[~`@!#$^&*({})=+:;\",<>/?|%\\%[%]%%]+")) then return end
+
+            -- account name may contain only 1 non-alphanumeric symbol (dot, dash, single quote or underscore)
+            if (s ~= s:match("^[^_'-%.]+[_'-%.]?[^_'-%.]+$")) then return end
+        end
+
+        return name
+    end
 end
 
 -- --------------------------
@@ -199,20 +218,14 @@ function XC:FlushData()
     GetAddOnManager():RequestAddOnSavedVariablesPrioritySave(self.__namespace)
 end
 
--- ---------------------
---  @SECTION Validation
--- ---------------------
+-- -------------
+--  @SECTION UI
+-- -------------
 
-function XC:validateAccountName(name)
-    if (name and T(name) == "string" and name:len() > CONST.ACCOUNT_NAME_MIN_LENGTH) then
-        if (name:sub(1, 1) ~= "@") then return end
-
-        local s = name:sanitize(CONST.ACCOUNT_NAME_MAX_LENGTH, true)
-
-        if (s:len() >= CONST.ACCOUNT_NAME_MIN_LENGTH) then
-            return "@" .. s
-        end
-    end
+function XC:SetControlTooltip(control, tooltip_text)
+    local str = L(tooltip_text)
+    control:SetHandler("OnMouseEnter", function() ZO_Tooltips_ShowTextTooltip(control, TOP, str) end)
+    control:SetHandler("OnMouseExit", function() ZO_Tooltips_HideTextTooltip() end)
 end
 
 -- -----------------
