@@ -1,5 +1,5 @@
 local NAME = "LibCodesCommonCode"
-local VERSION = 24
+local VERSION = 25
 
 if (type(_G[NAME]) == "table" and type(_G[NAME].version) == "number" and _G[NAME].version >= VERSION) then return end
 
@@ -353,6 +353,26 @@ function Lib.CountTable( tbl )
 		count = count + 1
 	end
 	return count
+end
+
+function Lib.ProcessNumericTable( tbl, fn, ... )
+	local index = 0
+	local prev = 0
+	for _, i in ipairs(tbl) do
+		local isNumber = type(i) == "number"
+		if (isNumber and i < 0) then
+			for j = prev + 1, -i do
+				index = index + 1
+				fn(j, index, ...)
+			end
+		else
+			index = index + 1
+			fn(i, index, ...)
+			if (isNumber) then
+				prev = i
+			end
+		end
+	end
 end
 
 

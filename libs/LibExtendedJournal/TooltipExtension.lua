@@ -1,4 +1,4 @@
-LibExtendedJournal.TOOLTIP_VERSION = 3
+LibExtendedJournal.TOOLTIP_VERSION = 4
 
 
 --------------------------------------------------------------------------------
@@ -43,10 +43,11 @@ function ExtendedJournalTooltipExtension:Initialize( showDivider, textLeft, text
 	return self
 end
 
-function ExtendedJournalTooltipExtension:AddSection( textHeader, textBody )
+function ExtendedJournalTooltipExtension:AddSection( textHeader, textBody, alignBody )
 	local control = self:GetSection()
 	control:GetNamedChild("Header"):SetText(textHeader or "")
 	control:GetNamedChild("Body"):SetText(textBody or "")
+	control:GetNamedChild("Body"):SetHorizontalAlignment(alignBody or TEXT_ALIGN_CENTER)
 	control:SetHidden(false)
 end
 

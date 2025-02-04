@@ -67,7 +67,7 @@
 					<Anchor point="TOPLEFT" />
 					<Anchor point="TOPRIGHT" constrains="X" />
 				</Label>
-				<Label name="$(parent)Body" font="$(MEDIUM_FONT)|$(KB_14)|soft-shadow-thin" horizontalAlignment="CENTER" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_BODY">
+				<Label name="$(parent)Body" font="$(MEDIUM_FONT)|$(KB_14)|soft-shadow-thin" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_BODY">
 					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="$(parent)Header" offsetY="-1" />
 					<Anchor point="RIGHT" constrains="X" />
 				</Label>

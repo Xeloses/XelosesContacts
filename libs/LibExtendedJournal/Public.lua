@@ -8,6 +8,10 @@ local Controls = Internal.controls
 -- General
 --------------------------------------------------------------------------------
 
+-- Users of LEJ must override this prior to EVENT_ADD_ON_LOADED; if this is not
+-- set, then it means that there are no users of LEJ
+Public.Used = false
+
 function Public.Show( descriptor, toggle )
 	Internal.LazyInitialize(descriptor)
 

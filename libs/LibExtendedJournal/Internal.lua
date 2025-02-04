@@ -35,6 +35,11 @@ EVENT_MANAGER:RegisterForEvent(Internal.name, EVENT_ADD_ON_LOADED, function( eve
 
 	EVENT_MANAGER:UnregisterForEvent(Internal.name, EVENT_ADD_ON_LOADED)
 
+	Internal.LoadTooltipColors()
+
+	-- Do not modify the main menu bar if there are no users of LEJ
+	if (not Public.Used) then return end
+
 	if (MAIN_MENU_KEYBOARD and MAIN_MENU_KEYBOARD.categoryBar and MAIN_MENU_KEYBOARD.categoryBarFragment) then
 		Controls.mainMenu = MAIN_MENU_KEYBOARD.categoryBar
 		Internal.mainMenuFragment = MAIN_MENU_KEYBOARD.categoryBarFragment
@@ -54,8 +59,6 @@ EVENT_MANAGER:RegisterForEvent(Internal.name, EVENT_ADD_ON_LOADED, function( eve
 	else
 		Internal.FixMainMenuCategory = function() end
 	end
-
-	Internal.LoadTooltipColors()
 end)
 
 
