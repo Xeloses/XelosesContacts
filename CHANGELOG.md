@@ -1,11 +1,7 @@
 # CHANGELOG
 
 ### Version 1.1.0 *(2025-02-05)*
-* Added reticle target marker *(displays Contact' icon and group name when targeting Friends or Villains)*:
-    * may also display marker for guildmates, ESO ingame friends, ignored players;
-    * options to disable target scanning in combat, in PvP-zones, in Trials *(for perfomance reasons)*;
-    * customizable position and offset of a marker;
-    * customizable font, colors and icon size.
+* Added reticle target marker.
 * Added a watcher to auto-rename contacts when associated player from ESO ingame friends has been renamed.
 * Code updates for **LibCustomMenu** v7.3.0
 * Bug fixes:

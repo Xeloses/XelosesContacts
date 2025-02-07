@@ -28,7 +28,8 @@ This addon works with account names, not character names, so no matter which cha
 * slash command (*see below*).
 
 ## Features:
-* unlimited Friends and Villains list;
+* unlimited Friends and Villains list:
+  - lists are server-wide (shared between all accounts and characters on the server);
 * text notes for Friends and Villains;
 * groups for Friends and Villains to split lists:
   - 5 predefined groups for Friends and 5 for Villains;
