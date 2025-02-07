@@ -43,7 +43,7 @@ L("HEAL", "Heiler")
 
 -- Social:
 L("ESO_FRIEND", "Freund")
-L("ESO_IGNORED", "Ignoriert") -- // Google translate
+L("ESO_IGNORED", "Ignoriert")                  -- // Google translate
 L("ESO_GUILDMATE", "\"<<1>>\" gildenmitglied") -- // Google translate
 
 -- Notifications and Warnings:
@@ -104,9 +104,9 @@ L("SETTINGS_COLORS", "Farben")
 L("SETTINGS_COLORS_DESCRIPTION", "Hervorhebungsfarben für Kontakte.")
 L("SETTINGS_COLOR", "<<1>> Farbe")
 
--- ==============================
--- Start of untranslated strings:
--- ------------------------------
+-- =================================
+-- Newly added untranslated strings:
+-- -----
 L("SETTINGS_RETICLE_MARKER", "Reticle target marker")
 L("SETTINGS_RETICLE_MARKER_DESCRIPTION", "Display a marker near the reticle when targeting Friends or Villains.")
 L("SETTINGS_RETICLE_MARKER_ENABLE", "Enable")
@@ -131,16 +131,16 @@ L("SETTINGS_RETICLE_MARKER_ICON_SIZE_SMALL", "Small (32x32)")
 L("SETTINGS_RETICLE_MARKER_ICON_SIZE_MEDIUM", "Medium (48x48)")
 L("SETTINGS_RETICLE_MARKER_ICON_SIZE_BIG", "Big (64x64)")
 L("SETTINGS_RETICLE_MARKER_ADDITIONAL_MARKERS", "Additional markers")
-L("SETTINGS_RETICLE_MARKER_ADDITIONAL_MARKERS_DESCRIPTION", "additional markers may have slightly perfomance impact in places with many players aroud (e.g. cities).")
+L("SETTINGS_RETICLE_MARKER_ADDITIONAL_MARKERS_DESCRIPTION", "Additional markers may have slightly perfomance impact in places with many players aroud (e.g. cities).")
 L("SETTINGS_RETICLE_MARKER_ADDITIONAL_MARKER_FRIEND", "Add marker for <<1>>ESO friends")
 L("SETTINGS_RETICLE_MARKER_ADDITIONAL_MARKER_FRIEND_COLOR", "ESO friends marker color")
 L("SETTINGS_RETICLE_MARKER_ADDITIONAL_MARKER_IGNORED", "Add marker for <<1>>ignored players")
 L("SETTINGS_RETICLE_MARKER_ADDITIONAL_MARKER_IGNORED_COLOR", "Ignored players marker color")
 L("SETTINGS_RETICLE_MARKER_ADDITIONAL_MARKER_GUILDMATE", "Add marker for <<1>>guildmates")
 L("SETTINGS_RETICLE_MARKER_ADDITIONAL_MARKER_GUILDMATE_COLOR", "Guildmates marker color")
--- ----------------------------
--- /End of untranslated strings
--- ============================
+-- ----
+-- /End of newly added untranslated strings
+-- ========================================
 
 L("SETTINGS_NOTIFICATION", "Benachrichtigungen und Warnungen")
 L("SETTINGS_NOTIFICATION_DESCRIPTION", "Bildschirm- und Chat-Benachrichtigungen/Warnungen für Kontakte.")

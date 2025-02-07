@@ -81,7 +81,7 @@ function XC:CreateConfigMenu()
             item.name = item_text
         end
 
-        if (params) then
+        if (T(params) == "table" and #params > 0) then
             if (T(params.tooltip) == "string") then
                 params.tooltip = L(params.tooltip) or params.tooltip
             elseif (T(params.tooltip) == "table") then
@@ -101,9 +101,22 @@ function XC:CreateConfigMenu()
         config_data:insert(createItem(item_type, text_id, params))
     end
 
-    local function addSubmenu(title, submenu)
-        if (not title or T(title) ~= "string" or title == "" or not submenu or T(submenu) ~= "table" or #submenu == 0) then return end
-        config_data:insert({ type = "submenu", name = (title:match("[A-Z_]+") == title) and L(title) or title, controls = submenu })
+    local function addSubmenu(title, submenu, params)
+        if (T(title) ~= "string" or title:isEmpty() or T(submenu) ~= "table" or #submenu == 0) then return end
+
+        local submenu_data = {
+            type = "submenu",
+            name = (title:match("[A-Z_]+") == title) and L(title) or title,
+            controls = submenu,
+        }
+
+        if (T(params) == "table" and #params > 0) then
+            for key, val in pairs(params) do
+                submenu_data[key] = val
+            end
+        end
+
+        config_data:insert(submenu_data)
     end
 
     -- ------------------
@@ -279,11 +292,12 @@ function XC:CreateConfigMenu()
     end
 
     -- Additional markers submenu
-    local markers_submenu = table:new()
-    -- @TODO add "Warning" caption
-    markers_submenu:insert(createItem("description", "RETICLE_MARKER_ADDITIONAL_MARKERS_DESCRIPTION"))
-
     do
+        local markers_submenu = table:new()
+
+        local markers_info = L("WARNING"):colorize(self.colors.warning) .. " " .. L("RETICLE_MARKER_ADDITIONAL_MARKERS_DESCRIPTION")
+        markers_submenu:insert(createItem("description", markers_info))
+
         local markers = self.config.reticle.markers
         for marker_name, _ in pairs(markers) do
             local uname = marker_name:upper()
@@ -303,9 +317,12 @@ function XC:CreateConfigMenu()
                 default = function() return ZO_ColorDef:New(self.defaults.reticle.markers[marker_name].color) end,
             }))
         end
+
+        addSubmenu("RETICLE_MARKER_ADDITIONAL_MARKERS", markers_submenu, {
+            disabled = function() return not self.config.reticle.enabled end,
+        })
     end
 
-    addSubmenu("RETICLE_MARKER_ADDITIONAL_MARKERS", markers_submenu)
 
     -- ------------------------
     --  @SECTION NOTIFICATIONS
@@ -420,11 +437,12 @@ function XC:CreateConfigMenu()
     addItem("description", "CHAT_DESCRIPTION")
 
     -- Chat blocking submenu
-    local chat_block_submenu = table:new()
-    chat_block_submenu:insert(createItem("header", "CHAT_BLOCK_GROUPS"))
-    chat_block_submenu:insert(createItem("description", "CHAT_BLOCK_GROUPS_DESCRIPTION"))
-
     do
+        local chat_block_submenu = table:new()
+        chat_block_submenu:insert(createItem("header", "CHAT_BLOCK_GROUPS"))
+        chat_block_submenu:insert(createItem("description", "CHAT_BLOCK_GROUPS_DESCRIPTION"))
+
+        -- Contact' groups
         local GROUPS = self.config.groups[CONST.CONTACTS_VILLAINS_ID]
         local category_color = self:getCategoryColor(CONST.CONTACTS_VILLAINS_ID)
         for group_id, group_name in ipairs(GROUPS) do
@@ -437,12 +455,11 @@ function XC:CreateConfigMenu()
                 default = self.defaults.chat.block_groups[group_id],
             }))
         end
-    end
 
-    chat_block_submenu:insert(createItem("header", "CHAT_BLOCK_CHANNELS"))
-    chat_block_submenu:insert(createItem("description", "CHAT_BLOCK_CHANNELS_DESCRIPTION"))
+        chat_block_submenu:insert(createItem("header", "CHAT_BLOCK_CHANNELS"))
+        chat_block_submenu:insert(createItem("description", "CHAT_BLOCK_CHANNELS_DESCRIPTION"))
 
-    do
+        -- Chat channels
         local chat_channels = CONST.CHAT.CHANNELS
         for channel_name, _ in pairs(chat_channels) do
             chat_block_submenu:insert(createItem("checkbox", "CHAT_BLOCK_CHANNEL_" .. channel_name:upper(), {
@@ -451,9 +468,9 @@ function XC:CreateConfigMenu()
                 default = self.defaults.chat.block_channels[channel_name],
             }))
         end
-    end
 
-    addSubmenu("CHAT_BLOCK", chat_block_submenu)
+        addSubmenu("CHAT_BLOCK", chat_block_submenu)
+    end
 
     addItem("checkbox", "CHAT_INFO", {
         getFunc = function() return not self.config.chat.log end,
@@ -503,6 +520,10 @@ function XC:CreateConfigMenu()
         func = function() self:ShowDialog(CONST.UI.DIALOGS.CONFIRM_IMPORT_IGNORED, nil, import_target_villains) end,
         disabled = function() return self.processing or (GetNumIgnored() == 0) end,
     })
+
+    -- ----------------
+    --  @SECTION Panel
+    -- ----------------
 
     self.UI.SettingsPanel = LAM:RegisterAddonPanel(self.__namespace .. "_Config", panel_data)
     LAM:RegisterOptionControls(self.__namespace .. "_Config", config_data)
