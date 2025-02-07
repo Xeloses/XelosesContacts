@@ -1,6 +1,6 @@
 # CHANGELOG
 
-### Version 1.1.0 *(2025-02-05)*
+### Version 1.1.0 *(2025-02-07)*
 * Added reticle target marker.
 * Added a watcher to auto-rename contacts when associated player from ESO ingame friends has been renamed.
 * Code updates for **LibCustomMenu** v7.3.0
