@@ -81,7 +81,7 @@ function XC:CreateConfigMenu()
             item.name = item_text
         end
 
-        if (T(params) == "table" and #params > 0) then
+        if (T(params) == "table") then
             if (T(params.tooltip) == "string") then
                 params.tooltip = L(params.tooltip) or params.tooltip
             elseif (T(params.tooltip) == "table") then
@@ -94,6 +94,7 @@ function XC:CreateConfigMenu()
                 item[key] = val
             end
         end
+
         return item
     end
 
@@ -110,7 +111,7 @@ function XC:CreateConfigMenu()
             controls = submenu,
         }
 
-        if (T(params) == "table" and #params > 0) then
+        if (T(params) == "table") then
             for key, val in pairs(params) do
                 submenu_data[key] = val
             end
@@ -295,7 +296,7 @@ function XC:CreateConfigMenu()
     do
         local markers_submenu = table:new()
 
-        local markers_info = L("WARNING"):colorize(self.colors.warning) .. " " .. L("RETICLE_MARKER_ADDITIONAL_MARKERS_DESCRIPTION")
+        local markers_info = self.getString("WARNING"):colorize(self.colors.warning) .. " " .. L("RETICLE_MARKER_ADDITIONAL_MARKERS_DESCRIPTION")
         markers_submenu:insert(createItem("description", markers_info))
 
         local markers = self.config.reticle.markers
