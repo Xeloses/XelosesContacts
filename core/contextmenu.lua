@@ -13,8 +13,6 @@ function XC:SetupContextMenus()
     self:SetupIgnoreListContextMenu()
     self:SetupGuildRosterContextMenu()
     self:SetupGroupWindowContextMenu()
-    self:SetupGroupFramesContextMenu()
-    self:SetupRaidFramesContextMenu()
 end
 
 -- --------------------
@@ -71,21 +69,7 @@ function XC:SetupFriendListContextMenu()
 end
 
 function XC:SetupIgnoreListContextMenu()
-    --[[
-    SecurePostHook(
-        IGNORE_LIST,
-        "IgnoreListPanelRow_OnMouseUp",
-        function(list, control, button, upInside)
-            if (button == MOUSE_BUTTON_INDEX_RIGHT and upInside) then
-                local data = ZO_ScrollList_GetData(control)
-                local menu_item = XC:CreateContactMenuItem(data.displayName, data.note, CONST.CONTACTS_VILLAINS_ID)
-                if (menu_item) then AddMenuItem(menu_item.name, menu_item.callback) end
-                list:ShowMenu(control)
-            end
-        end
-    )
-    ]]
-    LCM:RegisterFriendsListContextMenu(addVillainMenuItem, LCM.CATEGORY_LAST)
+    LCM:RegisterIgnoreListContextMenu(addVillainMenuItem, LCM.CATEGORY_LAST)
 end
 
 function XC:SetupGuildRosterContextMenu()
@@ -94,14 +78,4 @@ end
 
 function XC:SetupGroupWindowContextMenu()
     LCM:RegisterGroupListContextMenu(addContactMenuItem, LCM.CATEGORY_LAST)
-end
-
-function XC:SetupGroupFramesContextMenu()
-    -- @TODO implement context menu
-    -- ZO_UnitFrame || ZO_GroupUnitFrame
-end
-
-function XC:SetupRaidFramesContextMenu()
-    -- @TODO implement context menu
-    -- ZO_UnitFrame || ZO_RaidUnitFrame
 end

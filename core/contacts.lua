@@ -276,7 +276,7 @@ function XC:CreateOrUpdateContact(contact_data)
         return false
     end
 
-    local account_name = self:validateAccountName(contact_data.account)
+    local account_name = self:validateAccountName(contact_data.account, true)
 
     if (not account_name) then
         -- @LOG error: incorrect account name

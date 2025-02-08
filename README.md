@@ -23,7 +23,7 @@ This addon works with account names, not character names, so no matter which cha
   - Ignored players list window,
   - Group window,
   - Guild roster window,
-  - chat links (*note than not all chat links can be used, only those which provides account name via ingame API*);
+  - chat links (*note that not all chat links can be used, only those which provides account name via ingame API*);
 * hotkey (*setup it in addons keybinds*) to add player under your reticle;
 * slash command (*see below*).
 
@@ -43,7 +43,7 @@ This addon works with account names, not character names, so no matter which cha
 * display a marker near the reticle when targeting Friends or Villains:
   - display icon and group name of targeted Friend or Villain;
   - may also display marker for guildmates, ESO ingame friends, ignored players (*optional*);
-  - option to disable target scanning in combat, in PvP-zones, in Trials;
+  - option to disable target scanning in combat, in PvP-zones, in group dungeons/arenas, in Trials;
 * notifications:
   - notification when joining group with Villain (*optional*);
   - notification when Villain joins your group (*optional*);
@@ -70,8 +70,9 @@ With [LibSlashCommander](https://esoui.com/downloads/info1508-LibSlashCommander.
 
 #### Required libraries:
 * [LibAddonMenu-2.0](https://www.esoui.com/downloads/info7-libaddonmenu.html)
-* [LibSavedVars](https://esoui.com/downloads/info2161-LibSavedVars.html)
 * [LibCustomMenu](https://www.esoui.com/downloads/info1146-LibCustomMenu.html)
+* [LibSavedVars](https://esoui.com/downloads/info2161-LibSavedVars.html)
+* [LibExtendedJournal](https://www.esoui.com/downloads/info4031-LibExtendedJournal.html)
 
 #### Optional:
 * [LibChatMessage](https://esoui.com/downloads/info2382-LibChatMessage.html) *(highly reccomended)*
@@ -111,16 +112,11 @@ If you like my work you can support me by sending some thanking gift or in-game 
 
 * Add player to contacts using context menu on group/raid frames.
 * Show contact status (online/afk/offline) in Contacts window.
-* Target (player under reticle) marking (if target is Friend or Villain).
-* Mark Friends or Villains in group/raid frames.
 * Mark Friends or Villains in group window.
 * Backup/export contacts.
 * [LibChatMenuButton](https://www.esoui.com/downloads/info3805-LibChatMenuButton.html) integration.
 * [OdySupportIcons](https://www.esoui.com/downloads/info2834-OdySupportIcons-GroupRoleIconsMore.html) integration.
 * Import contacts from [Namez](https://www.esoui.com/downloads/info3411-Namez-Moreinfowhenyouputyourreticleonotherplayers.html) addon.
-
-## Special thanks
-* [**code65536**](https://www.esoui.com/forums/member.php?userid=24346) for allowing me to use his **LibExtendedJournal** library.
 
 ## Disclaimer
 > This Add-on is not created by, affiliated with or sponsored by ZeniMax Media Inc. or its affiliates. The Elder Scrolls® and related logos are registered trademarks or trademarks of ZeniMax Media Inc. in the United States and/or other countries. All rights reserved.

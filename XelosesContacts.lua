@@ -1,5 +1,6 @@
 local EM  = GetEventManager()
 local LSV = LibSavedVars
+local LEJ = LibExtendedJournal
 local XC  = XelosesContacts
 
 -- ---------------
@@ -37,11 +38,13 @@ end
 
 function XC:onCharacterLoaded()
     EM:UnregisterForEvent(self.__namespace .. "RunOnce", EVENT_PLAYER_ACTIVATED)
+
     if (not self.loaded) then
         self.loaded = true
         self:Log("%s v%s loaded.", self.name, self:getVersion())
     end
 
+    self.inGroup = IsUnitGrouped("player")
     self:onZoneChange()
     self:SetupHook("ZoneChange")
 end
@@ -52,5 +55,7 @@ function XC:onAddonLoaded(_, addon_name)
     self:Init()
     EM:RegisterForEvent(self.__namespace .. "RunOnce", EVENT_PLAYER_ACTIVATED, function() self:onCharacterLoaded() end)
 end
+
+LEJ.Used = true -- libExtendedJournal usage flag (required by the library)
 
 EM:RegisterForEvent(XC.__namespace, EVENT_ADD_ON_LOADED, function(event_id, addon_name) XC:onAddonLoaded(event_id, addon_name) end)

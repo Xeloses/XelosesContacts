@@ -242,10 +242,12 @@ Add an unpack() method for tables in Lua version lower than v5.2
 Table.unpack() -> ...<T>
 ```
 ]]
----@diagnostic disable-next-line: deprecated
-table.unpack = (T(unpack) == "function") and unpack or (T(table.unpack) == "function") and table.unpack or function(t)
-    local delim = ":::"
-    return zo_strsplit(delim, t:concat(delim))
+if (T(table.unpack) ~= "function") then
+    ---@diagnostic disable-next-line: deprecated
+    table.unpack = (T(unpack) == "function") and unpack or function(t)
+        local delim = ":::"
+        return zo_strsplit(delim, t:concat(delim))
+    end
 end
 
 --[[

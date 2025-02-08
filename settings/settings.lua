@@ -49,7 +49,7 @@ function XC:CreateConfigMenu()
 
     local function L(str, ...)
         local s = self.getString("SETTINGS_" .. str)
-        if (s:match("^[_A-Z0-9]+$") or s:find("SETTINGS_", 1, true) == 1) then return end
+        if (not s or s:isEmpty() or s:match("^[_A-Z0-9]+$") or s:find("SETTINGS_", 1, true) == 1) then return end
         return F(s, ...)
     end
 
@@ -83,7 +83,7 @@ function XC:CreateConfigMenu()
 
         if (T(params) == "table") then
             if (T(params.tooltip) == "string") then
-                params.tooltip = L(params.tooltip) or params.tooltip
+                params.tooltip = L(params.tooltip)
             elseif (T(params.tooltip) == "table") then
                 params.tooltip = table:new(params.tooltip):join(" ")
             elseif (params.tooltip == nil or params.tooltip) then
@@ -189,6 +189,12 @@ function XC:CreateConfigMenu()
         setFunc = function(val) self.config.reticle.disable.combat = val end,
         disabled = function() return not self.config.reticle.enabled end,
         default = self.defaults.reticle.disable.combat,
+    })
+    addItem("checkbox", "RETICLE_MARKER_DISABLE_GROUP_DUNGEON", {
+        getFunc = function() return self.config.reticle.disable.group_dungeon end,
+        setFunc = function(val) self.config.reticle.disable.group_dungeon = val end,
+        disabled = function() return not self.config.reticle.enabled end,
+        default = self.defaults.reticle.disable.group_dungeon,
     })
     addItem("checkbox", "RETICLE_MARKER_DISABLE_TRIAL", {
         getFunc = function() return self.config.reticle.disable.trial end,
@@ -300,18 +306,21 @@ function XC:CreateConfigMenu()
         markers_submenu:insert(createItem("description", markers_info))
 
         local markers = self.config.reticle.markers
-        for marker_name, _ in pairs(markers) do
+        local marker_names = table:new(markers):keys()
+        marker_names:sort()
+        for _, marker_name in ipairs(marker_names) do
             local uname = marker_name:upper()
             local icon = (""):addIcon(self.ICONS.SOCIAL[uname])
-            local text = F(L("RETICLE_MARKER_ADDITIONAL_MARKER_" .. uname), icon)
+            local text = F(L("RETICLE_MARKER_ADDITIONAL_" .. uname), icon)
             markers_submenu:insert(createItem("divider"))
             markers_submenu:insert(createItem("checkbox", text, {
+                tooltip = "RETICLE_MARKER_ADDITIONAL_" .. uname .. "_TOOLTIP",
                 getFunc = function() return self.config.reticle.markers[marker_name].enabled end,
                 setFunc = function(val) self.config.reticle.markers[marker_name].enabled = val end,
                 disabled = function() return not self.config.reticle.enabled end,
                 default = self.defaults.reticle.markers[marker_name].enabled,
             }))
-            markers_submenu:insert(createItem("colorpicker", L("RETICLE_MARKER_ADDITIONAL_MARKER_" .. uname .. "_COLOR"), {
+            markers_submenu:insert(createItem("colorpicker", L("RETICLE_MARKER_ADDITIONAL_" .. uname .. "_COLOR"), {
                 getFunc = function() return ColorFromHex(self.config.reticle.markers[marker_name].color) end,
                 setFunc = function(r, g, b, a) self.config.reticle.markers[marker_name].color = ColorToHex(r, g, b, a) end,
                 disabled = function() return not self.config.reticle.enabled or not self.config.reticle.markers[marker_name].enabled end,

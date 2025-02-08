@@ -140,7 +140,6 @@ function XC:ToggleHook(hook_name)
     if (not hook) then return end
 
     local hook_enabled = hook.enabled == nil or (T(hook.enabled) == "function" and hook.enabled()) or hook.enabled
-
     if (hook_enabled) then
         self:SetupHook(hook_name)
     else
@@ -228,8 +227,11 @@ end
 -- ---------------
 
 function XC:onZoneChange()
-    self.zoneID = GetZoneId(GetUnitZoneIndex("player"))
+    local zoneID  = GetZoneId(GetUnitZoneIndex("player"))
+
+    self.zoneID   = zoneID
     self.zoneName = GetUnitZone("player")
+    self.zoneInfo = self.Game:GetZoneInfo(zoneID)
 end
 
 -- -----------------
@@ -249,14 +251,20 @@ function XC:handleReticleTarget()
 
     self.UI.ReticleMarker:Reset()
 
+    if (self.inCombat and self.config.reticle.disable.combat) then return end
+
+    if (self.zoneInfo.solo_dungeon or self.zoneInfo.ia) then return end -- do not track targets in solo arenas and Infinite archive
+
+    local isSolo = not self.inGroup                                     -- do not track targets in group dungeons and trials when not in group
+    if (self.zoneInfo.group_dungeon and (isSolo or self.config.reticle.disable.group_dungeon)) then return end
+    if (self.zoneInfo.trial and (isSolo or self.config.reticle.disable.trial)) then return end
+
+    if (self.zoneInfo.pvp and self.config.reticle.disable.pvp) then return end
+
     if (not DoesUnitExist("reticleover")) then return end
     if (not IsUnitPlayer('reticleover')) then return end
 
-    if (self.config.reticle.disable.combat and self.inCombat) then return end
-    if (self.config.reticle.disable.trial and self.Game:isInTrial()) then return end
-    if (self.config.reticle.disable.pvp and self.Game:isInPvPZone()) then return end
-
-    local target_name = self:validateAccountName(GetUnitDisplayName("reticleover"), true)
+    local target_name = self:validateAccountName(GetUnitDisplayName("reticleover"))
     if (not target_name) then return end
 
     local contact     = XC:getContactData(target_name)
@@ -286,6 +294,7 @@ function XC:handleReticleTarget()
         color = color or markers_config.friend.color
         info:insert(L("ESO_FRIEND"):colorize(markers_config.friend.color))
     end
+
     if (isGuildmate) then
         icon = icon or self.ICONS.SOCIAL.GUILDMATE
         color = color or markers_config.guildmate.color
@@ -306,11 +315,13 @@ end
 
 function XC:handleIncomingGroupInvite(_, inviter_char_name, inviter_display_name)
     if (not self.config.notifications.groupInvite.enabled) then return end
+
     if (inviter_display_name and self:isVillain(inviter_display_name)) then
         local contact = self:getContactData(inviter_display_name)
         local x = self.config.notifications.groupInvite.decline
         local s = L("GROUP_INVITE_FROM_VILLAIN") .. (x and (" (%s)"):format(L("DECLINED")) or "")
         if (x) then DeclineGroupInvite() end
+
         self:Warn(s, contact)
         if (not x and self.config.notifications.groupInvite.announce) then
             self:Announce(s, { title = L("WARNING"), textParams = contact, icon = self:getContactGroupIcon(contact) })
@@ -320,10 +331,14 @@ end
 
 function XC:onGroupChange(_, character_name, display_name, is_local_player)
     local villain_name
+
     if (is_local_player) then
         -- Player joined of left group
+        self.inGroup = IsUnitGrouped("player")
+
         if (not self.config.notifications.groupJoin.enabled) then return end
-        if (IsUnitGrouped("player")) then
+
+        if (self.inGroup) then
             -- Player joined new group
             for i = 1, GetGroupSize() do
                 local unitTag = GetGroupUnitTagByIndex(i)
@@ -339,15 +354,17 @@ function XC:onGroupChange(_, character_name, display_name, is_local_player)
     else
         -- someone joined player's group
         if (not self.config.notifications.groupMember.enabled) then return end
+
         if (self:isVillain(display_name)) then
             villain_name = display_name
         end
     end
+
     if (villain_name) then
         local contact = self:getContactData(villain_name)
         local s = L(is_local_player and "GROUP_WITH_VILLAIN" or "GROUP_JOINED_VILLAIN")
-        self:Warn(s, contact)
 
+        self:Warn(s, contact)
         if (is_local_player and self.config.notifications.groupJoin.announce or self.config.notifications.groupMember.announce) then
             self:Announce(s, { title = L("WARNING"), textParams = contact, icon = self:getContactGroupIcon(contact) })
         end

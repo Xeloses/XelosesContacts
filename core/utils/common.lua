@@ -185,20 +185,20 @@ end
 --  @SECTION Validation
 -- ---------------------
 
-function XC:validateAccountName(name, noStrictTest)
+function XC:validateAccountName(name, strict)
     if (T(name) == "string" and not name:isEmpty()) then
-        name = zo_strformat("<<C:1>>", name)
+        --name = zo_strformat("<<C:1>>", name)
 
-        if (name == self.accountName) then return end -- do not process local player
         if (name:sub(1, 1) ~= "@") then return end
+        if (name == self.accountName) then return end -- do not process local player
 
-        local s = name:sub(2)
+        local s = IsDecoratedDisplayName(name) and UndecorateDisplayName(name) or name:sub(2)
         local l = s:len()
 
         -- account name may have only 3..20 symbols
         if (l < CONST.ACCOUNT_NAME_MIN_LENGTH or l > CONST.ACCOUNT_NAME_MAX_LENGTH) then return end
 
-        if (not noStrictTest) then
+        if (strict) then
             -- account name may contain only letters, numbers, dot, dash, single quote, underscore
             if (s:find("[~`@!#$^&*({})=+:;\",<>/?|%\\%[%]%%]+")) then return end
 

@@ -31,28 +31,64 @@ end
 --  @SECTION Zones
 -- ----------------
 
-function XCGame:isGroupDungeon(zone_id)
-    return zone_id and (CONST.ZONES.DUNGEON:has(zone_id) or CONST.ZONES.ARENA.GROUP:has(zone_id))
+function XCGame:isSoloDungeon(zone_id)
+    return zone_id and CONST.ZONES.ARENA.SOLO:has(zone_id)
 end
 
-function XCGame:isInGroupDungeon()
-    return self:isGroupDungeon(XC.zoneID)
+function XCGame:isGroupDungeon(zone_id)
+    return zone_id and (CONST.ZONES.DUNGEON:has(zone_id) or CONST.ZONES.ARENA.GROUP:has(zone_id))
 end
 
 function XCGame:isTrial(zone_id)
     return zone_id and CONST.ZONES.TRIAL:has(zone_id)
 end
 
-function XCGame:isInTrial()
-    return self:isTrial(XC.zoneID)
-end
-
 function XCGame:isPvPZone(zone_id)
     return zone_id and CONST.ZONES.PVP:has(zone_id)
 end
 
-function XCGame:isInPvPZone()
-    return self:isPvPZone(XC.zoneID)
+function XCGame:isInIA()
+    return IsInstanceEndlessDungeon()
+end
+
+function XCGame:isInSoloDungeon(zone_id)
+    return self:isSoloDungeon(zone_id or XC.zoneID)
+end
+
+function XCGame:isInGroupDungeon(zone_id)
+    return self:isGroupDungeon(zone_id or XC.zoneID)
+end
+
+function XCGame:isInTrial(zone_id)
+    return self:isTrial(zone_id or XC.zoneID)
+end
+
+function XCGame:isInPvPZone(zone_id)
+    return self:isPvPZone(zone_id or XC.zoneID) or IsPlayerInAvAWorld() --  or IsInAvAZone()
+end
+
+function XCGame:GetZoneInfo(zone_id)
+    local zone_info = {
+        pvp           = false,
+        ia            = false,
+        solo_dungeon  = false,
+        group_dungeon = false,
+        trial         = false,
+    }
+
+    if (self:isInGroupDungeon(zone_id)) then
+        zone_info.group_dungeon = true
+    elseif (self:isInSoloDungeon(zone_id)) then
+        zone_info.solo_dungeon = true
+    elseif (self:isInTrial(zone_id)) then
+        zone_info.trial = true
+    elseif (self:isInPvPZone(zone_id)) then
+        zone_info.pvp = true
+    elseif (self:isInIA()) then
+        zone_info.ia = true
+    end
+
+    return zone_info
 end
 
 -- ----------------
@@ -220,7 +256,6 @@ local __social_events = { friends = false, ignored = false, guild = false }
 
 function XCGame:loadSocialData(reset_data)
     XC:RemoveHook("SocialDataLoad")
-
     if ((self.__friends ~= nil and self.__ignored ~= nil) and not reset_data) then return end
 
     local num_friends = GetNumFriends()
@@ -286,7 +321,6 @@ end
 
 function XCGame:loadGuildData(reset_data)
     XC:RemoveHook("GuildDataLoad")
-
     if ((self.__guildmates ~= nil and self.__guilds ~= nil) and not reset_data) then return end
 
     self:resetGuildData()
@@ -311,7 +345,6 @@ function XCGame:loadGuildData(reset_data)
             function(_, guild_id, display_name)
                 if (not self.__guildmates:hasKey(display_name)) then
                     if (not self.__guilds or not self.__guildmates) then self:loadGuildData() end
-
                     if (self.__guildmates:hasKey(display_name)) then return end
 
                     local n
@@ -332,6 +365,7 @@ function XCGame:loadGuildData(reset_data)
         EM:RegisterForEvent(
             self.__namespace,
             EVENT_GUILD_MEMBER_REMOVED,
+            --function(_, guild_id, display_name, character_name) --[[ ... ]] end
             function() self:loadGuildData(true) end
         )
 

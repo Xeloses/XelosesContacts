@@ -34,12 +34,16 @@ function XC:handleSlashCmd(action, arg)
 		self:AddContact()
 	elseif (action == "ADD_CONTACT") then
 		local n = params:len()
-		local name = (n == 0) and self:validateAccountName(params:get(1))
+
+		local name = (n == 0) and self:validateAccountName(params:get(1), true)
+		if (not name) then return end
+
 		local data
 		if (n > 1) then
 			params:remove(1)
 			data = { note = params:join(" ") }
 		end
+
 		self:AddContact(name, data)
 	elseif (action == "OPEN_SETTINGS") then
 		self:OpenSettings()

@@ -41,7 +41,7 @@ function XelosesContactDialog:Initialize()
     }
 
     self.UI.lbAccountName:SetText(L("UI_DIALOG_CONTACT_ACCOUNT_NAME"))
-    self.UI.edAccountName:SetHandler("OnLoseFocus", function(...) self:TestAccountName() end)
+    self.UI.edAccountName:SetHandler("OnTextChanged", function(...) self:TestAccountName() end)
     self.UI.btnEditAccountName:SetHandler("OnClicked", function(...) self:btnEditAccountName_onClick() end)
 
     self.UI.lbCategory:SetText(L("UI_DIALOG_CONTACT_CATEGORY"))
@@ -150,12 +150,14 @@ end
 
 function XelosesContactDialog:TestAccountName()
     local name = self.UI.edAccountName:GetText()
+
     if (name) then
-        local valid_name = XC:validateAccountName(name)
+        local valid_name = "@" .. name:gsub("[~`@!#$^&*({})=+:;\",<>/?|%\\%[%]%%]+", "")
         if (valid_name ~= name) then
             self.UI.edAccountName:SetText(valid_name)
         end
-        local state = (valid_name and valid_name:len() >= CONST.ACCOUNT_NAME_MIN_LENGTH)
+
+        local state = (XC:validateAccountName(valid_name, true) ~= nil)
         self:SetButtonState(self.UI.btnSave, state)
     end
 end
@@ -163,10 +165,12 @@ end
 function XelosesContactDialog:HideEditAccountNameButton(hidden)
     if (T(hidden) ~= "boolean") then hidden = true end
     self.UI.btnEditAccountName:SetHidden(hidden)
+
     local w = XELOSES_CONTACT_DIALOG_CONTROL_WIDTH
     if (not hidden) then
         w = w - XELOSES_CONTACT_DIALOG_BTN_PADDING - XELOSES_CONTACT_DIALOG_BTN_SIZE
     end
+
     self.UI.edAccountName:SetWidth(w)
 end
 

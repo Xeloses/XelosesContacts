@@ -10,7 +10,7 @@ local function L(str)
     elseif (T(str) == "number") then
         return GetString(str)
     else
-        return "<[MISSING_STRING]>"
+        return "<<MISSING_STRING>>"
     end
 end
 
@@ -36,9 +36,11 @@ XelosesContacts = XelosesContacts or {
     loaded         = false,
     processing     = false,
     inCombat       = false,
+    inGroup        = false,
     accountID      = 0,
     characterID    = 0,
     zoneID         = 0,
+    zoneInfo       = {},
 
     slashCmd       = "/contacts",
     slashCmdParams = {
@@ -115,14 +117,14 @@ XelosesContacts = XelosesContacts or {
                 [1] = false,
                 [2] = true,
                 [3] = true,
-                [4] = true,
-                [5] = true,
+                [4] = false,
+                [5] = false,
             },
             block_channels = {
                 SAY     = true,
                 ZONE    = true,
-                GROUP   = true,
-                GUILD   = true,
+                GROUP   = false,
+                GUILD   = false,
                 WHISPER = true,
             },
             log = true,
@@ -160,9 +162,10 @@ XelosesContacts = XelosesContacts or {
         reticle = {
             enabled  = true,
             disable  = {
-                combat = false,
-                trial  = true,
-                pvp    = true,
+                combat        = false,
+                group_dungeon = false,
+                trial         = true,
+                pvp           = true,
             },
             position = 2, -- @REF XelosesContacts.CONST.UI.RETICLE_MARKER.POSITION
             offset   = 5,
@@ -172,7 +175,7 @@ XelosesContacts = XelosesContacts or {
             },
             font     = {
                 size = 22,
-                style = "soft-shadow-thin",
+                style = "outline",
             },
             markers  = {
                 friend    = { enabled = true, color = "FFFF33" },
@@ -293,7 +296,7 @@ XelosesContacts = XelosesContacts or {
         }
     },
 
-    debug          = false,
+    debug          = true,
 }
 
 ZO_CreateStringId(ADDON_PREFIX .. "ADDON_NAME", XelosesContacts.displayName)
