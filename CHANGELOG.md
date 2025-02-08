@@ -16,7 +16,7 @@
   * Fixed duplicate contacts issue.
   * Fixed spellchecking in Edit contact dialog.
 * Dependencies:
-  * **[LibExtendedJournal](https://www.esoui.com/downloads/info4031-LibExtendedJournal.html)** no longer included in addon archive and should be installed separately *(it was released as a standalone library)*.
+  * **[LibExtendedJournal](https://www.esoui.com/downloads/info4031-LibExtendedJournal.html)** no longer included in the addon archive and should be installed separately *(it was released as a standalone library)*.
 * Translation:
   * Updated **German** translation (by **[Baertram](https://www.esoui.com/forums/member.php?u=2028)**).
 
