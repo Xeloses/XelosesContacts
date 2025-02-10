@@ -10,7 +10,7 @@
 
 **Xeloses' Contacts** is an [Elder Scrolls Online](https://www.elderscrollsonline.com) addon that provides unlimited Friends and Villains list with UI and additional features.
 
-This addon works with account names, not character names, so no matter which character your contacts loggen in, they are still be accessible!
+This addon works with account names, not character names, so no matter which character your contacts logged in, they are still be accessible!
 
 #### You can open Contacts window using one of the following ways:
 * hotkey (*setup it in addons keybinds*),

@@ -29,12 +29,6 @@ function XC:InitHooks()
             callback = self.handleStartChatInput,
         },
 
-        -- Handle incoming chat messages
-        IncomingChatMessage = {
-            fn_name  = { CHAT_ROUTER, "FormatAndAddChatMessage" },
-            callback = self.handleChatMessages,
-        },
-
         -- Handle attemp to add someone to ESO ingame friends to check if target is a Villain
         AddFriend = {
             fn_name  = "ZO_Dialogs_ShowDialog",
@@ -108,6 +102,8 @@ function XC:InitHooks()
             self:SetupHook(hook_name)
         end
     end
+    
+    ZO_PreHook(CHAT_ROUTER, "FormatAndAddChatMessage", function(...) return self.handleChatMessage(self, ...) end)
 end
 
 -- -----------------------
@@ -125,8 +121,7 @@ function XC:SetupHook(hook_name)
     local fn_callback = function(...) return hook.callback(self, ...) end
 
     if (hook.fn_name) then
-        local f = table:new(hook.fn_name)
-        ZO_PreHook(f:unpack(), fn_callback)
+        ZO_PreHook(hook.fn_name, fn_callback)
     elseif (hook.event) then
         EM:RegisterForEvent(self.__namespace, hook.event, fn_callback)
     end
@@ -181,9 +176,9 @@ end
 --  @SECTION Chat
 -- ---------------
 
-function XC:handleChatMessages(_, event_code, channel, from_name, raw_message_text, is_customer_service, from_display_name)
-    if (not from_display_name or from_display_name == "") then return end
+function XC:handleChatMessage(_, event_code, channel, from_name, raw_message_text, is_customer_service, from_display_name)
     if (event_code ~= EVENT_CHAT_MESSAGE_CHANNEL) then return end
+    if (not from_display_name or from_display_name == "") then return end
     if (is_customer_service) then return end -- do not process customer service
 
     local sender = self:validateAccountName(from_display_name)
@@ -202,6 +197,10 @@ function XC:handleChatMessages(_, event_code, channel, from_name, raw_message_te
                     break
                 end
             end
+            
+            -- @DEBUG
+            self:Debug("  --> should block: %s", (channel_category and self.config.chat.block_channels[channel_category]) and "YES" or "NO")
+            
             -- check chat channel blocking rules
             if (channel_category and self.config.chat.block_channels[channel_category]) then
                 -- @LOG blocked message
