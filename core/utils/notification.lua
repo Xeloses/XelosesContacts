@@ -7,12 +7,10 @@ local F     = XC.formatString
 --  @SECTION Notifications and Alerts
 -- -----------------------------------
 
----@private
 function XC:isChatNotificationsEnabled()
     return (self.config.notifications.channel ~= CONST.NOTIFICATION_CHANNELS.SCREEN)
 end
 
----@private
 function XC:isScreenNotificationsEnabled()
     return (self.config.notifications.channel ~= CONST.NOTIFICATION_CHANNELS.CHAT)
 end

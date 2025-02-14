@@ -2,19 +2,23 @@ local XC                              = XelosesContacts
 local CONST                           = XC.CONST
 local L                               = XC.getString
 local T                               = type
-local XelosesContactDialog            = {}
 
 XELOSES_CONTACT_DIALOG_CONTROL_WIDTH  = 200
 XELOSES_CONTACT_DIALOG_CONTROL_HEIGHT = 26
 XELOSES_CONTACT_DIALOG_BTN_PADDING    = 4
 XELOSES_CONTACT_DIALOG_BTN_SIZE       = 26
 
+XelosesContactDialog                  = ZO_Object:Subclass()
+
 -- ----------------------
 --  @SECTION Show dialog
 -- ----------------------
 
 function XC:ShowContactDialog(data)
-    if (not XelosesContactDialog.initialized) then XelosesContactDialog:Initialize() end -- Lazy loading
+    if (not self.UI.ContactDialog or not self.UI.ContactDialog.initialized) then
+        self.UI.ContactDialog = XelosesContactDialog:New(self) -- Lazy loading
+    end
+
     ZO_Dialogs_ShowDialog(CONST.UI.DIALOGS.CONTACT_EDIT.name, data)
 end
 
@@ -22,10 +26,19 @@ end
 --  @SECTION Init
 -- ---------------
 
+function XelosesContactDialog:New(parent_control)
+    local dlg = ZO_Object.New(self)
+    dlg.parent = parent_control
+    dlg:Initialize()
+    return dlg
+end
+
 function XelosesContactDialog:Initialize()
     self.initialized = false
     self.control = XelosesContactDialogFrame
+
     local dialogContent = GetControl(self.control, "XelosesContactDialogContent")
+
     self.UI = {
         lbAccountName = GetControl(dialogContent, "AccountNameLabel"),
         edAccountName = GetControl(dialogContent, "AccountName"),
@@ -48,7 +61,13 @@ function XelosesContactDialog:Initialize()
     self.UI.lbGroup:SetText(L("UI_DIALOG_CONTACT_GROUP"))
     self.UI.lbNote:SetText(L("UI_DIALOG_CONTACT_NOTE"))
 
-    XC:SetControlTooltip(self.UI.btnEditAccountName, "UI_BTN_EDIT_ACCOUNT_NAME_TOOLTIP")
+    self.parent:SetControlTooltip(self.UI.btnEditAccountName, "UI_BTN_EDIT_ACCOUNT_NAME_TOOLTIP")
+
+    self.UI.cbGroup.m_comboBox:SetSortsItems(nil) -- disable sorting
+
+    self.currentCategory = CONST.CONTACTS_FRIENDS_ID
+    self.currentGroup    = 1
+
     self:SetupContactCategories()
 
     ZO_Dialogs_RegisterCustomDialog(
@@ -91,6 +110,7 @@ end
 
 function XelosesContactDialog:SetupDialog(dialog, data)
     if (not data) then data = {} end
+
     local hasAccountName = (data.account and data.account ~= "")
     if (hasAccountName) then
         dialog.info.title.text = L("UI_DIALOG_TITLE_EDIT_CONTACT")
@@ -157,7 +177,7 @@ function XelosesContactDialog:TestAccountName()
             self.UI.edAccountName:SetText(valid_name)
         end
 
-        local state = (XC:validateAccountName(valid_name, true) ~= nil)
+        local state = (self.parent:validateAccountName(valid_name, true) ~= nil)
         self:SetButtonState(self.UI.btnSave, state)
     end
 end
@@ -182,51 +202,66 @@ function XelosesContactDialog:SetupContactCategories()
     local function onCategorySelect(control, name, data)
         self:SelectCategory(data.data.id)
     end
+
     self.UI.cbCategory.m_comboBox:ClearItems()
-    for cID, cName in pairs(CONST.CONTACTS_CATEGORIES) do
-        local item = self.UI.cbCategory.m_comboBox:CreateItemEntry(cName, onCategorySelect)
-        item.data = { id = cID, name = cName }
+
+    for category_id, category_name in pairs(CONST.CONTACTS_CATEGORIES) do
+        local item = self.UI.cbCategory.m_comboBox:CreateItemEntry(category_name, onCategorySelect)
+        item.data = {
+            id = category_id,
+            name = category_name,
+        }
         self.UI.cbCategory.m_comboBox:AddItem(item)
     end
-    self:SelectCategory(self.currentCategory or CONST.CONTACTS_FRIENDS_ID)
+
+    self:SelectCategory(self.currentCategory)
 end
 
 function XelosesContactDialog:SetupContactGroups()
-    local function onGroupSelect(control, name, data)
-        self:SelectGroup(data.data.id)
+    local function onGroupSelect(control, name, item)
+        if (not item or not item.data) then return end
+        self:SelectGroup(item.data.id)
     end
-    local cID = self.currentCategory
+
+    local category_id = self.currentCategory
     self.UI.cbGroup.m_comboBox:ClearItems()
-    for gID, gName in pairs(XC.config.groups[cID]) do
-        local gTitle = gName:addIcon(XC:getGroupIcon(cID, gID), XC:getCategoryColor(cID))
-        local item = self.UI.cbCategory.m_comboBox:CreateItemEntry(gTitle, onGroupSelect)
-        item.data = { id = gID, name = gName }
+
+    local groups_list = self.parent:getGroupsList(category_id, true, true)
+    for group_id, group_name in ipairs(groups_list) do
+        local item = self.UI.cbCategory.m_comboBox:CreateItemEntry(group_name, onGroupSelect)
+        item.data  = {
+            id = group_id,
+            name = group_name,
+        }
         self.UI.cbGroup.m_comboBox:AddItem(item)
     end
-    self:SelectGroup(self.currentGroup or 1)
+
+    self:SelectGroup(self.currentGroup)
 end
 
 function XelosesContactDialog:SelectCategory(category_id)
     if (not category_id or not CONST.CONTACTS_CATEGORIES[category_id]) then
         category_id = CONST.CONTACTS_FRIENDS_ID
     end
+
     if (not self.currentCategory or self.currentCategory ~= category_id) then
         if (self.currentCategory) then
             self.currentGroup = 0 -- reset group if Category was changed manually by user
         end
+
         self.currentCategory = category_id
-        self.UI.cbCategory.m_comboBox:SetSelectedItem(CONST.CONTACTS_CATEGORIES[category_id])
+        self.UI.cbCategory.m_comboBox:SelectItemByIndex(category_id, true)
         self:SetupContactGroups()
     end
 end
 
 function XelosesContactDialog:SelectGroup(group_id)
-    if (not group_id or not XC.config.groups[self.currentCategory][group_id]) then
-        group_id = 1
-    end
+    if (not group_id) then group_id = 1 end
+    if (not self.parent:getGroupIndexByID(self.currentCategory, group_id)) then return end
+
     if (not self.currentGroup or self.currentGroup ~= group_id) then
         self.currentGroup = group_id
-        self.UI.cbGroup.m_comboBox:SetSelectedItem(XC.config.groups[self.currentCategory][group_id])
+        self.UI.cbGroup.m_comboBox:SetSelectedItemByEval(function(item) return item.data.id == group_id end, true)
     end
 end
 
@@ -236,27 +271,38 @@ end
 
 function XelosesContactDialog:SaveContact(dialog)
     local account_name = self.UI.edAccountName:GetText()
+
     if (self.oldAccountName) then
-        XC:DeleteContact({ account = self.oldAccountName }, true)
-        -- @LOG Rename contact
-        XC:Log("Rename contact [%s] -> [%s].", self.oldAccountName, account_name)
+        self.parent:RenameContact(self.oldAccountName, account_name)
         self.oldAccountName = nil
     end
-    local data = { account = account_name, category = self.currentCategory, group = self.currentGroup }
+
+    local data = {
+        account = account_name,
+        category = self.currentCategory,
+        group = self.currentGroup,
+    }
     local note = self.UI.edNote:GetText()
+
     if (note and note:trim() ~= "") then data.note = note end
     if (self.contact_timestamp) then data.timestamp = self.contact_timestamp end
-    XC:CreateOrUpdateContact(data)
+
+    self.parent:CreateOrUpdateContact(data)
 end
 
 -- ------------------
 --  @SECTION Utility
 -- ------------------
 
+function XelosesContactDialog:RefreshGroupsList()
+    self:SetupContactGroups()
+end
+
 function XelosesContactDialog:SetButtonState(button, enabled, visible)
     if (not button) then return end
     if (enabled == nil) then enabled = true end
     if (visible == nil) then visible = true end
+
     button:SetEnabled(enabled)
     button:SetHidden(not visible)
     button:SetKeybindEnabled(enabled and visible)

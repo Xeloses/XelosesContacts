@@ -33,7 +33,8 @@ This addon works with account names, not character names, so no matter which cha
 * text notes for Friends and Villains;
 * groups for Friends and Villains to split lists:
   - 5 predefined groups for Friends and 5 for Villains;
-  - customizable group names;
+  - up to 40 custom groups for Friends and Villains *(up to 20 per category)*;
+  - customizable group names and icons;
 * add players to Contacts using context menus in Friends list window, Group window, Guild roster window, on chat links;
 * add player under reticle to Contacts;
 * hide chat messages from Villains (*configurable*):

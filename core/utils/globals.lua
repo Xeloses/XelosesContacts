@@ -73,6 +73,32 @@ function table:isEmpty()
 end
 
 --[[
+Sort table by keys/indexes.
+
+```
+Table:sortByKeys(?fn_sorter: Function) -> Table
+
+@param fn_sorter = function(key1: Any, key2: Any) -> Boolean
+```
+]]
+function table:sortByKeys(fn_sorter)
+    local _r = table:new()
+    for k, v in pairs(self) do
+        _r:insertElem(v, k)
+    end
+    _r:sort()
+
+    local fn_sort_helper = function(k1, k2)
+        return k1 < k2
+    end
+
+    if (T(fn_sorter) ~= "function") then fn_sorter = fn_sort_helper end
+
+    self:sort(function(a, b) return fn_sorter(_r[a], _r[b]) end)
+    return self
+end
+
+--[[
 Check if a table has specified element.
 
 ```
@@ -351,6 +377,18 @@ function string:isearch(pattern)
 end
 
 --[[
+Wraps string with quotes.
+
+```
+String:enquote() -> String
+```
+]]
+function string:enquote()
+    local quote = "\""
+    return quote .. self .. quote
+end
+
+--[[
 Format string using zo_strformat.
 
 ```
@@ -403,11 +441,8 @@ string:colorize(hexColor: string) -> String
 ```
 ]]
 function string:colorize(hex_color)
-    local COLOR_FORMATTER = "|c%s%s|r"
-
-    if (hex_color and T(hex_color) == "string" and hex_color:match("%x+")) then
-        local color = (hex_color:len() > 6) and hex_color:sub(1, 6) or hex_color
-        return COLOR_FORMATTER:format(color, self)
+    if (T(hex_color) == "string" and hex_color:match("^%x+$")) then
+        return ZO_ColorDef:New(hex_color):Colorize(self)
     end
 
     return self
@@ -425,16 +460,14 @@ string:addIcon(Icon: string, IconColor: string, IconSize: number, SpaceBetween: 
 @param boolean SpaceBetween - [optional] Add space between Icon and Text (default: FALSE)
 ]]
 function string:addIcon(icon, icon_color, icon_size, space_between)
-    local s = self
     local size = icon_size or 24
 
     if (icon) then
-        local color          = (T(icon_color) == "string" and icon_color:match("%x+")) and icon_color
-        local ICON_FORMATTER = color and "|t%d:%d:%s:inheritColor|t" or "|t%d:%d:%s|t"
-        local str_icon       = ICON_FORMATTER:format(size, size, icon):colorize(color)
+        local color    = (T(icon_color) == "string" and icon_color:match("^%x+$")) and icon_color
+        local str_icon = color and zo_iconFormatInheritColor(icon, size, size):colorize(color) or zo_iconFormat(icon, size, size)
 
-        return s:prepend(str_icon, space_between)
+        return self:prepend(str_icon, space_between)
     end
 
-    return s
+    return self
 end

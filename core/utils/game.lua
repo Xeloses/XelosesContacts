@@ -8,7 +8,6 @@ local T      = type
 --  @SECTION Players
 -- ------------------
 
----@private
 function XCGame:getUnitInfo(unit_tag)
     if (not unit_tag or unit_tag == "" or unit_tag:lower() == "player") then return end
 
@@ -95,7 +94,6 @@ end
 --  @SECTION Group
 -- ----------------
 
----@private
 -- returns TRUE if player is in the same group with target
 function XCGame:isGroupMember(target_name)
     if (not IsUnitGrouped("player")) then return false end
@@ -141,13 +139,11 @@ end
 --  @SECTION Guild
 -- ----------------
 
----@private
 function XCGame:isGuildmate(target_name)
     if (not self.__guildmates) then self:loadGuildData() end
     return self.__guildmates:hasKey(target_name)
 end
 
----@private
 function XCGame:getGuildName(target_name)
     if (not self.__guilds) then self:loadGuildData() end
 
@@ -164,7 +160,6 @@ end
 --  @SECTION Friends
 -- ------------------
 
----@private
 function XCGame:isFriend(target_name)
     if (not self.__friends) then self:loadSocialData() end
     return self.__friends:has(target_name)
@@ -189,7 +184,6 @@ end
 --  @SECTION Ignored
 -- ------------------
 
----@private
 function XCGame:isIgnored(target_name)
     if (not self.__ignored) then self:loadSocialData() end
     return self.__ignored:has(target_name)

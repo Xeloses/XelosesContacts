@@ -50,8 +50,8 @@ function XC:InitDialogs()
 		},
 
 		-- Confirmation dialog: Import ESO ingame ignored players
-		CONFIRM_IMPORT_IGNORED   = {
-			name = self.__prefix .. "DIALOG_CONFIRM_IMPORT_IGNORED",
+		CONFIRM_IMPORT_VILLAINS  = {
+			name = self.__prefix .. "DIALOG_CONFIRM_IMPORT_VILLAINS",
 			callback = function(dialog)
 				-- Import ESO ingame ignored players list
 				self:ImportESOIgnored(dialog.data.param)
@@ -119,7 +119,6 @@ end
 --  @SECTION Create dialog
 -- ------------------------
 
----@private
 function XC:CreateDialog(dialog_config)
 	if (not dialog_config or not dialog_config.name) then return end
 	local dialog_id = dialog_config.name:sub((self.__prefix .. "DIALOG_"):len() + 1)

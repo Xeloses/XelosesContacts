@@ -91,18 +91,18 @@ XelosesContacts = XelosesContacts or {
     defaults       = {
         groups = {
             [FRIENDS_ID] = {
-                [1] = L("GROUP_11"),
-                [2] = L("GROUP_12"),
-                [3] = L("GROUP_13"),
-                [4] = L("GROUP_14"),
-                [5] = L("GROUP_15"),
+                [1] = { id = 1, name = L("GROUP_11"), icon = "/esoui/art/armory/buildicons/buildicon_49.dds" },
+                [2] = { id = 2, name = L("GROUP_12"), icon = "/esoui/art/armory/buildicons/buildicon_33.dds" },
+                [3] = { id = 3, name = L("GROUP_13"), icon = "/esoui/art/treeicons/gamepad/gp_collectionicon_housing.dds" },
+                [4] = { id = 4, name = L("GROUP_14"), icon = "/esoui/art/armory/buildicons/buildicon_4.dds" },
+                [5] = { id = 5, name = L("GROUP_15"), icon = "/esoui/art/tutorial/achievements_indexicon_summary_up.dds" },
             },
             [VILLAINS_ID] = {
-                [1] = L("GROUP_21"),
-                [2] = L("GROUP_22"),
-                [3] = L("GROUP_23"),
-                [4] = L("GROUP_24"),
-                [5] = L("GROUP_25"),
+                [1] = { id = 1, name = L("GROUP_21"), icon = "/esoui/art/treeicons/gamepad/gp_tutorial_idexicon_death.dds" },
+                [2] = { id = 2, name = L("GROUP_22"), icon = "/esoui/art/armory/buildicons/buildicon_13.dds" },
+                [3] = { id = 3, name = L("GROUP_23"), icon = "/esoui/art/contacts/tabicon_ignored_up.dds" },
+                [4] = { id = 4, name = L("GROUP_24"), icon = "/esoui/art/armory/buildicons/buildicon_59.dds" },
+                [5] = { id = 5, name = L("GROUP_25"), icon = "/esoui/art/armory/buildicons/buildicon_51.dds" },
             },
         },
         colors = {
@@ -183,6 +183,7 @@ XelosesContacts = XelosesContacts or {
                 guildmate = { enabled = true, color = "1188FF" },
             }
         },
+        v = 0, -- addon version (used for update/migrate SV)
     },
 
     -- --------------------
@@ -195,6 +196,7 @@ XelosesContacts = XelosesContacts or {
             [FRIENDS_ID]  = L("FRIENDS"),
             [VILLAINS_ID] = L("VILLAINS"),
         },
+        CONTACTS_GROUPS_MAX     = 25,
         ACCOUNT_NAME_MIN_LENGTH = 3,
         ACCOUNT_NAME_MAX_LENGTH = 20,
         GROUP_NAME_MAX_LENGTH   = 20,
@@ -266,34 +268,6 @@ XelosesContacts = XelosesContacts or {
                 },
             },
         },
-    },
-
-    -- ---------------------------
-    --  @SECTION Icons & Textures
-    -- ---------------------------
-    ICONS          = {
-        GROUPS = {
-            [FRIENDS_ID] = {
-                [1] = "/esoui/art/armory/buildicons/buildicon_49.dds",
-                [2] = "/esoui/art/armory/buildicons/buildicon_33.dds",
-                [3] = "/esoui/art/treeicons/gamepad/gp_collectionicon_housing.dds",
-                [4] = "/esoui/art/armory/buildicons/buildicon_4.dds",
-                [5] = "/esoui/art/tutorial/achievements_indexicon_summary_up.dds",
-            },
-            [VILLAINS_ID] = {
-                [1] = "/esoui/art/treeicons/gamepad/gp_tutorial_idexicon_death.dds",
-                [2] = "/esoui/art/armory/buildicons/buildicon_13.dds",
-                [3] = "/esoui/art/contacts/tabicon_ignored_up.dds",
-                [4] = "/esoui/art/armory/buildicons/buildicon_59.dds",
-                [5] = "/esoui/art/armory/buildicons/buildicon_51.dds",
-            },
-        },
-
-        SOCIAL = {
-            FRIEND    = "/esoui/art/mainmenu/menubar_social_up.dds",
-            IGNORED   = "/esoui/art/contacts/tabicon_ignored_up.dds",
-            GUILDMATE = "/esoui/art/mainmenu/menubar_guilds_up.dds", --"/esoui/art/contacts/tabicon_friends_up.dds",
-        }
     },
 
     debug          = true,

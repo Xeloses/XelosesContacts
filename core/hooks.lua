@@ -8,7 +8,6 @@ local T     = type
 --  @SECTION Init
 -- ---------------
 
----@private
 function XC:InitHooks()
     self.__hooks = {
         -- Handle zone change (teleport/move to new zone)
@@ -102,7 +101,7 @@ function XC:InitHooks()
             self:SetupHook(hook_name)
         end
     end
-    
+
     ZO_PreHook(CHAT_ROUTER, "FormatAndAddChatMessage", function(...) return self.handleChatMessage(self, ...) end)
 end
 
@@ -110,7 +109,6 @@ end
 --  @SECTION Manage hooks
 -- -----------------------
 
----@private
 function XC:SetupHook(hook_name)
     local hook = self.__hooks[hook_name]
     if (not hook or hook.injected) then return end
@@ -129,7 +127,6 @@ function XC:SetupHook(hook_name)
     hook.injected = true -- flag to prevent duplicate hooks
 end
 
----@private
 function XC:ToggleHook(hook_name)
     local hook = self.__hooks[hook_name]
     if (not hook) then return end
@@ -142,7 +139,6 @@ function XC:ToggleHook(hook_name)
     end
 end
 
----@private
 function XC:RemoveHook(hook_name)
     local hook = self.__hooks[hook_name]
     if (not hook or not hook.injected) then return end
@@ -197,10 +193,10 @@ function XC:handleChatMessage(_, event_code, channel, from_name, raw_message_tex
                     break
                 end
             end
-            
+
             -- @DEBUG
             self:Debug("  --> should block: %s", (channel_category and self.config.chat.block_channels[channel_category]) and "YES" or "NO")
-            
+
             -- check chat channel blocking rules
             if (channel_category and self.config.chat.block_channels[channel_category]) then
                 -- @LOG blocked message
@@ -285,17 +281,17 @@ function XC:handleReticleTarget()
     end
 
     if (isIgnored) then
-        icon = icon or self.ICONS.SOCIAL.IGNORED
+        icon = icon or CONST.ICONS.SOCIAL.IGNORED
         color = color or markers_config.ignored.color
         info:insert(L("ESO_IGNORED"):colorize(markers_config.ignored.color))
     elseif (isFriend) then
-        icon = icon or self.ICONS.SOCIAL.FRIEND
+        icon = icon or CONST.ICONS.SOCIAL.FRIEND
         color = color or markers_config.friend.color
         info:insert(L("ESO_FRIEND"):colorize(markers_config.friend.color))
     end
 
     if (isGuildmate) then
-        icon = icon or self.ICONS.SOCIAL.GUILDMATE
+        icon = icon or CONST.ICONS.SOCIAL.GUILDMATE
         color = color or markers_config.guildmate.color
         local g_name = self.Game:getGuildName(target_name)
         info:insert(L("ESO_GUILDMATE"):zo_format(g_name):colorize(markers_config.guildmate.color))

@@ -1,7 +1,14 @@
 # CHANGELOG
 
+### Version 1.1.3 *(2025-02-??)*
+* **New features:**
+  * Custom contact groups:
+    * Add/remove contact groups.
+      * *Maximum of 50 groups can be created (25 for friends and 25 for Villains).*
+    * Change names and icons of contact groups.
+
 ### Version 1.1.2 *(2025-02-10)*
-* Bug fixes:
+* **Bug fixes:**
   * Fixed an issue with chat blocking *(it should work again now)*.
 
 ### Version 1.1.1 *(2025-02-08)*
@@ -12,7 +19,7 @@
     * auto disable reticle target tracking in Infinite archive;
     * auto disable reticle target tracking in group dungeons, group arenas and trials if player is not in group;
       * auto re-enable reticle target tracking when players joins group while in group dungeon, group arena or trial.
-  * Little perfomance optimizations for reticle target tracking.
+  * Little performance optimizations for reticle target tracking.
   * Improved PvP-zones detection.
   * Slightly ajusted default settings.
 * **Bug fixes:**

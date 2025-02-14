@@ -19,7 +19,6 @@ end
 --  @SECTION Menu item
 -- --------------------
 
----@private
 function XC:CreateContactMenuItem(account_name, note, category)
     if (not account_name or self:isInContacts(account_name)) then return end
     local item = { name = L("MENU_ADD_CONTACT") }

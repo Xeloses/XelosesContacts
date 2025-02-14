@@ -12,9 +12,16 @@ local DEFAULTS                = XC.defaults.reticle
 --  @SECTION Init
 -- ---------------
 
-XelosesReticleMarker          = {}
+XelosesReticleMarker          = ZO_Object:Subclass()
 
-function XelosesReticleMarker:Init(params)
+function XelosesReticleMarker:New(parent_control, params)
+    local marker = ZO_Object.New(self)
+    marker.parent = parent_control
+    marker:Initialize(params)
+    return marker
+end
+
+function XelosesReticleMarker:Initialize(params)
     self.container = XelosesReticleMarkerFrame
 
     self.UI = {
@@ -23,7 +30,7 @@ function XelosesReticleMarker:Init(params)
     }
 
     self.shown = false
-    self.default_color = ZO_ColorDef:New(ZO_ReticleContainerReticle:GetColor()) or ZO_ColorDef:New(1, 1, 1, 0.75)
+    self.default_color = ZO_ColorDef:New(ZO_ReticleContainerReticle:GetColor() or { r = 1, g = 1, b = 1, a = 0.75 })
 
     local p = (T(params) == "table") and params or {}
 

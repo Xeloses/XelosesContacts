@@ -8,12 +8,15 @@ local XC  = XelosesContacts
 -- ---------------
 
 function XC:Init()
+    self:getAddonVersionFromManifest()
+
     self:InitLibs()
     if (self.log) then self.log:SetEnabled(true) end
 
-    self:getAddonVersionFromManifest()
     self.SV = LSV:NewAccountWide(self.__namespace .. "Data", self.svVersion, "Account", { config = self.defaults, contacts = {}, }, nil, "$MultiAccountWide"):EnableDefaultsTrimming()
     self.config = self.SV.config
+    self:UpdateConfig()
+
     self:LoadContacts()
 
     self.LNG           = GetCVar("language.2") -- en / de / fr / es / it / jp / ru

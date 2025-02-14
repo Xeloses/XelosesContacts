@@ -10,7 +10,6 @@ local table_unpack = (T(table.unpack) == "function") and table.unpack or unpack 
 --  @SECTION Libs
 -- ---------------
 
----@private
 function XC:InitLibs()
     if (LibChatMessage ~= nil) then
         self.Chat.lib = LibChatMessage(self.tag, self.tag)
@@ -238,7 +237,6 @@ Returns string prepended with colorized addon tag.
 @return string
 ```
 ]]
----@private
 function XC:addPrefix(str)
     local prefix = "[" .. self.tag .. "]"
     return prefix:colorize(self.colors.tag) .. " " .. str
@@ -263,7 +261,6 @@ Retrieves and returns addon version from manifest file.
 @return number
 ```
 ]]
----@private
 function XC:getAddonVersionFromManifest()
     local AM = GetAddOnManager()
     local addons_count = AM:GetNumAddOns()

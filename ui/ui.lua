@@ -9,7 +9,7 @@ local L     = XC.getString
 -- ---------------
 
 function XC:InitUI()
-	self.UI.ReticleMarker = XelosesReticleMarker:Init(self.config.reticle)
+	self.UI.ReticleMarker = XelosesReticleMarker:New(self, self.config.reticle)
 
 	self.DataChanged      = false
 	self.UI.isReady       = false
@@ -28,7 +28,7 @@ function XC:InitUI()
 			callbackShow  = function()
 				if (not self.UI.isReady) then self:LazyInitUI() end
 				self.UI.ContactsList:SetupKeybinds()
-				self:RefreshUI(true)
+				self:RefreshListUI(true)
 			end,
 			callbackHide  = function()
 				self.UI.ContactsList:RemoveKeybinds()
@@ -42,7 +42,7 @@ end
 function XC:LazyInitUI()
 	if (self.UI.isReady) then return end
 
-	self.UI.ContactsList = XelosesContactsList:New()
+	self.UI.ContactsList = XelosesContactsList:New(self)
 	self.DataChanged     = true -- indicate data loaded from SV
 	self.UI.isReady      = true
 end
@@ -51,10 +51,10 @@ end
 --  @SECTION Refresh UI
 -- ---------------------
 
-function XC:RefreshUI(noActiveCheck)
+function XC:RefreshListUI(force_refresh)
 	if (not self.UI.isReady) then return end
 
-	if (noActiveCheck or XC:isUIShown()) then
+	if (force_refresh or XC:isUIShown()) then
 		if (self.DataChanged) then
 			self.UI.ContactsList:RefreshList()
 		else
@@ -62,6 +62,28 @@ function XC:RefreshUI(noActiveCheck)
 		end
 
 		self.DataChanged = false
+	end
+end
+
+function XC:RefreshContactsList(force_refresh)
+	if (not self.UI.isReady) then return end
+	if (not self.DataChanged) then return end
+
+	self:RefreshListUI(force_refresh)
+end
+
+function XC:RefreshContactGroups(category_id)
+	-- clear contact groups cache
+	if (self.__groups_cache) then
+		self.__groups_cache = nil
+	end
+
+	if (self.UI.isReady and (not category_id or self.UI.ContactsList.categoryID == category_id)) then
+		self.UI.ContactsList:RefreshGroupsList()
+	end
+
+	if (self.UI.ContactDialog and self.UI.ContactDialog.initialized and (not category_id or self.UI.ContactDialog.currentCategory == category_id)) then
+		self.UI.ContactDialog:RefreshGroupsList()
 	end
 end
 
