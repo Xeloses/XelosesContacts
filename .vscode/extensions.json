@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "origami.vsc-eso",
+        "skittile.esoui-api",
+        "sumneko.lua",
+        "gruntfuggly.todo-tree"
+    ]
+}

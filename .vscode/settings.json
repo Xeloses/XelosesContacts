@@ -1,4 +1,8 @@
 {
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+
     "Lua.diagnostics.globals": [
         "XelosesContacts",
         "XelosesContactsFrame",
@@ -148,7 +152,7 @@
         "..\\LibSavedVars",
         ".\\core",
         ".\\core\\utils",
-        ".\\lib",
+        ".\\data",
         ".\\ui"
     ],
 
@@ -157,53 +161,37 @@
         "indent_size": "4"
     },
 
-    "window.title": "${dirty}${activeEditorShort}${separator}${rootName}${separator}${profileName}",
+    "Lua.workspace.useGitIgnore": true,
 
-    "editor.dragAndDrop": false,
-    "editor.formatOnSave": true,
-    "editor.formatOnPaste": true,
-    "editor.formatOnType": true,
-    "editor.acceptSuggestionOnEnter": "off",
-
-    "files.autoSave": "onFocusChange",
-    "files.insertFinalNewline": true,
-    "files.trimFinalNewlines": true,
-    "files.trimTrailingWhitespace": true,
-
-    "explorer.confirmDragAndDrop": false,
-    "explorer.confirmDelete": false,
-
-    "workbench.editorLargeFileConfirmation": 1,
-    "workbench.editor.highlightModifiedTabs": true,
-    "workbench.editor.untitled.labelFormat": "name",
-
-    "formattingToggle.affects": [
-        "editor.formatOnSave"
-    ],
-    "formattingToggle.statusBarText": {
-        "formattingEnabled": "Formatting: ON",
-        "formattingDisabled": "Formatting: OFF"
-    },
-
+    "todo-tree.general.exportPath": "./TODO.md",
+    "todo-tree.general.showActivityBarBadge": false,
+    "todo-tree.filtering.ignoreGitSubmodules": true,
     "todo-tree.tree.scanMode": "current file",
+    "todo-tree.tree.showCountsInTree": true,
     "todo-tree.tree.expanded": true,
     "todo-tree.tree.groupedByTag": true,
-    "todo-tree.general.showActivityBarBadge": true,
-    "todo-tree.general.exportPath": "~/todo_%Y-%m-%d_%H-%M.txt",
-    "todo-tree.regex.regex": "(^\\s*)(--|<!--)\\s+(@|#)($TAGS)",
+    "todo-tree.tree.buttons.filter": false,
+    "todo-tree.tree.buttons.scanMode": true,
+
+    "todo-tree.regex.regex": "(^\\s*)--\\s+(@|#)($TAGS)",
+
     "todo-tree.general.tags": [
-        "SECTION",
         "DOC", "DOCS", "INFO",
         "LINK", "REF", "SEE",
         "TODO",
-        "DEBUG", "LOG",
-        "FIXERROR", "FIXIT", "FIX", "TMP",
+        "DEBUG",
+        "LOG", "LOGS",
+        "BUG", "ERROR", "FIX", "FIXIT", "TMP",
+        "SECTION",
     ],
     "todo-tree.general.tagGroups": {
+        "SECTION": [ "SECTION" ],
+        "BUG": [ "BUG", "ERROR", "FIX", "FIXIT", "TMP" ],
+        "LOG": [ "LOG", "LOGS" ],
+        "DEBUG": [ "DEBUG" ],
+        "TODO": [ "TODO" ],
         "DOC": [ "DOC", "DOCS", "INFO" ],
         "LINK": [ "LINK", "REF", "SEE" ],
-        "FIX": [ "FIX", "FIXIT", "FIXERROR", "TMP" ],
-        "DEBUG": [ "DEBUG", "LOG" ],
     },
 
     "todo-tree.highlights.defaultHighlight": {
@@ -228,13 +216,45 @@
             "iconColour": "#6e6",
             "rulerColour": "#6e6"
         },
+        "BUG": {
+            "icon": "alert",
+            "fontWeight": "bold",
+            "background": "#7773",
+            "foreground": "#e44",
+            "iconColour": "#e44",
+            "rulerColour": "#e44"
+        },
+        "LOG": {
+            "icon": "note",
+            "fontStyle": "italic",
+            "background": "#7771",
+            "foreground": "#d3dc",
+            "iconColour": "#d3d",
+            "rulerColour": "#d3d"
+        },
+        "DEBUG": {
+            "icon": "bug",
+            "fontStyle": "italic",
+            "background": "#7772",
+            "foreground": "#d3d",
+            "iconColour": "#d3d",
+            "rulerColour": "#d3d"
+        },
+        "TODO": {
+            "icon": "checklist",
+            "fontWeight": "bold",
+            "background": "#7773",
+            "foreground": "#dd3",
+            "iconColour": "#dd3",
+            "rulerColour": "#dd3",
+        },
         "DOC": {
             "icon": "info",
             "fontStyle": "italic",
             "background": "#7771",
             "foreground": "#999c",
-            "iconColour": "#2dd",
-            "rulerColour": "#2dd",
+            "iconColour": "#6ee",
+            "rulerColour": "#6ee",
         },
         "LINK": {
             "icon": "link",
@@ -245,34 +265,7 @@
             "iconColour": "#68e",
             "rulerColour": "#68e"
         },
-        "TODO": {
-            "icon": "checklist",
-            "fontWeight": "bold",
-            "background": "#7773",
-            "foreground": "#dd3",
-            "iconColour": "#dd3",
-            "rulerColour": "#dd3",
-        },
-        "FIX": {
-            "icon": "alert",
-            "fontWeight": "bold",
-            "background": "#7773",
-            "foreground": "#e66",
-            "iconColour": "#e66",
-            "rulerColour": "#e66"
-        },
-        "DEBUG": {
-            "icon": "bug",
-            "fontStyle": "italic",
-            "background": "#7773",
-            "foreground": "#d3d",
-            "iconColour": "#d3d",
-            "rulerColour": "#d3d"
-        },
     },
 
-    "terminal.integrated.defaultProfile.windows": "Command Prompt",
-    "terminal.integrated.cursorStyleInactive": "underline",
-    "terminal.integrated.shellIntegration.history": 30,
     "telemetry.telemetryLevel": "off",
 }
