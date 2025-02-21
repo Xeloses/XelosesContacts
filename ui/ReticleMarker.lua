@@ -1,49 +1,42 @@
-local XC                      = XelosesContacts
-local CONST                   = XC.CONST
-local L                       = XC.getString
 local T                       = type
 
 XELOSES_CONTACTS_RETICLE_SIZE = 40
-
-local POSITION                = CONST.UI.RETICLE_MARKER.POSITION
-local DEFAULTS                = XC.defaults.reticle
 
 -- ---------------
 --  @SECTION Init
 -- ---------------
 
-XelosesReticleMarker          = ZO_Object:Subclass()
+XelosesReticleMarker          = {}
 
-function XelosesReticleMarker:New(parent_control, params)
-    local marker = ZO_Object.New(self)
-    marker.parent = parent_control
-    marker:Initialize(params)
-    return marker
-end
+function XelosesReticleMarker:Initialize(parent, params)
+    self.parent        = parent
+    self.frame         = XelosesReticleMarkerFrame
 
-function XelosesReticleMarker:Initialize(params)
-    self.container = XelosesReticleMarkerFrame
-
-    self.UI = {
-        caption = GetControl(self.container, "Caption"),
-        icon    = GetControl(self.container, "Icon")
+    self.UI            = {
+        caption = GetControl(self.frame, "Caption"),
+        icon    = GetControl(self.frame, "Icon")
     }
 
-    self.shown = false
-    self.default_color = ZO_ColorDef:New(ZO_ReticleContainerReticle:GetColor() or { r = 1, g = 1, b = 1, a = 0.75 })
+    self.shown         = false
+    self.default_color = ZO_ColorDef:New(ZO_ReticleContainerReticle:GetColor()) or ZO_ColorDef:New(1, 1, 1, 0.75)
 
-    local p = (T(params) == "table") and params or {}
+    local p            = (T(params) == "table") and params or {}
 
-    self:SetPosition(p.position or DEFAULTS.position)
-    self:SetOffset(p.offset or DEFAULTS.offset)
+    self:SetPosition(p.position or self.parent.CONST.UI.RETICLE_MARKER.POSITION.BELOW)
+    self:SetOffset(p.offset or 10)
 
     self.UI.caption:SetColor(self.default_color:UnpackRGBA())
     self:SetCaptionFont({
-        size = p.font.size or DEFAULTS.font.size,
-        style = p.font.style or DEFAULTS.font.style,
+        size = p.font.size or 20,
+        style = p.font.style or "outline",
     })
-    self:SetIconSize(p.icon and p.icon.size or DEFAULTS.icon.size)
-    self:SetIconVisibility(p.icon and p.icon.enabled or DEFAULTS.icon.enabled)
+
+    self:SetIconSize(p.icon and p.icon.size or 40)
+    if (p.icon and not p.icon.enabled) then
+        self:SetIconVisibility(false)
+    else
+        self:SetIconVisibility(true)
+    end
 
     return self
 end
@@ -98,11 +91,11 @@ function XelosesReticleMarker:SetPosition(pos)
     self.UI.icon:ClearAnchors()
     self.UI.caption:ClearAnchors()
 
-    if (pos == POSITION.ABOVE) then
-        self.UI.caption:SetAnchor(BOTTOM, self.container, TOP, 0, 0)
+    if (pos == self.parent.CONST.UI.RETICLE_MARKER.POSITION.ABOVE) then
+        self.UI.caption:SetAnchor(BOTTOM, self.frame, TOP, 0, 0)
         self.UI.icon:SetAnchor(BOTTOM, self.UI.caption, TOP, 0, 0)
-    elseif (pos == POSITION.BELOW) then
-        self.UI.caption:SetAnchor(TOP, self.container, BOTTOM, 0, 0)
+    elseif (pos == self.parent.CONST.UI.RETICLE_MARKER.POSITION.BELOW) then
+        self.UI.caption:SetAnchor(TOP, self.frame, BOTTOM, 0, 0)
         self.UI.icon:SetAnchor(TOP, self.UI.caption, BOTTOM, 0, 0)
     end
 
@@ -110,11 +103,11 @@ function XelosesReticleMarker:SetPosition(pos)
 end
 
 function XelosesReticleMarker:SetOffset(offset)
-    local y = offset * ((self.position == POSITION.ABOVE) and -1 or 1)
+    local y = offset * ((self.position == self.parent.CONST.UI.RETICLE_MARKER.POSITION.ABOVE) and -1 or 1)
     if (self.offset == y) then return end
 
-    self.container:ClearAnchors()
-    self.container:SetAnchor(CENTER, ZO_ReticleContainerReticle, CENTER, 0, y)
+    self.frame:ClearAnchors()
+    self.frame:SetAnchor(CENTER, ZO_ReticleContainerReticle, CENTER, 0, y)
     self.offset = y
 end
 

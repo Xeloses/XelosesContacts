@@ -69,50 +69,21 @@ Table:isEmpty() -> Boolean
 ```
 ]]
 function table:isEmpty()
-    return self:len() == 0
-end
-
---[[
-Sort table by keys/indexes.
-
-```
-Table:sortByKeys(?fn_sorter: Function) -> Table
-
-@param fn_sorter = function(key1: Any, key2: Any) -> Boolean
-```
-]]
-function table:sortByKeys(fn_sorter)
-    local _r = table:new()
-    for k, v in pairs(self) do
-        _r:insertElem(v, k)
-    end
-    _r:sort()
-
-    local fn_sort_helper = function(k1, k2)
-        return k1 < k2
-    end
-
-    if (T(fn_sorter) ~= "function") then fn_sorter = fn_sort_helper end
-
-    self:sort(function(a, b) return fn_sorter(_r[a], _r[b]) end)
-    return self
+    return ZO_IsTableEmpty(self)
 end
 
 --[[
 Check if a table has specified element.
 
 ```
-Table:has(any Element) -> Boolean
+Table:has(any Element, boolean ForseAssociativeTable) -> Boolean
 ```
 ]]
-function table:has(elem)
-    if (#self > 0) then
+function table:has(elem, forse_assoc_table)
+    if (#self > 0 and not forse_assoc_table) then
         return ZO_IsElementInNumericallyIndexedTable(self, elem)
     else
-        for k, v in pairs(self) do
-            if (v == elem) then return true end
-        end
-        return false
+        return ZO_IsElementInNonContiguousTable(self, elem)
     end
 end
 
@@ -139,6 +110,21 @@ function table:get(key)
 end
 
 --[[
+Returns index/key of specified element.
+
+```
+Table:get(any Elem, boolean ForseAssociativeTable) -> any
+```
+]]
+function table:getKey(elem, forse_assoc_table)
+    if (#self and not forse_assoc_table) then
+        return ZO_IndexOfElementInNumericallyIndexedTable(self, elem)
+    else
+        return ZO_KeyOfFirstElementInNonContiguousTable(self, elem)
+    end
+end
+
+--[[
 Insert pair of key=value into table.
 
 ```
@@ -157,11 +143,11 @@ end
 Remove element with specified key from table and return element's value.
 
 ```
-Table:removeElem(Key: any) -> Any
+Table:removeKey(Key: any) -> Any
 ```
 ]]
 function table:removeKey(key)
-    if (#self == 0 or key == nil or not self[key]) then return end
+    if (self:isEmpty() or key == nil or not self[key]) then return end
 
     local val = self[key]
 
@@ -182,12 +168,11 @@ Table:removeElem(Element: any) -> Any
 ```
 ]]
 function table:removeElem(elem)
-    if (#self == 0 or elem == nil) then return end
+    if (self:isEmpty() or elem == nil) then return end
 
-    for i, val in ipairs(self) do
+    for key, val in pairs(self) do
         if (val == elem) then
-            self:remove(i)
-            return val
+            return self:remove(key)
         end
     end
 end
@@ -374,18 +359,6 @@ String:imatch(Pattern: string) -> integer Start, integer End
 ]]
 function string:isearch(pattern)
     return tostring(self):upper():find(pattern:upper(), 1, true)
-end
-
---[[
-Wraps string with quotes.
-
-```
-String:enquote() -> String
-```
-]]
-function string:enquote()
-    local quote = "\""
-    return quote .. self .. quote
 end
 
 --[[

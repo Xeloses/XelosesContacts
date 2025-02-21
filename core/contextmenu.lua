@@ -1,13 +1,11 @@
-local LCM   = LibCustomMenu
-local XC    = XelosesContacts
-local CONST = XC.CONST
-local L     = XC.getString
+local LCM = LibCustomMenu
+local L   = XelosesContacts.getString
 
 -- ---------------
 --  @SECTION Init
 -- ---------------
 
-function XC:SetupContextMenus()
+function XelosesContacts:SetupContextMenus()
     self:SetupChatContextMenu()
     self:SetupFriendListContextMenu()
     self:SetupIgnoreListContextMenu()
@@ -19,13 +17,13 @@ end
 --  @SECTION Menu item
 -- --------------------
 
-function XC:CreateContactMenuItem(account_name, note, category)
+function XelosesContacts:CreateContactMenuItem(account_name, note, category)
     if (not account_name or self:isInContacts(account_name)) then return end
     local item = { name = L("MENU_ADD_CONTACT") }
     if (category) then
-        if (category == CONST.CONTACTS_FRIENDS_ID) then
+        if (category == self.CONST.CONTACTS_FRIENDS_ID) then
             item.callback = function() self:AddContact_Friend(account_name, note) end
-        elseif (category == CONST.CONTACTS_VILLAINS_ID) then
+        elseif (category == self.CONST.CONTACTS_VILLAINS_ID) then
             item.callback = function() self:AddContact_Villain(account_name, note) end
         end
     else
@@ -34,47 +32,51 @@ function XC:CreateContactMenuItem(account_name, note, category)
     return item
 end
 
-local function addContactMenuItem(data, category)
-    local target_name = XC:validateAccountName(data.displayName)
-    if (target_name) then
-        local menu_item = XC:CreateContactMenuItem(target_name, data.note, category)
-        if (menu_item) then return AddCustomMenuItem(menu_item.name, menu_item.callback) end
+function XelosesContacts:addContactMenuItem(data, category)
+    local target_name = data.displayName
+    if (not IsDecoratedDisplayName(target_name)) then
+        target_name = self.Chat.cache:Get(target_name)
+    end
+
+    local menu_item = self:CreateContactMenuItem(target_name, data.note, category)
+    if (menu_item) then
+        return AddCustomMenuItem(menu_item.name, menu_item.callback)
     end
 end
 
-local function addFriendMenuItem(data)
-    return addContactMenuItem(data, CONST.CONTACTS_FRIENDS_ID)
+function XelosesContacts:addFriendMenuItem(data)
+    return self:addContactMenuItem(data, self.CONST.CONTACTS_FRIENDS_ID)
 end
 
-local function addVillainMenuItem(data)
-    return addContactMenuItem(data, CONST.CONTACTS_VILLAINS_ID)
+function XelosesContacts:addVillainMenuItem(data)
+    return self:addContactMenuItem(data, self.CONST.CONTACTS_VILLAINS_ID)
 end
 
 -- ----------------
 --  @SECTION Menus
 -- ----------------
 
-function XC:SetupChatContextMenu()
+function XelosesContacts:SetupChatContextMenu()
     LCM:RegisterPlayerContextMenu(
         function(player_name, raw_name)
-            return addContactMenuItem({ displayName = player_name })
+            return self:addContactMenuItem({ displayName = player_name })
         end,
         LCM.CATEGORY_LAST
     )
 end
 
-function XC:SetupFriendListContextMenu()
-    LCM:RegisterFriendsListContextMenu(addFriendMenuItem, LCM.CATEGORY_LAST)
+function XelosesContacts:SetupFriendListContextMenu()
+    LCM:RegisterFriendsListContextMenu(function(data) return self:addFriendMenuItem(data) end, LCM.CATEGORY_LAST)
 end
 
-function XC:SetupIgnoreListContextMenu()
-    LCM:RegisterIgnoreListContextMenu(addVillainMenuItem, LCM.CATEGORY_LAST)
+function XelosesContacts:SetupIgnoreListContextMenu()
+    LCM:RegisterIgnoreListContextMenu(function(data) return self:addVillainMenuItem(data) end, LCM.CATEGORY_LAST)
 end
 
-function XC:SetupGuildRosterContextMenu()
-    LCM:RegisterGuildRosterContextMenu(addContactMenuItem, LCM.CATEGORY_LAST)
+function XelosesContacts:SetupGuildRosterContextMenu()
+    LCM:RegisterGuildRosterContextMenu(function(data) return self:addContactMenuItem(data) end, LCM.CATEGORY_LAST)
 end
 
-function XC:SetupGroupWindowContextMenu()
-    LCM:RegisterGroupListContextMenu(addContactMenuItem, LCM.CATEGORY_LAST)
+function XelosesContacts:SetupGroupWindowContextMenu()
+    LCM:RegisterGroupListContextMenu(function(data) return self:addContactMenuItem(data) end, LCM.CATEGORY_LAST)
 end

@@ -1,14 +1,10 @@
-local EM     = GetEventManager()
-local XC     = XelosesContacts
-local XCGame = XC.Game
-local CONST  = XC.CONST
-local T      = type
+local EM = GetEventManager()
 
 -- ------------------
 --  @SECTION Players
 -- ------------------
 
-function XCGame:getUnitInfo(unit_tag)
+function XelosesContacts.Game:getUnitInfo(unit_tag)
     if (not unit_tag or unit_tag == "" or unit_tag:lower() == "player") then return end
 
     return {
@@ -30,43 +26,43 @@ end
 --  @SECTION Zones
 -- ----------------
 
-function XCGame:isSoloDungeon(zone_id)
-    return zone_id and CONST.ZONES.ARENA.SOLO:has(zone_id)
+function XelosesContacts.Game:isSoloDungeon(zone_id)
+    return zone_id and XelosesContacts.CONST.ZONES.ARENA.SOLO:has(zone_id)
 end
 
-function XCGame:isGroupDungeon(zone_id)
-    return zone_id and (CONST.ZONES.DUNGEON:has(zone_id) or CONST.ZONES.ARENA.GROUP:has(zone_id))
+function XelosesContacts.Game:isGroupDungeon(zone_id)
+    return zone_id and (XelosesContacts.CONST.ZONES.DUNGEON:has(zone_id) or XelosesContacts.CONST.ZONES.ARENA.GROUP:has(zone_id))
 end
 
-function XCGame:isTrial(zone_id)
-    return zone_id and CONST.ZONES.TRIAL:has(zone_id)
+function XelosesContacts.Game:isTrial(zone_id)
+    return zone_id and XelosesContacts.CONST.ZONES.TRIAL:has(zone_id)
 end
 
-function XCGame:isPvPZone(zone_id)
-    return zone_id and CONST.ZONES.PVP:has(zone_id)
+function XelosesContacts.Game:isPvPZone(zone_id)
+    return zone_id and XelosesContacts.CONST.ZONES.PVP:has(zone_id)
 end
 
-function XCGame:isInIA()
+function XelosesContacts.Game:isInIA()
     return IsInstanceEndlessDungeon()
 end
 
-function XCGame:isInSoloDungeon(zone_id)
-    return self:isSoloDungeon(zone_id or XC.zoneID)
+function XelosesContacts.Game:isInSoloDungeon(zone_id)
+    return self:isSoloDungeon(zone_id or XelosesContacts.zoneID)
 end
 
-function XCGame:isInGroupDungeon(zone_id)
-    return self:isGroupDungeon(zone_id or XC.zoneID)
+function XelosesContacts.Game:isInGroupDungeon(zone_id)
+    return self:isGroupDungeon(zone_id or XelosesContacts.zoneID)
 end
 
-function XCGame:isInTrial(zone_id)
-    return self:isTrial(zone_id or XC.zoneID)
+function XelosesContacts.Game:isInTrial(zone_id)
+    return self:isTrial(zone_id or XelosesContacts.zoneID)
 end
 
-function XCGame:isInPvPZone(zone_id)
-    return self:isPvPZone(zone_id or XC.zoneID) or IsPlayerInAvAWorld() --  or IsInAvAZone()
+function XelosesContacts.Game:isInPvPZone(zone_id)
+    return self:isPvPZone(zone_id or XelosesContacts.zoneID) or IsPlayerInAvAWorld() --  or IsInAvAZone()
 end
 
-function XCGame:GetZoneInfo(zone_id)
+function XelosesContacts.Game:GetZoneInfo(zone_id)
     local zone_info = {
         pvp           = false,
         ia            = false,
@@ -95,7 +91,7 @@ end
 -- ----------------
 
 -- returns TRUE if player is in the same group with target
-function XCGame:isGroupMember(target_name)
+function XelosesContacts.Game:isGroupMember(target_name)
     if (not IsUnitGrouped("player")) then return false end
     for i = 1, GROUP_SIZE_MAX do
         local unit         = "group" .. i
@@ -109,13 +105,13 @@ end
 
 -- ---------
 
-function XCGame:GroupInvite(target_name)
+function XelosesContacts.Game:GroupInvite(target_name)
     local SENT_FROM_CHAT = false
     local DISPLAY_INVITED_MESSAGE = true
     TryGroupInviteByName(target_name, SENT_FROM_CHAT, DISPLAY_INVITED_MESSAGE)
 end
 
-function XCGame:GroupKick(target_name)
+function XelosesContacts.Game:GroupKick(target_name)
     if (DoesGroupModificationRequireVote()) then
         BeginGroupElection(GROUP_ELECTION_TYPE_KICK_MEMBER, ZO_GROUP_ELECTION_DESCRIPTORS.NONE, target_name)
     elseif (IsUnitGroupLeader("player")) then
@@ -123,13 +119,13 @@ function XCGame:GroupKick(target_name)
     end
 end
 
-function XCGame:LeaveGroup()
+function XelosesContacts.Game:LeaveGroup()
     if (IsUnitGrouped("player")) then
         ZO_Dialogs_ShowDialog("GROUP_LEAVE_DIALOG")
     end
 end
 
-function XCGame:DisbandGroup()
+function XelosesContacts.Game:DisbandGroup()
     if (IsGroupModificationAvailable() and IsUnitGroupLeader("player")) then
         ZO_Dialogs_ShowDialog("GROUP_DISBAND_DIALOG")
     end
@@ -139,12 +135,12 @@ end
 --  @SECTION Guild
 -- ----------------
 
-function XCGame:isGuildmate(target_name)
+function XelosesContacts.Game:isGuildmate(target_name)
     if (not self.__guildmates) then self:loadGuildData() end
     return self.__guildmates:hasKey(target_name)
 end
 
-function XCGame:getGuildName(target_name)
+function XelosesContacts.Game:getGuildName(target_name)
     if (not self.__guilds) then self:loadGuildData() end
 
     local guild_index = self.__guildmates:get(target_name)
@@ -160,12 +156,12 @@ end
 --  @SECTION Friends
 -- ------------------
 
-function XCGame:isFriend(target_name)
+function XelosesContacts.Game:isFriend(target_name)
     if (not self.__friends) then self:loadSocialData() end
     return self.__friends:has(target_name)
 end
 
-function XCGame:addFriend(target_name, skip_dialog)
+function XelosesContacts.Game:addFriend(target_name, skip_dialog)
     if (not self:isFriend(target_name)) then
         if (skip_dialog) then
             RequestFriend(target_name, "")
@@ -175,7 +171,7 @@ function XCGame:addFriend(target_name, skip_dialog)
     end
 end
 
-function XCGame:removeFriend(target_name)
+function XelosesContacts.Game:removeFriend(target_name)
     if (not self:isFriend(target_name)) then return end
     ZO_Dialogs_ShowDialog("CONFIRM_REMOVE_FRIEND", { displayName = target_name }, { mainTextParams = { target_name } })
 end
@@ -184,17 +180,17 @@ end
 --  @SECTION Ignored
 -- ------------------
 
-function XCGame:isIgnored(target_name)
+function XelosesContacts.Game:isIgnored(target_name)
     if (not self.__ignored) then self:loadSocialData() end
     return self.__ignored:has(target_name)
 end
 
-function XCGame:addIgnore(target_name)
+function XelosesContacts.Game:addIgnore(target_name)
     if (self:isIgnored(target_name)) then return end
     ZO_PlatformIgnorePlayer(target_name)
 end
 
-function XCGame:removeIgnore(target_name)
+function XelosesContacts.Game:removeIgnore(target_name)
     if (not self:isIgnored(target_name)) then return end
     RemoveIgnore(target_name)
 end
@@ -203,42 +199,43 @@ end
 --  @SECTION Service
 -- ------------------
 
-function XCGame:TeleportTo(target_name)
+function XelosesContacts.Game:TeleportTo(target_name)
+    if (not IsDecoratedDisplayName(target_name)) then return end
     if (IsUnitDead("player")) then return end -- unable to teleport while dead
-
-    local name = XC:validateAccountName(target_name)
 
     if IsMounted() then
         -- retry teleport after 1.5 sec delay (first teleport attempt will just dismount player, so we need to do teleport again)
-        zo_callLater(function() self:TeleportTo(name) end, 2000)
+        zo_callLater(function() self:TeleportTo(target_name) end, 2000)
     end
     CancelCast()
 
     -- select teleportation method
-    if (self:isFriend(name)) then
-        JumpToFriend(name)
-    elseif (self:isGuildmate(name)) then
-        JumpToGuildMember(name)
+    if (self:isFriend(target_name)) then
+        JumpToFriend(target_name)
+    elseif (self:isGuildmate(target_name)) then
+        JumpToGuildMember(target_name)
     elseif (IsUnitGrouped("player")) then
-        if (name == GetUnitDisplayName(GetGroupLeaderUnitTag())) then
+        if (target_name == GetUnitDisplayName(GetGroupLeaderUnitTag())) then
             JumpToGroupLeader()
-        elseif (self:isGroupMember(name)) then
-            JumpToGroupMember(name)
+        elseif (self:isGroupMember(target_name)) then
+            JumpToGroupMember(target_name)
         end
     end
 end
 
-function XCGame:VisitHouse(target_name)
+function XelosesContacts.Game:VisitHouse(target_name)
     if (IsUnitDead("player")) then return end -- can't teleport while dead
     JumpToHouse(target_name)
 end
 
-function XCGame:SendMail(target_name)
+function XelosesContacts.Game:ComposeMail(target_name, subject)
+    if (not target_name or target_name == "") then return end
     if (IsUnitDead("player")) then return end -- game does not allow to send mail while dead
-    MAIL_SEND:ComposeMailTo(target_name)
+
+    MAIL_SEND:ComposeMailTo(target_name, subject or "")
 end
 
-function XCGame:ReportPlayer(target_name)
+function XelosesContacts.Game:ReportPlayer(target_name)
     ZO_HELP_GENERIC_TICKET_SUBMISSION_MANAGER:OpenReportPlayerTicketScene(target_name)
 end
 
@@ -248,8 +245,8 @@ end
 
 local __social_events = { friends = false, ignored = false, guild = false }
 
-function XCGame:loadSocialData(reset_data)
-    XC:RemoveHook("SocialDataLoad")
+function XelosesContacts.Game:loadSocialData(reset_data)
+    XelosesContacts:RemoveHook("SocialDataLoad")
     if ((self.__friends ~= nil and self.__ignored ~= nil) and not reset_data) then return end
 
     local num_friends = GetNumFriends()
@@ -313,8 +310,8 @@ function XCGame:loadSocialData(reset_data)
     end
 end
 
-function XCGame:loadGuildData(reset_data)
-    XC:RemoveHook("GuildDataLoad")
+function XelosesContacts.Game:loadGuildData(reset_data)
+    XelosesContacts:RemoveHook("GuildDataLoad")
     if ((self.__guildmates ~= nil and self.__guilds ~= nil) and not reset_data) then return end
 
     self:resetGuildData()
@@ -367,12 +364,12 @@ function XCGame:loadGuildData(reset_data)
     end
 end
 
-function XCGame:resetSocialData()
+function XelosesContacts.Game:resetSocialData()
     self.__friends = table:new()
     self.__ignored = table:new()
 end
 
-function XCGame:resetGuildData()
+function XelosesContacts.Game:resetGuildData()
     self.__guilds = table:new()
     self.__guildmates = table:new()
 end

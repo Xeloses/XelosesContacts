@@ -1,11 +1,13 @@
 # CHANGELOG
 
-### Version 1.1.3 *(2025-02-??)*
+### Version 1.1.3 *(2025-02-20)*
 * **New features:**
-  * Custom contact groups:
-    * Add/remove contact groups.
-      * *Maximum of 50 groups can be created (25 for friends and 25 for Villains).*
-    * Change names and icons of contact groups.
+  * Added **Chat caching**
+    * cache last **N** *(max cache size can be configured in settings)* seen chat message senders in Zone and Say chat channels to provide account name for context menu;
+    * "***Add to Contacts***" context menu item should be available for much more chat messages;
+    * can be disabled in settings.
+* **Misc.:**
+  * Changed Settings panel appearance.
 
 ### Version 1.1.2 *(2025-02-10)*
 * **Bug fixes:**
@@ -19,7 +21,7 @@
     * auto disable reticle target tracking in Infinite archive;
     * auto disable reticle target tracking in group dungeons, group arenas and trials if player is not in group;
       * auto re-enable reticle target tracking when players joins group while in group dungeon, group arena or trial.
-  * Little performance optimizations for reticle target tracking.
+  * Little perfomance optimizations for reticle target tracking.
   * Improved PvP-zones detection.
   * Slightly ajusted default settings.
 * **Bug fixes:**
@@ -33,7 +35,7 @@
 
 ### Version 1.1.0 *(2025-02-07)*
 * **New features:**
-  * Added Reticle target marker.
+  * Added **Reticle target marker**.
   * Added a watcher to auto-rename contacts when associated player from ESO ingame friends has been renamed.
 * **Dependencies:**
   * Code updates for **LibCustomMenu** v7.3.0

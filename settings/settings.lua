@@ -1,50 +1,60 @@
-local CM    = CALLBACK_MANAGER
-local LAM   = LibAddonMenu2
-local XC    = XelosesContacts
-local CONST = XC.CONST
-local F     = XC.formatString
-local T     = type
+local CM  = CALLBACK_MANAGER
+local LAM = LibAddonMenu2
+local F   = XelosesContacts.formatString
+local T   = type
 
-function XC:OpenSettings()
+function XelosesContacts:OpenSettings()
     LAM:OpenToPanel(self.UI.SettingsPanel)
 end
 
-function XC:CreateConfigMenu()
+function XelosesContacts:CreateConfigMenu()
     -- ----------------
     --  @SECTION Panel
     -- ----------------
 
-    local panel_data            = {
+    local panel_data           = {
         type                = "panel",
         name                = self.name,
         displayName         = self.displayName,
-        author              = self.author,
+        author              = self.displayAuthorName,
         version             = self:getVersion(),
-        keywords            = "social contact friend villain ignore mark",
+        keywords            = self.keywords,
         website             = self.url,
         feedback            = self.url_dev .. "issues",
+        donation            = function() self.Game:ComposeMail(self.author, "Donation for " .. self.name) end,
         slashCommand        = self.slashCmd .. " " .. self.slashCmdParams["OPEN_SETTINGS"].cmd,
         registerForRefresh  = true,
         registerForDefaults = true,
     }
 
+    local config_data          = table:new()
+
     -- --------------------
     --  @SECTION <Utility>
     -- --------------------
 
-    local color_note            = "999999"
-    local color_warn            = "CC3333"
+    local ICON_SIZE_HEADER     = 36
+    local ICON_SIZE_TEXT       = 24
 
-    local icon_size_text        = 24
-    local icon_size_header      = 36
+    local CONTROL_REF_TEMPLATE = self.__prefix .. "LAM_%s_%d"
 
-    local control_name_template = self.__prefix .. "LAM_%s_%d"
+    local import_target_group  = {}
 
-    local groups_changed        = false
-    panel_data.resetFunc        = function() groups_changed = false end -- handle reset to defaults settings
+    local changed_colors       = table:new()
+    local changed_groups       = table:new()
 
-    -- -------------------
-    --  Utility
+    -- ---------
+    --  Strings
+
+    -- wrapper for load string
+    local function L(str, ...)
+        local s = self.getString("SETTINGS_" .. str)
+        if (not s or s:isEmpty() or s:match("^[_A-Z0-9]+$") or s:find("SETTINGS_", 1, true) == 1) then return end
+        return F(s, ...)
+    end
+
+    -- --------
+    --  Colors
 
     local function getColor(index)
         local color = ZO_ColorDef:New(self:getCategoryColor(index) or self.defaults.colors[index])
@@ -67,17 +77,72 @@ function XC:CreateConfigMenu()
         return ZO_ColorDef:New(color_r or 0.8, color_g or 0.8, color_b or 0.8, color_a or 0.9):ToHex()
     end
 
-    local function L(str, ...)
-        local s = self.getString("SETTINGS_" .. str)
-        if (not s or s:isEmpty() or s:match("^[_A-Z0-9]+$") or s:find("SETTINGS_", 1, true) == 1) then return end
-        return F(s, ...)
+    -- --------------------------
+    --  Register changed options
+
+    --[[
+        Register changed options to apply necessary updates/refreshes on panel close
+    ]]
+
+    local function registerColorChanges(category_id)
+        if (changed_colors:has(category_id)) then return end
+
+        changed_colors:insert(category_id)
     end
 
-    -- -------------------
-    --  Panel controls
+    local function registerGroupChanges(category_id)
+        if (changed_groups:has(category_id)) then return end
 
-    local config_data = table:new()
+        changed_groups:insert(category_id)
+    end
 
+    -- ---------------------
+    --  @SECTION <Controls>
+    -- ---------------------
+
+    --[[
+        utilize custom properties to format panel item's text:
+            panel_item.custom_color     : String         = "HEX color"            -- text color
+            panel_item.custom_icon      : String|Boolean = "/path/to/texture.dds" -- icon to be placed before text or
+                                                                              boolean indicates icon should be taken from CONST data table
+            panel_item.custom_icon_size : Number         = 24                     -- specify size of icon (optional)
+    ]]
+    local function formatItemText(item_data, text)
+        if (T(text) == "string" and not text:isEmpty()) then
+            if (not item_data.custom_name) then
+                item_data.custom_name = text
+            end
+        else
+            text = item_data.custom_name
+        end
+
+        local result = text:match("[^A-Z0-9_]+") and text or L(text)
+        if (not result) then return "" end
+
+        if (T(item_data) == "table") then
+            if (T(item_data.custom_color) == "string") then
+                result = result:colorize(item_data.custom_color)
+            end
+
+            if (item_data.custom_icon) then
+                if (T(item_data.custom_icon) == "boolean" and item_data.custom_icon) then
+                    item_data.custom_icon = self.CONST.ICONS.UI.CONFIG_PANEL[item_data.custom_name]
+                elseif (T(item_data.custom_icon) ~= "string") then
+                    item_data.custom_icon = nil
+                end
+
+                if (not item_data.custom_icon_size or T(item_data.custom_icon_size) ~= "number") then
+                    item_data.custom_icon_size = (item_data.type == "header" or item_data.type == "submenu") and ICON_SIZE_HEADER or ICON_SIZE_TEXT
+                end
+
+                result = result:addIcon(item_data.custom_icon, item_data.custom_color, item_data.custom_icon_size, true)
+            end
+        end
+
+        return result
+    end
+
+    -- create control's data structure
     local function createItem(item_type, text, params)
         local item = { type = item_type }
 
@@ -93,27 +158,7 @@ function XC:CreateConfigMenu()
 
         if (T(text) ~= "string" or text:isEmpty()) then return end
 
-        local item_text = text:match("[^A-Z0-9_]+") and text or L(text)
-
         if (T(params) == "table") then
-            local item_color
-            if (T(params.color) == "string") then
-                item_color = params.color
-            end
-            params.color = nil
-            item_text    = item_text:colorize(item_color)
-
-            local item_icon
-            if (T(params.icon) == "string") then
-                item_icon = params.icon
-            elseif (params.icon) then
-                item_icon = CONST.ICONS.UI.CONFIG_PANEL[text]
-            end
-            local item_icon_size = params.icon_size or (item_type == "header" and icon_size_header) or icon_size_text
-            item_text            = item_text:addIcon(item_icon, item_color, item_icon_size)
-            params.icon          = nil
-            params.icon_size     = nil
-
             if (T(params.tooltip) == "string") then
                 params.tooltip = L(params.tooltip)
             elseif (T(params.tooltip) == "table") then
@@ -122,51 +167,59 @@ function XC:CreateConfigMenu()
                 params.tooltip = L(text .. "_TOOLTIP")
             end
 
+            if (T(params.warning) == "string") then
+                params.warning = L(params.warning)
+            elseif (T(params.warning) == "table") then
+                params.warning = table:new(params.warning):join("\n")
+            elseif (params.warning == nil or params.warning) then
+                local warn = L(text .. "_WARNING")
+                if (warn) then
+                    params.warning = self.getString("WARNING"):colorize(self.CONST.COLOR.WARNING) .. " " .. warn
+                end
+            end
+
             for key, val in pairs(params) do
                 item[key] = val
             end
         end
 
         if (item_type == "description") then
-            item.text = item_text
+            item.text = formatItemText(item, text)
         else
-            item.name = item_text
+            item.name = formatItemText(item, text)
         end
 
         return item
     end
 
+    -- create control and add it to the panel
     local function addItem(item_type, text_id, params)
         config_data:insert(createItem(item_type, text_id, params))
     end
 
+    -- create submenu and add it to the panel
     local function addSubmenu(title, submenu, params)
-        if (T(title) ~= "string" or title:isEmpty() or T(submenu) ~= "table" or #submenu == 0) then return end
+        local submenu_item = createItem("submenu", title, params)
+        submenu_item.controls = submenu
 
-        local submenu_data = {
-            type = "submenu",
-            name = (title:match("[A-Z_]+") == title) and L(title) or title,
-            controls = submenu,
-        }
-
-        if (T(params) == "table") then
-            for key, val in pairs(params) do
-                submenu_data[key] = val
-            end
-        end
-
-        config_data:insert(submenu_data)
+        config_data:insert(submenu_item)
     end
 
-    local function updateGroupsList(category_id)
-        local controls     = { "GROUPS_EDIT_SELECT", "IMPORT_GROUP_SELECT" }
+    -- ------------------
+
+    -- refresh (reload) group selection dropdown lists
+    local function refreshGroupsList(category_id)
+        local controls     = {
+            -- "GROUPS_EDIT_SELECT",
+            "IMPORT_GROUP_SELECT",
+        }
 
         local groups_list  = self:getGroupsList(category_id, true, true)
         local groups_ids   = groups_list:keys()
         local groups_names = groups_list:values()
 
         for _, control_name in ipairs(controls) do
-            local control = _G[control_name_template:format(control_name, category_id)]
+            local control = _G[CONTROL_REF_TEMPLATE:format(control_name, category_id)]
 
             if (control) then
                 control.data.choices       = groups_names
@@ -176,10 +229,34 @@ function XC:CreateConfigMenu()
         end
     end
 
+    -- refresh/update colorized controls
+    local function refreshColors(category_id)
+        refreshGroupsList(category_id)
+
+        local controls = { "GROUPS_EDIT" }
+
+        for _, control_name in ipairs(controls) do
+            local control = _G[CONTROL_REF_TEMPLATE:format(control_name, category_id)]
+
+            if (control) then
+                control.data.name = formatItemText(control.data)
+                control:UpdateValue()
+            end
+        end
+
+        local control = _G[CONTROL_REF_TEMPLATE:format("GROUPS_EDIT_ICON", category_id)]
+        if (control) then
+            local color = ZO_ColorDef:New(self:getCategoryColor(category_id))
+            control.data.defaultColor = color
+            control:SetColor(color)
+        end
+    end
+
     -- ------------------
     --  @SECTION GENERAL
     -- ------------------
-    addItem("header", "GENERAL", { icon = true })
+
+    addItem("header", "GENERAL", { custom_icon = true })
 
     addItem("checkbox", "UI_SEARCH_NOTE", {
         getFunc = function() return self.config.ui.search_note end,
@@ -191,13 +268,17 @@ function XC:CreateConfigMenu()
     --  @SECTION COLORS
     -- -----------------
 
-    addItem("header", "COLORS", { icon = true })
+    addItem("header", "COLORS", { custom_icon = true })
     addItem("description", "COLORS_DESCRIPTION")
 
-    for category_id, category_name in ipairs(CONST.CONTACTS_CATEGORIES) do
+    for category_id, category_name in ipairs(self.CONST.CONTACTS_CATEGORIES) do
         addItem("colorpicker", L("COLOR", category_name), {
             getFunc = function() return getColor(category_id) end,
-            setFunc = function(r, g, b, a) setColor(category_id, r, g, b, a) end,
+            setFunc = function(r, g, b, a)
+                setColor(category_id, r, g, b, a)
+                registerColorChanges(category_id)
+                refreshColors(category_id)
+            end,
             default = function() return ZO_ColorDef:New(self.defaults.colors[category_id]) end,
         })
     end
@@ -206,116 +287,36 @@ function XC:CreateConfigMenu()
     --  @SECTION GROUPS
     -- -----------------
 
-    addItem("header", "GROUPS", { icon = true })
+    addItem("header", "GROUPS", { custom_icon = true })
     addItem("description", "GROUPS_DESCRIPTION")
 
-    -- GROUPS submenus
-    for category_id, category_name in ipairs(CONST.CONTACTS_CATEGORIES) do
-        local category_color    = self:getCategoryColor(category_id)
-        local selected_group_id = 0
-
-        local GROUPS            = self.config.groups[category_id]
-        local group_submenu     = table:new()
-
-        local function updateSelectedGroupData(data)
-            local i = self:getGroupIndexByID(category_id, selected_group_id)
-            if (not i) then return end
-
-            for k, v in pairs(data) do
-                GROUPS[i][k] = v
-            end
-
-            groups_changed = true
-            updateGroupsList(category_id)
-        end
-
-        -- ----------------------------------------
-
-        group_submenu:insert(createItem("divider"))
-
-        -- Group selector
-        do
-            local groups_list = self:getGroupsList(category_id, true, true)
-            local group_ids   = groups_list:keys()
-            local group_names = groups_list:values()
-
-            group_submenu:insert(createItem("dropdown", "GROUPS_SELECT", {
-                choices       = group_names,
-                choicesValues = group_ids,
-                sort          = "numericvalue-up",
-                scrollable    = 7,
-                getFunc       = function() return selected_group_id end,
-                setFunc       = function(val) selected_group_id = val end,
-                default       = 0,
-                reference     = control_name_template:format("GROUPS_EDIT_SELECT", category_id),
+    -- GROUPS submenu
+    for category_id, category_name in ipairs(self.CONST.CONTACTS_CATEGORIES) do
+        local GROUPS = self.config.groups[category_id]
+        local group_submenu = table:new()
+        for group_id, group_name in ipairs(GROUPS) do
+            local group_icon = tostring(group_id):addIcon(self:getGroupIcon(category_id, group_id), self:getCategoryColor(category_id))
+            local text = L("GROUP_NAME", group_icon)
+            group_submenu:insert(createItem("editbox", text, {
+                maxChars    = self.CONST.GROUP_NAME_MAX_LENGTH,
+                isMultiline = false,
+                getFunc     = function() return GROUPS[group_id] end,
+                setFunc     = function(val) GROUPS[group_id] = val:sanitize(self.CONST.GROUP_NAME_MAX_LENGTH) end,
+                default     = self.defaults.groups[category_id][group_id],
             }))
         end
 
-        -- Manage group buttons
-        group_submenu:insert(createItem("button", "GROUPS_BUTTON_ADD", {
-            width    = "half",
-            func     = function()
-                local g = self:CreateGroup(category_id)
-                selected_group_id = g.id
-                updateGroupsList(category_id)
-            end,
-            --requiresReload = true,
-            disabled = function() return self.processing or #GROUPS >= CONST.CONTACTS_GROUPS_MAX end, -- limit groups amount
-        }))
-        group_submenu:insert(createItem("button", "GROUPS_BUTTON_REMOVE", {
-            width       = "half",
-            func        = function()
-                self:RemoveGroup(category_id, selected_group_id)
-                selected_group_id = 0
-                updateGroupsList(category_id)
-            end,
-            warning     = L("GROUPS_BUTTON_REMOVE_WARNING"):colorize("DD3333"),
-            isDangerous = true,
-            -- requiresReload = true,
-            disabled    = function() return self.processing or selected_group_id <= 5 end, -- disallow removing of predefined groups
-        }))
-
-        group_submenu:insert(createItem(
-            "description",
-            L("GROUPS_NOTE", self:getGroupTitle(category_id, 1)),
-            {
-                color = color_note,
-                icon = CONST.ICONS.UI.NOTE,
-            }
-        ))
-
-        -- Selected group editor
-        group_submenu:insert(createItem("header", "GROUPS_EDIT"))
-        group_submenu:insert(createItem("editbox", "GROUPS_EDIT_NAME", {
-            maxChars    = CONST.GROUP_NAME_MAX_LENGTH,
-            isMultiline = false,
-            getFunc     = function() return (selected_group_id > 0) and self:getGroupName(category_id, selected_group_id) or "" end,
-            setFunc     = function(val) updateSelectedGroupData({ name = val:sanitize(CONST.GROUP_NAME_MAX_LENGTH) }) end,
-            disabled    = function() return selected_group_id == 0 end,
-            default     = "",
-            reference   = control_name_template:format("GROUPS_EDIT_NAME", category_id),
-        }))
-        group_submenu:insert(createItem("iconpicker", "GROUPS_EDIT_ICON", {
-            choices      = CONST.ICONS.LIST,
-            iconSize     = 28,
-            defaultColor = ZO_ColorDef:New(self:getCategoryColor(category_id)),
-            maxColumns   = 7,
-            visibleRows  = 5.5,
-            getFunc      = function() return (selected_group_id > 0) and self:getGroupIcon(category_id, selected_group_id) or CONST.ICONS.LIST[1] end,
-            setFunc      = function(val) updateSelectedGroupData({ icon = val }) end,
-            disabled     = function() return selected_group_id == 0 end,
-            default      = CONST.ICONS.LIST[1],
-            reference    = control_name_template:format("GROUPS_EDIT_ICON", category_id),
-        }))
-
-        addSubmenu(category_name:colorize(category_color), group_submenu)
+        addSubmenu(category_name, group_submenu, {
+            custom_color = self:getCategoryColor(category_id),
+            reference    = CONTROL_REF_TEMPLATE:format("GROUPS_EDIT", category_id),
+        })
     end
 
     -- -------------------------
     --  @SECTION RETICLE MARKER
     -- -------------------------
 
-    addItem("header", "RETICLE_MARKER", { icon = true, icon_size = 24 })
+    addItem("header", "RETICLE_MARKER", { custom_icon = true })
     addItem("description", "RETICLE_MARKER_DESCRIPTION")
 
     addItem("checkbox", "RETICLE_MARKER_ENABLE", {
@@ -355,7 +356,7 @@ function XC:CreateConfigMenu()
     do
         local positions = table:new()
         local position_indexes = table:new()
-        for position, position_index in pairs(CONST.UI.RETICLE_MARKER.POSITION) do
+        for position, position_index in pairs(self.CONST.UI.RETICLE_MARKER.POSITION) do
             positions:insert(L("RETICLE_MARKER_POSITION_" .. position))
             position_indexes:insert(position_index)
         end
@@ -374,8 +375,8 @@ function XC:CreateConfigMenu()
     end
 
     addItem("slider", "RETICLE_MARKER_OFFSET", {
-        min        = CONST.UI.RETICLE_MARKER.MIN_OFFSET,
-        max        = CONST.UI.RETICLE_MARKER.MAX_OFFSET,
+        min        = self.CONST.UI.RETICLE_MARKER.MIN_OFFSET,
+        max        = self.CONST.UI.RETICLE_MARKER.MAX_OFFSET,
         step       = 5,
         clampInput = false,
         getFunc    = function() return self.config.reticle.offset end,
@@ -401,7 +402,7 @@ function XC:CreateConfigMenu()
         default    = self.defaults.reticle.font.size,
     })
     addItem("dropdown", "RETICLE_MARKER_FONT_STYLE", {
-        choices  = CONST.FONT_STYLE,
+        choices  = self.CONST.UI.FONT_STYLE,
         getFunc  = function() return self.config.reticle.font.style end,
         setFunc  = function(val)
             self.config.reticle.font.style = val
@@ -423,7 +424,7 @@ function XC:CreateConfigMenu()
     do
         local sizes = table:new()
         local size_titles = table:new()
-        for title, size in pairs(CONST.UI.RETICLE_MARKER.ICON_SIZE) do
+        for title, size in pairs(self.CONST.UI.RETICLE_MARKER.ICON_SIZE) do
             size_titles:insert(L("RETICLE_MARKER_ICON_SIZE_" .. title))
             sizes:insert(size)
         end
@@ -445,7 +446,7 @@ function XC:CreateConfigMenu()
     do
         local markers_submenu = table:new()
 
-        local markers_info = self.getString("WARNING"):colorize(self.colors.warning) .. " " .. L("RETICLE_MARKER_ADDITIONAL_MARKERS_DESCRIPTION")
+        local markers_info = self.getString("WARNING"):colorize(self.CONST.COLOR.WARNING) .. " " .. L("RETICLE_MARKER_ADDITIONAL_MARKERS_DESCRIPTION")
         markers_submenu:insert(createItem("description", markers_info))
 
         local marker_names = table:new(self.config.reticle.markers):keys()
@@ -453,7 +454,7 @@ function XC:CreateConfigMenu()
 
         for _, marker_name in ipairs(marker_names) do
             local uname = marker_name:upper()
-            local icon = (""):addIcon(CONST.ICONS.SOCIAL[uname])
+            local icon = (""):addIcon(self.CONST.ICONS.SOCIAL[uname])
             local text = F(L("RETICLE_MARKER_ADDITIONAL_" .. uname), icon)
             markers_submenu:insert(createItem("divider"))
             markers_submenu:insert(createItem("checkbox", text, {
@@ -472,20 +473,23 @@ function XC:CreateConfigMenu()
         end
 
         addSubmenu("RETICLE_MARKER_ADDITIONAL_MARKERS", markers_submenu, {
-            disabled = function() return not self.config.reticle.enabled end,
+            custom_icon      = self.CONST.ICONS.UI.CONFIG_PANEL.MARKERS,
+            custom_icon_size = 28,
+            disabled         = function() return not self.config.reticle.enabled end,
         })
     end
+
 
     -- ------------------------
     --  @SECTION NOTIFICATIONS
     -- ------------------------
 
-    addItem("header", "NOTIFICATION", { icon = true })
+    addItem("header", "NOTIFICATION", { custom_icon = true })
 
     do
         local channel_indexes = table:new()
         local channel_names   = table:new()
-        for channel_name, channel_index in pairs(CONST.NOTIFICATION_CHANNELS) do
+        for channel_name, channel_index in pairs(self.CONST.NOTIFICATION_CHANNELS) do
             channel_names:insert(L("NOTIFICATION_CHANNEL_OPTION_" .. channel_name))
             channel_indexes:insert(channel_index)
         end
@@ -587,8 +591,31 @@ function XC:CreateConfigMenu()
     --  @SECTION CHAT
     -- ---------------
 
-    addItem("header", "CHAT", { icon = true })
+    addItem("header", "CHAT", { custom_icon = true })
     addItem("description", "CHAT_DESCRIPTION")
+
+    -- Chat cache
+    addItem("checkbox", "CHAT_CACHE", {
+        getFunc = function() return self.config.chat.cache.enabled end,
+        setFunc = function(val)
+            self.config.chat.cache.enabled = val
+            self.Chat.cache:Toggle(val)
+        end,
+        default = self.defaults.chat.cache.enabled,
+    })
+    addItem("slider", "CHAT_CACHE_SIZE", {
+        min        = self.CONST.CHAT.CACHE.MIN_SIZE,
+        max        = self.CONST.CHAT.CACHE.MAX_SIZE,
+        step       = 10,
+        clampInput = false,
+        getFunc    = function() return self.config.chat.cache.maxsize end,
+        setFunc    = function(val)
+            self.config.chat.cache.maxsize = val
+            self.Chat.cache:SetMaxSize(val)
+        end,
+        disabled   = function() return not self.config.chat.cache.enabled end,
+        default    = self.defaults.chat.cache.maxsize,
+    })
 
     -- Chat blocking submenu
     do
@@ -597,24 +624,24 @@ function XC:CreateConfigMenu()
         chat_block_submenu:insert(createItem("description", "CHAT_BLOCK_GROUPS_DESCRIPTION"))
 
         -- Contact' groups
-        local category_color = self:getCategoryColor(CONST.CONTACTS_VILLAINS_ID)
-        local groups_list    = self:getGroupsList(CONST.CONTACTS_VILLAINS_ID, true, true)
-        for group_id, group_name in ipairs(groups_list) do
-            if (group_id <= 5) then
-                chat_block_submenu:insert(createItem("checkbox", F(L("CHAT_BLOCK_GROUP"), group_name), {
-                    tooltip = "CHAT_BLOCK_GROUP_TOOLTIP",
-                    getFunc = function() return self.config.chat.block_groups[group_id] end,
-                    setFunc = function(val) self.config.chat.block_groups[group_id] = val end,
-                    default = self.defaults.chat.block_groups[group_id],
-                }))
-            end
+        local GROUPS = self.config.groups[self.CONST.CONTACTS_VILLAINS_ID]
+        local category_color = self:getCategoryColor(self.CONST.CONTACTS_VILLAINS_ID)
+        for group_id, group_name in ipairs(GROUPS) do
+            local group_icon = self:getGroupIcon(self.CONST.CONTACTS_VILLAINS_ID, group_id)
+            local text = F(L("CHAT_BLOCK_GROUP"), (""):addIcon(group_icon, category_color), group_name)
+            chat_block_submenu:insert(createItem("checkbox", text, {
+                tooltip = "CHAT_BLOCK_GROUP_TOOLTIP",
+                getFunc = function() return self.config.chat.block_groups[group_id] end,
+                setFunc = function(val) self.config.chat.block_groups[group_id] = val end,
+                default = self.defaults.chat.block_groups[group_id],
+            }))
         end
 
         chat_block_submenu:insert(createItem("header", "CHAT_BLOCK_CHANNELS"))
         chat_block_submenu:insert(createItem("description", "CHAT_BLOCK_CHANNELS_DESCRIPTION"))
 
         -- Chat channels
-        local chat_channels = CONST.CHAT.CHANNELS
+        local chat_channels = self.CONST.CHAT.CHANNELS
         for channel_name, _ in pairs(chat_channels) do
             chat_block_submenu:insert(createItem("checkbox", "CHAT_BLOCK_CHANNEL_" .. channel_name:upper(), {
                 getFunc = function() return self.config.chat.block_channels[channel_name] end,
@@ -623,8 +650,10 @@ function XC:CreateConfigMenu()
             }))
         end
 
-        local submenu_title = L("CHAT_BLOCK"):colorize(color_warn):addIcon(CONST.ICONS.UI.CONFIG_PANEL.CHAT_BLOCK, color_warn, 36)
-        addSubmenu(submenu_title, chat_block_submenu)
+        addSubmenu("CHAT_BLOCK", chat_block_submenu, {
+            custom_icon  = true,
+            custom_color = self.CONST.COLOR.DANGER,
+        })
     end
 
     addItem("checkbox", "CHAT_INFO", {
@@ -637,45 +666,43 @@ function XC:CreateConfigMenu()
     --  @SECTION IMPORT
     -- -----------------
 
-    addItem("header", "IMPORT", { icon = true })
+    addItem("header", "IMPORT", { custom_icon = true })
 
     do
         local category_ref = {
-            [CONST.CONTACTS_FRIENDS_ID]  = "FRIENDS",
-            [CONST.CONTACTS_VILLAINS_ID] = "VILLAINS"
+            [self.CONST.CONTACTS_FRIENDS_ID]  = "FRIENDS",
+            [self.CONST.CONTACTS_VILLAINS_ID] = "VILLAINS"
         }
         local category_counter = {
-            [CONST.CONTACTS_FRIENDS_ID]  = GetNumFriends,
-            [CONST.CONTACTS_VILLAINS_ID] = GetNumIgnored,
+            [self.CONST.CONTACTS_FRIENDS_ID]  = GetNumFriends,
+            [self.CONST.CONTACTS_VILLAINS_ID] = GetNumIgnored,
         }
 
-        local import_target = {}
+        for category_id, _ in ipairs(self.CONST.CONTACTS_CATEGORIES) do
+            local groups_list                = self:getGroupsList(category_id, true, true)
+            local group_ids                  = groups_list:keys()
+            local group_names                = groups_list:values()
+            local category_ref_name          = category_ref[category_id]
 
-        for category_id, category_name in ipairs(CONST.CONTACTS_CATEGORIES) do
-            local groups_list          = self:getGroupsList(category_id, true, true)
-            local group_ids            = groups_list:keys()
-            local group_names          = groups_list:values()
-            local category_ref_name    = category_ref[category_id]
-
-            import_target[category_id] = 1
+            import_target_group[category_id] = 1
 
             addItem("description", "IMPORT_" .. category_ref_name)
             addItem("dropdown", "IMPORT_DESTINATION", {
                 choices       = group_names,
                 choicesValues = group_ids,
                 sort          = "numericvalue-up",
-                scrollable    = 5,
-                getFunc       = function() return import_target[category_id] end,
-                setFunc       = function(val) import_target[category_id] = val end,
+                scrollable    = 7,
+                getFunc       = function() return import_target_group[category_id] end,
+                setFunc       = function(val) import_target_group[category_id] = val end,
                 default       = 1,
-                reference     = control_name_template:format("IMPORT_GROUP_SELECT", category_id),
+                reference     = CONTROL_REF_TEMPLATE:format("IMPORT_GROUP_SELECT", category_id),
             })
             addItem("button", "IMPORT_BUTTON", {
                 func = function()
                     self:ShowDialog(
-                        CONST.UI.DIALOGS["CONFIRM_IMPORT_" .. category_ref_name],
+                        self.CONST.UI.DIALOGS["CONFIRM_IMPORT_" .. category_ref_name],
                         nil,
-                        import_target[category_id]
+                        import_target_group[category_id]
                     )
                 end,
                 disabled = function()
@@ -687,68 +714,45 @@ function XC:CreateConfigMenu()
         end
     end
 
-    -- @TODO test & remove/uncomment
-    --[[
-    -- Import Friends
-    do
-        local groups_list = self:getGroupsList(CONST.CONTACTS_FRIENDS_ID, true, true)
-        local group_ids   = groups_list:keys()
-        local group_names = groups_list:values()
-
-        addItem("description", "IMPORT_FRIENDS")
-        addItem("dropdown", "IMPORT_DESTINATION", {
-            choices       = group_names,
-            choicesValues = group_ids,
-            sort          = "numericvalue-up",
-            scrollable    = 5,
-            getFunc       = function() return import_target.friends end,
-            setFunc       = function(val) import_target.friends = val end,
-            default       = 1,
-            reference     = control_name_template:format("IMPORT_GROUP_SELECT", CONST.CONTACTS_FRIENDS_ID),
-        })
-        addItem("button", "IMPORT_BUTTON", {
-            func = function() self:ShowDialog(CONST.UI.DIALOGS.CONFIRM_IMPORT_FRIENDS, nil, import_target.friends) end,
-            disabled = function() return self.processing or (GetNumFriends() == 0) end,
-        })
-        addItem("divider")
-    end
-
-
-    -- Import Ignored
-    do
-        local groups_list = self:getGroupsList(CONST.CONTACTS_VILLAINS_ID, true, true)
-        local group_ids   = groups_list:keys()
-        local group_names = groups_list:values()
-
-        addItem("description", "IMPORT_IGNORED")
-        addItem("dropdown", "IMPORT_DESTINATION", {
-            choices       = group_names,
-            choicesValues = group_ids,
-            sort          = "numericvalue-up",
-            scrollable    = 5,
-            getFunc       = function() return import_target.villains end,
-            setFunc       = function(val) import_target.villains = val end,
-            default       = 1,
-            reference     = control_name_template:format("IMPORT_GROUP_SELECT", CONST.CONTACTS_VILLAINS_ID),
-        })
-        addItem("button", "IMPORT_BUTTON", {
-            func = function() self:ShowDialog(CONST.UI.DIALOGS.CONFIRM_IMPORT_VILLAINS, nil, import_target.villains) end,
-            disabled = function() return self.processing or (GetNumIgnored() == 0) end,
-        })
-    end
-    ]]
     -- ----------------
-    --  @SECTION Init
+    --  @SECTION Reset
     -- ----------------
 
-    self.UI.SettingsPanel = LAM:RegisterAddonPanel(self.__namespace .. "_Config", panel_data)
-    LAM:RegisterOptionControls(self.__namespace .. "_Config", config_data)
+    -- handle reset to defaults settings
+    panel_data.resetFunc = function()
+        changed_colors = table:new()
+        changed_groups = table:new()
+
+        --groups_editor_selected_id = 0
+
+        for i, _ in ipairs(import_target_group) do
+            import_target_group[i] = 1
+        end
+    end
 
     CM:RegisterCallback("LAM-PanelClosed", function(panel)
         if (panel ~= self.UI.SettingsPanel) then return end
 
-        if (groups_changed) then
-            self:RefreshContactGroups()
+        --[[
+        for _, category_id in ipairs(changed_groups) do
+            self:RefreshContactGroups(category_id)
+            changed_colors:removeElem(category_id) -- prevent double refresh
         end
+
+        for _, category_id in ipairs(changed_colors) do
+            self:RefreshContactGroups(category_id)
+        end
+        ]]
+
+        -- reset registered changes
+        changed_colors = table:new()
+        changed_groups = table:new()
     end)
+
+    -- ---------------
+    --  @SECTION Init
+    -- ---------------
+
+    self.UI.SettingsPanel = LAM:RegisterAddonPanel(self.__namespace .. "_Config", panel_data)
+    LAM:RegisterOptionControls(self.__namespace .. "_Config", config_data)
 end

@@ -27,13 +27,13 @@
 		<Control name="XelosesContactsListRow" mouseEnabled="true" virtual="true">
 			<Dimensions y="XELOSES_CONTACTS_LIST_CELL_HEIGHT" />
 			<OnMouseEnter>
-				XelosesContactsList:onRowMouseEnter(self)
+				XelosesContactsList.onRowMouseEnter(self)
 			</OnMouseEnter>
 			<OnMouseExit>
-				XelosesContactsList:onRowMouseExit(self)
+				XelosesContactsList.onRowMouseExit(self)
 			</OnMouseExit>
 			<OnMouseUp>
-				XelosesContactsList:onRowMouseUp(self, button, upInside)
+				XelosesContactsList.onRowMouseUp(self, button, upInside)
 			</OnMouseUp>
 			<Controls>
 				<Texture name="$(parent)BG" inherits="ZO_ThinListBgStrip" />

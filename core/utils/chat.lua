@@ -1,40 +1,39 @@
-local XC = XelosesContacts
-local L  = XC.getString
-local F  = XC.formatString
+local L = XelosesContacts.getString
+local F = XelosesContacts.formatString
 
 -- -------------------------
 --  @SECTION Chat utulities
 -- -------------------------
 
-function XC:Print(msg, ...)
+function XelosesContacts:Print(msg, ...)
     if (not self.loaded or not msg or msg == "") then return end
 
     local s = F(msg, ...)
 
     if (self.Chat.lib) then
-        self.Chat.lib:SetTagColor(self.colors.tag):Print(s)
+        self.Chat.lib:SetTagColor(self.CONST.COLOR.TAG):Print(s)
     else
         CHAT_SYSTEM:AddMessage(self:addPrefix(s))
     end
 end
 
-function XC:PrintInfo(msg, ...)
+function XelosesContacts:PrintInfo(msg, ...)
     self:Print(msg, ...)
 end
 
-function XC:PrintWarning(msg, ...)
-    local s = L("WARNING"):colorize(XC.colors.warning) .. " " .. msg
-    XC:Print(s, ...)
+function XelosesContacts:PrintWarning(msg, ...)
+    local s = L("WARNING"):colorize(self.CONST.COLOR.WARNING) .. " " .. msg
+    XelosesContacts:Print(s, ...)
 end
 
-function XC:PrintError(msg, ...)
-    local s = L("ERROR"):colorize(XC.colors.error) .. ": " .. msg
-    XC:Print(s, ...)
+function XelosesContacts:PrintError(msg, ...)
+    local s = L("ERROR"):colorize(self.CONST.COLOR.ERROR) .. ": " .. msg
+    XelosesContacts:Print(s, ...)
 end
 
 -- -------------------------
 
-function XC.Chat:Whisper(target_name)
+function XelosesContacts.Chat:Whisper(target_name)
     if (target_name) then
         StartChatInput("", CHAT_CHANNEL_WHISPER, target_name)
     end

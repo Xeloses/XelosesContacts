@@ -1,14 +1,12 @@
-local EM    = GetEventManager()
-local XC    = XelosesContacts
-local CONST = XC.CONST
-local L     = XC.getString
-local T     = type
+local EM = GetEventManager()
+local L  = XelosesContacts.getString
+local T  = type
 
 -- ---------------
 --  @SECTION Init
 -- ---------------
 
-function XC:InitHooks()
+function XelosesContacts:InitHooks()
     self.__hooks = {
         -- Handle zone change (teleport/move to new zone)
         ZoneChange = {
@@ -102,14 +100,14 @@ function XC:InitHooks()
         end
     end
 
-    ZO_PreHook(CHAT_ROUTER, "FormatAndAddChatMessage", function(...) return self.handleChatMessage(self, ...) end)
+    ZO_PreHook(CHAT_ROUTER, "FormatAndAddChatMessage", function(...) return self:handleChatMessage(...) end)
 end
 
 -- -----------------------
 --  @SECTION Manage hooks
 -- -----------------------
 
-function XC:SetupHook(hook_name)
+function XelosesContacts:SetupHook(hook_name)
     local hook = self.__hooks[hook_name]
     if (not hook or hook.injected) then return end
 
@@ -127,7 +125,7 @@ function XC:SetupHook(hook_name)
     hook.injected = true -- flag to prevent duplicate hooks
 end
 
-function XC:ToggleHook(hook_name)
+function XelosesContacts:ToggleHook(hook_name)
     local hook = self.__hooks[hook_name]
     if (not hook) then return end
 
@@ -139,7 +137,7 @@ function XC:ToggleHook(hook_name)
     end
 end
 
-function XC:RemoveHook(hook_name)
+function XelosesContacts:RemoveHook(hook_name)
     local hook = self.__hooks[hook_name]
     if (not hook or not hook.injected) then return end
 
@@ -154,14 +152,14 @@ end
 --  @SECTION ESOUI
 -- ----------------
 
-function XC:handleZODialogs(dialog, data)
+function XelosesContacts:handleZODialogs(dialog, data)
     if (not dialog) then return end
     if (dialog == "REQUEST_FRIEND" and self.config.confirmation.friend) then
         if (data and data.name) then
             local contact = self:getContactData(data.name)
             if (self:isVillain(contact)) then
                 local text_params = { self:getContactName(contact, true), self:getContactGroupName(contact, true, true) }
-                self:ShowDialog(CONST.UI.DIALOGS.CONFIRM_BEFRIEND_VILLAIN, text_params, data)
+                self:ShowDialog(self.CONST.UI.DIALOGS.CONFIRM_BEFRIEND_VILLAIN, text_params, data)
                 return true -- disable default dialog
             end
         end
@@ -172,30 +170,24 @@ end
 --  @SECTION Chat
 -- ---------------
 
-function XC:handleChatMessage(_, event_code, channel, from_name, raw_message_text, is_customer_service, from_display_name)
-    if (event_code ~= EVENT_CHAT_MESSAGE_CHANNEL) then return end
-    if (not from_display_name or from_display_name == "") then return end
+function XelosesContacts:handleChatMessage(_, event_code, channel, from_name, raw_message_text, is_customer_service, from_display_name)
     if (is_customer_service) then return end -- do not process customer service
+    if (event_code ~= EVENT_CHAT_MESSAGE_CHANNEL) then return end
+    if (not from_display_name or not IsDecoratedDisplayName(from_display_name)) then return end
+    if (from_display_name == self.accountName) then return end -- do not process self
 
-    local sender = self:validateAccountName(from_display_name)
-    if (not sender) then return end
-    if (sender == self.accountName) then return end -- do not process local player
-
-    local contact = self:getContactData(sender)
+    local contact = self:getContactData(from_display_name)
     if (contact) then
         if (self:isChatBlocked(contact)) then
             -- get chat channel type
             local channel_category
-            for category_name, channels in pairs(CONST.CHAT.CHANNELS) do
+            for category_name, channels in pairs(self.CONST.CHAT.CHANNELS) do
                 local channels_list = table:new(channels)
                 if (channels_list:has(channel)) then
                     channel_category = category_name
                     break
                 end
             end
-
-            -- @DEBUG
-            self:Debug("  --> should block: %s", (channel_category and self.config.chat.block_channels[channel_category]) and "YES" or "NO")
 
             -- check chat channel blocking rules
             if (channel_category and self.config.chat.block_channels[channel_category]) then
@@ -207,7 +199,7 @@ function XC:handleChatMessage(_, event_code, channel, from_name, raw_message_tex
     end
 end
 
-function XC:handleStartChatInput(text, channel, target)
+function XelosesContacts:handleStartChatInput(text, channel, target)
     if (target and target ~= "") then
         local contact = self:getContactData(target)
         if (contact and self:isChatBlocked(contact)) then
@@ -221,7 +213,7 @@ end
 --  @SECTION Zone
 -- ---------------
 
-function XC:onZoneChange()
+function XelosesContacts:onZoneChange()
     local zoneID  = GetZoneId(GetUnitZoneIndex("player"))
 
     self.zoneID   = zoneID
@@ -233,7 +225,7 @@ end
 --  @SECTION Combat
 -- -----------------
 
-function XC:onCombatStateChange(_, in_combat)
+function XelosesContacts:onCombatStateChange(_, in_combat)
     self.inCombat = in_combat
 end
 
@@ -241,7 +233,7 @@ end
 --  @SECTION Reticle Target
 -- -------------------------
 
-function XC:handleReticleTarget()
+function XelosesContacts:handleReticleTarget()
     if (not self.config.reticle.enabled) then return end
 
     self.UI.ReticleMarker:Reset()
@@ -259,10 +251,10 @@ function XC:handleReticleTarget()
     if (not DoesUnitExist("reticleover")) then return end
     if (not IsUnitPlayer('reticleover')) then return end
 
-    local target_name = self:validateAccountName(GetUnitDisplayName("reticleover"))
-    if (not target_name) then return end
+    local target_name = GetUnitDisplayName("reticleover")
+    if (not IsDecoratedDisplayName(target_name)) then return end
 
-    local contact     = XC:getContactData(target_name)
+    local contact     = XelosesContacts:getContactData(target_name)
     local isGuildmate = self.config.reticle.markers.guildmate.enabled and self.Game:isGuildmate(target_name)
     local isFriend    = self.config.reticle.markers.friend.enabled and self.Game:isFriend(target_name)
     local isIgnored   = self.config.reticle.markers.ignored.enabled and self.Game:isIgnored(target_name)
@@ -275,23 +267,23 @@ function XC:handleReticleTarget()
     local info = table:new()
 
     if (contact) then
-        icon  = XC:getGroupIcon(contact.category, contact.group)
-        color = XC:getCategoryColor(contact.category)
-        info:insert(XC:getContactGroupName(contact, true, true))
+        icon  = XelosesContacts:getGroupIcon(contact.category, contact.group)
+        color = XelosesContacts:getCategoryColor(contact.category)
+        info:insert(XelosesContacts:getContactGroupName(contact, true, true))
     end
 
     if (isIgnored) then
-        icon = icon or CONST.ICONS.SOCIAL.IGNORED
+        icon = icon or self.CONST.ICONS.SOCIAL.IGNORED
         color = color or markers_config.ignored.color
         info:insert(L("ESO_IGNORED"):colorize(markers_config.ignored.color))
     elseif (isFriend) then
-        icon = icon or CONST.ICONS.SOCIAL.FRIEND
+        icon = icon or self.CONST.ICONS.SOCIAL.FRIEND
         color = color or markers_config.friend.color
         info:insert(L("ESO_FRIEND"):colorize(markers_config.friend.color))
     end
 
     if (isGuildmate) then
-        icon = icon or CONST.ICONS.SOCIAL.GUILDMATE
+        icon = icon or self.CONST.ICONS.SOCIAL.GUILDMATE
         color = color or markers_config.guildmate.color
         local g_name = self.Game:getGuildName(target_name)
         info:insert(L("ESO_GUILDMATE"):zo_format(g_name):colorize(markers_config.guildmate.color))
@@ -300,7 +292,7 @@ function XC:handleReticleTarget()
     self.UI.ReticleMarker:Show(info:concat(", "), icon, color and color)
 end
 
-function XC:handleReticleHiddenState()
+function XelosesContacts:handleReticleHiddenState()
     self.UI.ReticleMarker:Hide()
 end
 
@@ -308,7 +300,7 @@ end
 --  @SECTION Group
 -- ----------------
 
-function XC:handleIncomingGroupInvite(_, inviter_char_name, inviter_display_name)
+function XelosesContacts:handleIncomingGroupInvite(_, inviter_char_name, inviter_display_name)
     if (not self.config.notifications.groupInvite.enabled) then return end
 
     if (inviter_display_name and self:isVillain(inviter_display_name)) then
@@ -324,7 +316,7 @@ function XC:handleIncomingGroupInvite(_, inviter_char_name, inviter_display_name
     end
 end
 
-function XC:onGroupChange(_, character_name, display_name, is_local_player)
+function XelosesContacts:onGroupChange(_, character_name, display_name, is_local_player)
     local villain_name
 
     if (is_local_player) then
@@ -370,7 +362,7 @@ end
 --  @SECTION Social
 -- -----------------
 
-function XC:handleIncomingFriendInvite(_, inviter_name)
+function XelosesContacts:handleIncomingFriendInvite(_, inviter_name)
     if (not self.config.notifications.friendInvite.enabled) then return end
     if (self:isVillain(inviter_name)) then
         local contact = self:getContactData(inviter_name)
@@ -384,9 +376,9 @@ function XC:handleIncomingFriendInvite(_, inviter_name)
     end
 end
 
-function XC:handleFriendRenamed(_, old_display_name, new_display_name)
-    if XC:isInContacts(old_display_name) then
-        XC:RenameContact(old_display_name, new_display_name)
+function XelosesContacts:handleFriendRenamed(_, old_display_name, new_display_name)
+    if XelosesContacts:isInContacts(old_display_name) then
+        XelosesContacts:RenameContact(old_display_name, new_display_name)
     end
 
     if (self.Game.__friends) then

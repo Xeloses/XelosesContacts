@@ -1,12 +1,11 @@
-local XC = XelosesContacts
-local L  = XC.getString
-local T  = type
+local L = XelosesContacts.getString
+local T = type
 
 -- -------------------------
 --  @SECTION Define dialogs
 -- -------------------------
 
-function XC:InitDialogs()
+function XelosesContacts:InitDialogs()
 	self.CONST.UI.DIALOGS = {
 		-- Create/Edit contact dialog
 		CONTACT_EDIT             = {
@@ -50,8 +49,8 @@ function XC:InitDialogs()
 		},
 
 		-- Confirmation dialog: Import ESO ingame ignored players
-		CONFIRM_IMPORT_VILLAINS  = {
-			name = self.__prefix .. "DIALOG_CONFIRM_IMPORT_VILLAINS",
+		CONFIRM_IMPORT_IGNORED   = {
+			name = self.__prefix .. "DIALOG_CONFIRM_IMPORT_IGNORED",
 			callback = function(dialog)
 				-- Import ESO ingame ignored players list
 				self:ImportESOIgnored(dialog.data.param)
@@ -78,7 +77,7 @@ end
 --  @SECTION Show dialog
 -- ----------------------
 
-function XC:ShowDialog(dialog, text_params, data)
+function XelosesContacts:ShowDialog(dialog, text_params, data)
 	if (not dialog or not dialog.name) then return end
 
 	local dialog_data = {}
@@ -119,7 +118,7 @@ end
 --  @SECTION Create dialog
 -- ------------------------
 
-function XC:CreateDialog(dialog_config)
+function XelosesContacts:CreateDialog(dialog_config)
 	if (not dialog_config or not dialog_config.name) then return end
 	local dialog_id = dialog_config.name:sub((self.__prefix .. "DIALOG_"):len() + 1)
 	local dialog_type = dialog_id:match("^(%u+)_%u+")

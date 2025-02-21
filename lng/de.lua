@@ -12,6 +12,17 @@ end
 -- ===========================
 -- by Baertram (https://www.esoui.com/forums/member.php?userid=2028)
 
+-- ==============================
+-- // Untranslated strings:
+L("SETTINGS_CHAT_CACHE", "Context menu for more chat messages")
+L("SETTINGS_CHAT_CACHE_TOOLTIP", "Enable chat caching to provide 'Add to Contacts' context menu item on most chat messages.\n\nTurning this option OFF will clear all existing cache!")
+L("SETTINGS_CHAT_CACHE_WARNING", "Chat caching may have a little performance impact on old low-end PC when there are a lot of incoming messages in a row in Zone and/or Say chat channels.")
+L("SETTINGS_CHAT_CACHE_SIZE", "Chat cache max size")
+L("SETTINGS_CHAT_CACHE_SIZE_TOOLTIP", "Maximum accounts (with associated characters) stored in the cache.")
+L("SETTINGS_CHAT_CACHE_SIZE_WARNING", "Bigger cache size may have increased performance impact on old low-end PC. Don't change cache size if you are unsure about it.")
+-- // End of Untranslated strings
+-- ==============================
+
 L("ALL", "Alle")
 L("DECLINED", "abgelehnt")
 L("WARNING", "WARNUNG!")
@@ -36,8 +47,6 @@ L("GROUP_23", "Spammer")
 L("GROUP_24", "Cheater")
 L("GROUP_25", "Unfug")
 
-L("GROUP_NEW", "Neue gruppe") -- // Google translate
-
 -- Group roles:
 L("DPS", "DPS")
 L("TANK", "Tank")
@@ -47,23 +56,6 @@ L("HEAL", "Heiler")
 L("ESO_FRIEND", "Freund")
 L("ESO_IGNORED", "Ignoriert")                  -- // Google translate
 L("ESO_GUILDMATE", "\"<<1>>\" gildenmitglied") -- // Google translate
-
--- // ==============================
--- // Start of untranslated strings:
-L("SETTINGS_GROUPS_NOTE", "Note:\n  - all contacts from removed groups will be automatically moved to the <<1>> group;\n  - predefinded groups are persistent and can not be removed;\n  - changes may not appear until reload UI.")
-L("SETTINGS_GROUPS_SELECT", "Select group to edit:")
-L("SETTINGS_GROUPS_BUTTON_ADD", "New")
-L("SETTINGS_GROUPS_BUTTON_ADD_TOOLTIP", "Add new group.")
-L("SETTINGS_GROUPS_BUTTON_REMOVE", "Remove")
-L("SETTINGS_GROUPS_BUTTON_REMOVE_TOOLTIP", "Remove selected group.")
-L("SETTINGS_GROUPS_BUTTON_REMOVE_WARNING", "Selected group will be removed permanently!")
-L("SETTINGS_GROUPS_EDIT", "Edit group")
-L("SETTINGS_GROUPS_EDIT_NAME", "Group name:")
-L("SETTINGS_GROUPS_EDIT_ICON", "Group icon:")
-
-L("SETTINGS_CHAT_BLOCK_GROUPS_DESCRIPTION", "Chat-Blockierung für Bösewichte pro Gruppe einrichten.\nNote: chat blocking is available only for predefined groups of Villains.")
--- // End of untranslated strings:
--- // ============================
 
 -- Notifications and Warnings:
 L("CONTACT_ADDED", "Spieler <<LINK>> wurde zu den Kontakten hinzugefügt.")
@@ -81,7 +73,7 @@ L("CONFIRM_INVITE_VILLAIN_WARNING", "Bösewicht wird der Gruppe hinzugefügt!")
 L("CONFIRM_BEFRIEND_VILLAIN", "Möchtest du <<2>> <<1>> wirklich zu den Freunden hinzufügen?")
 L("CONFIRM_BEFRIEND_VILLAIN_WARNING", "Bösewicht wird den Freunden hinzugefügt!")
 L("CONFIRM_IMPORT_FRIENDS", "Möchten Sie wirklich alle ESO-Freunde im Spiel in die Kontakte importieren?")
-L("CONFIRM_IMPORT_VILLAINS", "Möchten Sie wirklich alle ignorierten ESO-Spieler im Spiel in die Kontakte importieren?")
+L("CONFIRM_IMPORT_IGNORED", "Möchten Sie wirklich alle ignorierten ESO-Spieler im Spiel in die Kontakte importieren?")
 L("CONFIRM_IMPORT_NAMEZ", "Möchten Sie wirklich alle Freunde und Feinde aus dem Namez AddOn in die Kontakte importieren?")
 L("NOTIFY_IMPORT_COMPLETED", "Import abgeschlossen.\n\n<<1>> neue Kontakte hinzugefügt.")
 
@@ -188,8 +180,8 @@ L("SETTINGS_CHAT", "Chat")
 L("SETTINGS_CHAT_DESCRIPTION", "Chat-Einstellungen.")
 L("SETTINGS_CHAT_BLOCK", "Chat-Blockierung")
 L("SETTINGS_CHAT_BLOCK_GROUPS", "Gruppen")
---L("SETTINGS_CHAT_BLOCK_GROUPS_DESCRIPTION", "")
-L("SETTINGS_CHAT_BLOCK_GROUP", "Chat für Kategorie <<1>> blockieren")
+L("SETTINGS_CHAT_BLOCK_GROUPS_DESCRIPTION", "Chat-Blockierung für Bösewichte pro Gruppe einrichten.")
+L("SETTINGS_CHAT_BLOCK_GROUP", "Chat für Kategorie <<1>> (<<2>>) blockieren")
 L("SETTINGS_CHAT_BLOCK_GROUP_TOOLTIP", "Chat blockieren Nachrichten aus dieser Schurkengruppe.")
 L("SETTINGS_CHAT_BLOCK_CHANNELS", "Chatkanäle")
 L("SETTINGS_CHAT_BLOCK_CHANNELS_DESCRIPTION", "Chatkanäle zum Blockieren von Nachrichten von Schurken einrichten (nur Nachrichten aus den oben ausgewählten Schurkenkategorien werden blockiert).")
@@ -203,13 +195,14 @@ L("SETTINGS_CHAT_INFO", "Keine Informationsnachrichten im Chat drucken")
 L("SETTINGS_CHAT_INFO_TOOLTIP", "Keine Informationsnachrichten ('Kontakt hinzugefügt', 'Kontakt entfernt' usw.) im Chat drucken.")
 L("SETTINGS_GROUPS", "Gruppen")
 L("SETTINGS_GROUPS_DESCRIPTION", "Kontaktgruppen bearbeiten.")
+L("SETTINGS_GROUP_NAME", "Gruppe <<1>> Name:")
 L("SETTINGS_IMPORT", "Importieren")
 L("SETTINGS_IMPORT_DESCRIPTION", "Freunde und Bösewichte aus der ESO-Freundesliste und der Ignorierten-Liste im Spiel importieren.")
-L("SETTINGS_IMPORT_FRIENDS", "ESO-Freunde im Spiel in Kontakte importieren.")
-L("SETTINGS_IMPORT_VILLAINS", "ESO-Ignorierte Spieler im Spiel in Kontakte importieren.")
 L("SETTINGS_IMPORT_BUTTON", "Importieren")
 L("SETTINGS_IMPORT_DESTINATION", "Zur Gruppe hinzufügen:")
 L("SETTINGS_IMPORT_DESTINATION_TOOLTIP", "Spieler in ausgewählte Gruppe importieren.")
+L("SETTINGS_IMPORT_FRIENDS", "ESO-Freunde im Spiel in Kontakte importieren.")
+L("SETTINGS_IMPORT_VILLAINS", "ESO-Ignorierte Spieler im Spiel in Kontakte importieren.")
 
 -- Slash commands:
 L("SLASHCMD_NEW_CONTACT_TOOLTIP", "Dialogfeld \'Neuen Kontakt öffnen\'")

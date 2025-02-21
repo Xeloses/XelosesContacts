@@ -1,34 +1,36 @@
-local LUI   = LibExtendedJournal
-local LCCC  = LibCodesCommonCode
-local XC    = XelosesContacts
-local CONST = XC.CONST
-local L     = XC.getString
+local LUI  = LibExtendedJournal
+local LCCC = LibCodesCommonCode
+
+local L    = XelosesContacts.getString
 
 -- ---------------
 --  @SECTION Init
 -- ---------------
 
-function XC:InitUI()
-	self.UI.ReticleMarker = XelosesReticleMarker:New(self, self.config.reticle)
+function XelosesContacts:InitUI()
+	self.UI.ReticleMarker = XelosesReticleMarker:Initialize(self, self.config.reticle)
 
 	self.DataChanged      = false
 	self.UI.isReady       = false
 
 	LUI.RegisterTab(
-		CONST.UI.TAB_NAME,
+		self.CONST.UI.TAB_NAME,
 		{
 			title         = L("UI_TITLE"),
 			subtitle      = L("UI_TITLE_SUB"),
-			iconPrefix    = self.icons.ui.main,
+			iconPrefix    = self.icon,
 			order         = 990,
 			control       = XelosesContactsFrame,
 			binding       = "XELCONTACTS",
 			settingsPanel = self.settingsPanel,
 			slashCommands = { self.slashCmd },
 			callbackShow  = function()
-				if (not self.UI.isReady) then self:LazyInitUI() end
+				if (not self.UI.isReady) then
+					self:LazyInitUI()
+				end
+
 				self.UI.ContactsList:SetupKeybinds()
-				self:RefreshListUI(true)
+				self:RefreshUI(true)
 			end,
 			callbackHide  = function()
 				self.UI.ContactsList:RemoveKeybinds()
@@ -39,7 +41,7 @@ function XC:InitUI()
 	LCCC.RegisterLinkHandler("contacts", function() self:ShowUI() end)
 end
 
-function XC:LazyInitUI()
+function XelosesContacts:LazyInitUI()
 	if (self.UI.isReady) then return end
 
 	self.UI.ContactsList = XelosesContactsList:New(self)
@@ -51,10 +53,10 @@ end
 --  @SECTION Refresh UI
 -- ---------------------
 
-function XC:RefreshListUI(force_refresh)
+function XelosesContacts:RefreshUI(noActiveCheck)
 	if (not self.UI.isReady) then return end
 
-	if (force_refresh or XC:isUIShown()) then
+	if (noActiveCheck or XelosesContacts:isUIShown()) then
 		if (self.DataChanged) then
 			self.UI.ContactsList:RefreshList()
 		else
@@ -65,36 +67,14 @@ function XC:RefreshListUI(force_refresh)
 	end
 end
 
-function XC:RefreshContactsList(force_refresh)
-	if (not self.UI.isReady) then return end
-	if (not self.DataChanged) then return end
-
-	self:RefreshListUI(force_refresh)
-end
-
-function XC:RefreshContactGroups(category_id)
-	-- clear contact groups cache
-	if (self.__groups_cache) then
-		self.__groups_cache = nil
-	end
-
-	if (self.UI.isReady and (not category_id or self.UI.ContactsList.categoryID == category_id)) then
-		self.UI.ContactsList:RefreshGroupsList()
-	end
-
-	if (self.UI.ContactDialog and self.UI.ContactDialog.initialized and (not category_id or self.UI.ContactDialog.currentCategory == category_id)) then
-		self.UI.ContactDialog:RefreshGroupsList()
-	end
-end
-
 -- ------------------
 --  @SECTION Utility
 -- ------------------
 
-function XC:ShowUI()
-	LUI.Show(CONST.UI.TAB_NAME, true)
+function XelosesContacts:ShowUI()
+	LUI.Show(self.CONST.UI.TAB_NAME, true)
 end
 
-function XC:isUIShown()
-	return LUI.IsTabActive(CONST.UI.TAB_NAME)
+function XelosesContacts:isUIShown()
+	return LUI.IsTabActive(self.CONST.UI.TAB_NAME)
 end

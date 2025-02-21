@@ -1,16 +1,11 @@
-local XC           = XelosesContacts
-local CONST        = XC.CONST
-local L            = XC.getString
-local T            = type
-
----@diagnostic disable-next-line: deprecated
-local table_unpack = (T(table.unpack) == "function") and table.unpack or unpack -- workaround for function changes in Lua vearsion 5.2+
+local L = XelosesContacts.getString
+local T = type
 
 -- ---------------
 --  @SECTION Libs
 -- ---------------
 
-function XC:InitLibs()
+function XelosesContacts:InitLibs()
     if (LibChatMessage ~= nil) then
         self.Chat.lib = LibChatMessage(self.tag, self.tag)
     end
@@ -20,26 +15,34 @@ function XC:InitLibs()
     end
 end
 
+-- ----------------
+--  @SECTION Cache
+-- ----------------
+
+function XelosesContacts:InitCache()
+    self.Chat.cache = XelosesContactsChatCache:New(self, self.config.chat.cache)
+end
+
 -- ----------------------
 --  @SECTION Log / Debug
 -- ----------------------
 
-function XC:Log(msg, ...)
+function XelosesContacts:Log(msg, ...)
     if (not self.logger) then return end
     self.logger:Info(msg, ...)
 end
 
-function XC:LogWarning(msg, ...)
+function XelosesContacts:LogWarning(msg, ...)
     if (not self.logger) then return end
     self.logger:Warn(msg, ...)
 end
 
-function XC:LogError(msg, ...)
+function XelosesContacts:LogError(msg, ...)
     if (not self.logger) then return end
     self.logger:Error(msg, ...)
 end
 
-function XC:Debug(msg, ...)
+function XelosesContacts:Debug(msg, ...)
     if (not self.logger or not self.debug) then return end
     self.logger:Debug(msg, ...)
 end
@@ -79,7 +82,7 @@ XelosesContacts.formatString(Str: string, FormatParams: table)
                             (eg. %s, %d, <<1>>, <<2>>, etc).
 @param any ...            - [optional] Arguments for string formatting.
 ]]
-function XC.formatString(str, ...)
+function XelosesContacts.formatString(str, ...)
     local _t = T(str)
     if (_t ~= "string" and _t ~= "number" or str == "") then return "" end
 
@@ -95,7 +98,7 @@ function XC.formatString(str, ...)
 
     if (T(a) == "table") then
         if (a.account) then
-            contact = XC:getContactData(a.account)
+            contact = XelosesContacts:getContactData(a.account)
             params:remove(1)
         else
             if (T(a.contact) == "table" and a.contact.account) then
@@ -115,11 +118,11 @@ function XC.formatString(str, ...)
             local placeholder = s:upper()
             local colorize = (s == placeholder)
             local placeholders = {
-                ["NAME"]  = function() return XC:getContactName(contact, colorize) end,
-                ["LINK"]  = function() return XC:getContactLink(contact, colorize) end,
-                ["TYPE"]  = function() return XC:getContactCategoryName(contact, colorize) end,
-                ["GROUP"] = function() return XC:getContactGroupName(contact, colorize) end,
-                ["ICON"]  = function() return XC:getContactGroupIcon(contact, colorize) end,
+                ["NAME"]  = function() return XelosesContacts:getContactName(contact, colorize) end,
+                ["LINK"]  = function() return XelosesContacts:getContactLink(contact, colorize) end,
+                ["TYPE"]  = function() return XelosesContacts:getContactCategoryName(contact, colorize) end,
+                ["GROUP"] = function() return XelosesContacts:getContactGroupName(contact, colorize) end,
+                ["ICON"]  = function() return XelosesContacts:getContactGroupIcon(contact, colorize) end,
             }
 
             return placeholders[placeholder]() or "<<Incorrect placeholder>>"
@@ -137,7 +140,7 @@ function XC.formatString(str, ...)
     return result
 end
 
-local F = XC.formatString
+local F = XelosesContacts.formatString
 
 --[[
 Creates clickable account link from account name.
@@ -146,7 +149,7 @@ Creates clickable account link from account name.
 XelosesContacts:getAccountLink(AccountName: string)
 ```
 ]]
-function XC:getAccountLink(account_name)
+function XelosesContacts:getAccountLink(account_name)
     return ZO_LinkHandler_CreateDisplayNameLink(account_name)
 end
 
@@ -157,7 +160,7 @@ Creates clickable character link from character name.
 XelosesContacts:getCharacterLink(CharacterName: string)
 ```
 ]]
-function XC:getCharacterLink(character_name)
+function XelosesContacts:getCharacterLink(character_name)
     return ZO_LinkHandler_CreateCharacterLink(character_name)
 end
 
@@ -172,7 +175,7 @@ Returns string with formatted date/time (YYYY-MM-DD HH:mm).
 XelosesContacts:formatTimestamp(Timestamp: number)
 ```
 ]]
-function XC:formatTimestamp(t)
+function XelosesContacts:formatTimestamp(t)
     if (t and t > 0) then
         return os.date("%Y-%m-%d %H:%M", t)
     else
@@ -184,7 +187,7 @@ end
 --  @SECTION Validation
 -- ---------------------
 
-function XC:validateAccountName(name, strict)
+function XelosesContacts:validateAccountName(name)
     if (T(name) == "string" and not name:isEmpty()) then
         --name = zo_strformat("<<C:1>>", name)
 
@@ -195,15 +198,11 @@ function XC:validateAccountName(name, strict)
         local l = s:len()
 
         -- account name may have only 3..20 symbols
-        if (l < CONST.ACCOUNT_NAME_MIN_LENGTH or l > CONST.ACCOUNT_NAME_MAX_LENGTH) then return end
-
-        if (strict) then
-            -- account name may contain only letters, numbers, dot, dash, single quote, underscore
-            if (s:find("[~`@!#$^&*({})=+:;\",<>/?|%\\%[%]%%]+")) then return end
-
-            -- account name may contain only 1 non-alphanumeric symbol (dot, dash, single quote or underscore)
-            if (s ~= s:match("^[^_'-%.]+[_'-%.]?[^_'-%.]+$")) then return end
-        end
+        if (l < self.CONST.ACCOUNT_NAME_MIN_LENGTH or l > self.CONST.ACCOUNT_NAME_MAX_LENGTH) then return end
+        -- account name may contain only letters, numbers, dot, dash, single quote, underscore
+        if (s:find("[~`@!#$^&*({})=+:;\",<>/?|%\\%[%]%%]+")) then return end
+        -- account name may contain only 1 non-alphanumeric symbol (dot, dash, single quote or underscore)
+        if (s ~= s:match("^[^_'-%.]+[_'-%.]?[^_'-%.]+$")) then return end
 
         return name
     end
@@ -213,7 +212,7 @@ end
 --  @SECTION Data management
 -- --------------------------
 
-function XC:FlushData()
+function XelosesContacts:FlushData()
     GetAddOnManager():RequestAddOnSavedVariablesPrioritySave(self.__namespace)
 end
 
@@ -221,7 +220,7 @@ end
 --  @SECTION UI
 -- -------------
 
-function XC:SetControlTooltip(control, tooltip_text)
+function XelosesContacts:SetControlTooltip(control, tooltip_text)
     local str = L(tooltip_text)
     control:SetHandler("OnMouseEnter", function() ZO_Tooltips_ShowTextTooltip(control, TOP, str) end)
     control:SetHandler("OnMouseExit", function() ZO_Tooltips_HideTextTooltip() end)
@@ -237,9 +236,9 @@ Returns string prepended with colorized addon tag.
 @return string
 ```
 ]]
-function XC:addPrefix(str)
+function XelosesContacts:addPrefix(str)
     local prefix = "[" .. self.tag .. "]"
-    return prefix:colorize(self.colors.tag) .. " " .. str
+    return prefix:colorize(self.CONST.COLOR.TAG) .. " " .. str
 end
 
 --[[
@@ -248,7 +247,7 @@ Returns formatted addon version.
 @return string
 ```
 ]]
-function XC:getVersion()
+function XelosesContacts:getVersion()
     local vMajor = math.floor(self.version / 10000)
     local vMinor = math.floor((self.version - vMajor * 10000) / 100)
     local vPatch = math.floor(self.version - vMajor * 10000 - vMinor * 100)
@@ -261,7 +260,7 @@ Retrieves and returns addon version from manifest file.
 @return number
 ```
 ]]
-function XC:getAddonVersionFromManifest()
+function XelosesContacts:getAddonVersionFromManifest()
     local AM = GetAddOnManager()
     local addons_count = AM:GetNumAddOns()
     local addon_name

@@ -10,7 +10,7 @@
 
 **Xeloses' Contacts** is an [Elder Scrolls Online](https://www.elderscrollsonline.com) addon that provides unlimited Friends and Villains list with UI and additional features.
 
-This addon works with account names, not character names, so no matter which character your contacts logged in, they are still be accessible!
+This addon works with account names, not character names, so no matter which character your contacts loggen in, they are still be accessible!
 
 #### You can open Contacts window using one of the following ways:
 * hotkey (*setup it in addons keybinds*),
@@ -23,41 +23,49 @@ This addon works with account names, not character names, so no matter which cha
   - Ignored players list window,
   - Group window,
   - Guild roster window,
-  - chat links (*note that not all chat links can be used, only those which provides account name via ingame API*);
+  - chat links;
 * hotkey (*setup it in addons keybinds*) to add player under your reticle;
 * slash command (*see below*).
 
 ## Features:
-* unlimited Friends and Villains list:
+* **unlimited Friends and Villains list**:
   - lists are server-wide (shared between all accounts and characters on the server);
-* text notes for Friends and Villains;
-* groups for Friends and Villains to split lists:
+* **text notes** for Friends and Villains;
+* **groups** for Friends and Villains to split lists:
   - 5 predefined groups for Friends and 5 for Villains;
-  - up to 40 custom groups for Friends and Villains *(up to 20 per category)*;
-  - customizable group names and icons;
-* add players to Contacts using context menus in Friends list window, Group window, Guild roster window, on chat links;
-* add player under reticle to Contacts;
-* hide chat messages from Villains (*configurable*):
+  - customizable group names;
+* **add players to Contacts** using context menu
+  - at ***Friends list window***,
+  - at ***Group window***,
+  - at ***Guild roster window***,
+  - on ***chat links***:
+    - by default the game provides account names only for chat links of teammates, guildmates and ingame friends;
+    - this addon uses chat caching to provide account names for last N (*50..500, configurable in addon settings*) chat messages;
+    - chat caching can be disabled in settings (*enabled by default*).
+* **add player under reticle** to Contacts;
+* **hide chat messages** from Villains (*configurable*):
   - configure groups of Villains to hide chat messages from;
   - configure chat channels where messages from selected groups of Villains should be hidden;
-* auto decline friend and group invites from Villains (*optional*);
-* display a marker near the reticle when targeting Friends or Villains:
+* **auto decline** friend and group invites from Villains (*optional*);
+* display a **marker near the reticle** when targeting Friends or Villains:
   - display icon and group name of targeted Friend or Villain;
   - may also display marker for guildmates, ESO ingame friends, ignored players (*optional*);
   - option to disable target scanning in combat, in PvP-zones, in group dungeons/arenas, in Trials;
-* notifications:
+* **notifications**:
   - notification when joining group with Villain (*optional*);
   - notification when Villain joins your group (*optional*);
   - notification when Villain invites you to group (*optional*);
   - notification when Villain sends you a friend request (*optional*);
   - confirmation dialog when adding Villain to ESO ingame Friends (*optional*);
-* import contacts from ingame Friends and Ignored list (including their correspondend notes).
+* **import contacts** from ingame Friends and Ignored list (including their correspondend notes).
 
 ### UI:
 * Contacts window with Friends and Villains list (*see screenshots*);
 * filter list by group;
 * search contacts by account name and personal note;
-* Whisper, Group invite, Send mail, Visit house and Teleport to from Contacts window.
+* Whisper, Group invite, Send mail, Visit house and Teleport to contact from Contacts window:
+  - Whisper and Group invite are available only for friendly Contacts (*we don't want to talk or play with Villains, yeah?*);
+  - teleportation works only for ingame friends, guildmates and teammates (*game API limitation*).
 
 ### Slash commands:
 * **/contacts** - open Contacts window;
@@ -91,7 +99,6 @@ If you wanna help with translation feel free to contact me [here](https://www.es
 
 ## Known issues
 * No gamepad support atm.
-* Not all chat links can be used for adding players to Contacts.
 * [pChat](https://www.esoui.com/downloads/info93-pChatChatcustomizationamphelplo....html) with a specific configuration creates chat links with account name before character name, those links can't be processed properly by addon.
 
 ## Reporting an issue:
@@ -106,7 +113,8 @@ Please cover the following points in your report:
 Screenshots are also very useful to figure out what is going wrong.
 
 ## Donations
-If you like my work you can support me by sending some thanking gift or in-game gold to **@Savaoth** on **EU** server. Feel free to contact me via ingame mail to check which DLC I don't own :)
+If you like my work you can support me by sending some thanking gift or in-game gold to **@Savaoth** on **EU** server.
+Feel free to contact me via ingame mail to check which DLC I don't own :)
 
 ## Roadmap / Future plans
 **[!]** *No guarantees or time frames when it will be implemented.*

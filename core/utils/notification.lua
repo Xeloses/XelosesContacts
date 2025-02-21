@@ -1,46 +1,44 @@
-local XC    = XelosesContacts
-local CONST = XC.CONST
-local L     = XC.getString
-local F     = XC.formatString
+local L = XelosesContacts.getString
+local F = XelosesContacts.formatString
 
 -- -----------------------------------
 --  @SECTION Notifications and Alerts
 -- -----------------------------------
 
-function XC:isChatNotificationsEnabled()
-    return (self.config.notifications.channel ~= CONST.NOTIFICATION_CHANNELS.SCREEN)
+function XelosesContacts:isChatNotificationsEnabled()
+    return (self.config.notifications.channel ~= self.CONST.NOTIFICATION_CHANNELS.SCREEN)
 end
 
-function XC:isScreenNotificationsEnabled()
-    return (self.config.notifications.channel ~= CONST.NOTIFICATION_CHANNELS.CHAT)
+function XelosesContacts:isScreenNotificationsEnabled()
+    return (self.config.notifications.channel ~= self.CONST.NOTIFICATION_CHANNELS.CHAT)
 end
 
 -- ------------------------
 
-function XC:Notify(msg, ...)
+function XelosesContacts:Notify(msg, ...)
     if (self:isChatNotificationsEnabled() and self.config.chat.log) then self:PrintInfo(msg, ...) end
     if (self:isScreenNotificationsEnabled()) then self:Alert(msg, ...) end
 end
 
-function XC:Warn(msg, ...)
+function XelosesContacts:Warn(msg, ...)
     if (self:isChatNotificationsEnabled()) then self:PrintWarning(msg, ...) end
     if (self:isScreenNotificationsEnabled()) then
-        local s = L("WARNING"):colorize(self.colors.warn) .. " " .. msg
+        local s = L("WARNING"):colorize(self.CONST.COLOR.WARN) .. " " .. msg
         self:Alert(s, ...)
     end
 end
 
-function XC:ShowError(msg, ...)
+function XelosesContacts:ShowError(msg, ...)
     if (self:isChatNotificationsEnabled()) then self:PrintError(msg, ...) end
     if (self:isScreenNotificationsEnabled()) then
-        local s = L("ERROR"):colorize(self.colors.error) .. ": " .. msg
+        local s = L("ERROR"):colorize(self.CONST.COLOR.ERROR) .. ": " .. msg
         self:Alert(s, ...)
     end
 end
 
 -- ------------------------
 
-function XC:Alert(msg, ...)
+function XelosesContacts:Alert(msg, ...)
     if (not msg or msg == "") then return end
     local s = (select("#", ...) > 0) and F(msg, ...) or msg
     ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, self:addPrefix(s))
@@ -63,7 +61,7 @@ XelosesContacts:Announce(string Message, table Options)
                     table textParams - table with params used to format announcement text;
                  }
 ]]
-function XC:Announce(msg, options)
+function XelosesContacts:Announce(msg, options)
     if (not msg or msg:isEmpty()) then return end
 
     options = options or {}
@@ -79,8 +77,8 @@ function XC:Announce(msg, options)
 
     params:SetCSAType(CENTER_SCREEN_ANNOUNCE_TYPE_SYSTEM_BROADCAST)
     params:SetText(header, s)
-    params:SetIconData(options.icon or self.icons.notification.default)
-    params:SetSound(options.sound or self.sound.notification.default)
+    params:SetIconData(options.icon or self.CONST.ICONS.UI.NOTIFICATION.DEFAULT)
+    params:SetSound(options.sound or self.CONST.SOUND.NOTIFICATION.DEFAULT)
     params:SetLifespanMS(options.timeout or 5000)
     params:MarkShowImmediately()
 

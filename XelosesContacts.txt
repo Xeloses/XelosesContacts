@@ -23,24 +23,29 @@ lng/default.lua
 lng/$(language).lua
 
 core/utils/globals.lua
-core/base.lua
+core/base/addon.lua
 
 data/icons.lua
 data/zones.lua
+core/base/constant.lua
 
 core/utils/common.lua
 core/utils/chat.lua
 core/utils/notification.lua
 core/utils/game.lua
-core/updater.lua
-core/dialogs.lua
+
+core/chat_cache.lua
+core/contact_groups.lua
 core/contacts.lua
+core/dialogs.lua
 core/import.lua
 core/hooks.lua
 core/contextmenu.lua
 core/slashcmd.lua
 
+settings/defaults.lua
 settings/settings.lua
+
 ui/ReticleMarker.lua
 ui/ReticleMarker.xml
 ui/ContactDialog.lua
