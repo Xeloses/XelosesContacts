@@ -18,14 +18,14 @@ This addon works with account names, not character names, so no matter which cha
 * slash command (*see below*).
 
 #### To add player to Contacts you can use:
-* context menu at:
+* **context menu** at:
   - Friends list window,
   - Ignored players list window,
   - Group window,
   - Guild roster window,
   - chat links;
-* hotkey (*setup it in addons keybinds*) to add player under your reticle;
-* slash command (*see below*).
+* **hotkey** (*setup it in addons keybinds*) to add player under your reticle;
+* **slash command** (*see below*).
 
 ## Features:
 * **unlimited Friends and Villains list**:
@@ -39,8 +39,9 @@ This addon works with account names, not character names, so no matter which cha
   - at ***Group window***,
   - at ***Guild roster window***,
   - on ***chat links***:
-    - by default the game provides account names only for chat links of teammates, guildmates and ingame friends;
+    - by default the game provides account names only for chat links of guildmates and ingame friends;
     - this addon uses chat caching to provide account names for last N (*50..500, configurable in addon settings*) chat messages;
+    - addon stores only character names and account IDs in the cache, no tracking of message text;
     - chat caching can be disabled in settings (*enabled by default*).
 * **add player under reticle** to Contacts;
 * **hide chat messages** from Villains (*configurable*):

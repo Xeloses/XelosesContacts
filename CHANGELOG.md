@@ -1,5 +1,11 @@
 # CHANGELOG
 
+### Version 1.1.4 *(2025-02-22)*
+* **Features:**
+  * **Chat caching** updates:
+    * added Group chat to caching chat channels list to provide context menu on all teammates in the chat;
+    * increased maximum available cache size to 1000.
+
 ### Version 1.1.3 *(2025-02-20)*
 * **New features:**
   * Added **Chat caching**
@@ -14,7 +20,7 @@
   * Fixed an issue with chat blocking *(it should work again now)*.
 
 ### Version 1.1.1 *(2025-02-08)*
-* **Reticle target marker updates:**
+* **Reticle target marker** updates:
   * Added "Disable in Group dungeons" option.
   * Added auto disable feature:
     * auto disable reticle target tracking in solo arenas *(e.g. Maelstorm arena)*;

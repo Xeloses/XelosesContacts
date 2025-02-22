@@ -26,8 +26,8 @@ function XelosesContactsChatCache:Initialize(parent, params)
     self.channels = params.channels or self.parent.CONST.CHAT.CACHE.CHANNELS -- monitored chat channels
 
     self.limits   = {
-        min = self.parent.CONST.CHAT.CACHE.MIN_SIZE,
-        max = self.parent.CONST.CHAT.CACHE.MAX_SIZE,
+        min = params.limits and params.limits.min or self.parent.CONST.CHAT.CACHE.MIN_SIZE,
+        max = params.limits and params.limits.max or self.parent.CONST.CHAT.CACHE.MAX_SIZE,
     }
 
     ZO_PreHook(CHAT_ROUTER, "FormatAndAddChatMessage", function(...) return self.handleChatMessage(self, ...) end)

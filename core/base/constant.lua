@@ -109,7 +109,7 @@ function XelosesContacts:LoadConstants()
 
             CACHE = {
                 MIN_SIZE = 10,
-                MAX_SIZE = 500,
+                MAX_SIZE = 1000,
 
                 CHANNELS = {
                     [CHAT_CHANNEL_SAY]             = true,
@@ -123,6 +123,7 @@ function XelosesContacts:LoadConstants()
                     [CHAT_CHANNEL_ZONE_LANGUAGE_5] = true,
                     [CHAT_CHANNEL_ZONE_LANGUAGE_6] = true,
                     [CHAT_CHANNEL_ZONE_LANGUAGE_7] = true,
+                    [CHAT_CHANNEL_PARTY]           = true,
                     [CHAT_CHANNEL_WHISPER]         = true,
                     [CHAT_CHANNEL_WHISPER_SENT]    = true,
                 },
