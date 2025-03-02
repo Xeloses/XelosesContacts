@@ -33,7 +33,8 @@ This addon works with account names, not character names, so no matter which cha
 * **text notes** for Friends and Villains;
 * **groups** for Friends and Villains to split lists:
   - 5 predefined groups for Friends and 5 for Villains;
-  - customizable group names;
+  - up to 40 custom groups for Friends and Villains *(up to 20 per category)*;
+  - customizable group names and icons;
 * **add players to Contacts** using context menu
   - at ***Friends list window***,
   - at ***Group window***,
@@ -122,7 +123,7 @@ Feel free to contact me via ingame mail to check which DLC I don't own :)
 
 * Add player to contacts using context menu on group/raid frames.
 * Show contact status (online/afk/offline) in Contacts window.
-* Mark Friends or Villains in group window.
+* Mark Friends and Villains in group window.
 * Backup/export contacts.
 * [LibChatMenuButton](https://www.esoui.com/downloads/info3805-LibChatMenuButton.html) integration.
 * [OdySupportIcons](https://www.esoui.com/downloads/info2834-OdySupportIcons-GroupRoleIconsMore.html) integration.

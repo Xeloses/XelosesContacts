@@ -1,13 +1,21 @@
 -- ---------------------
---  @SECTION Game zones
+--  @SECTION GAME ZONES
 -- ---------------------
 
 function XelosesContacts:LoadZonesData()
     self.CONST.ZONES = {
 
+        -- ---------------------------
+        --  @SECTION Infinite Archive
+        -- ---------------------------
+
         IA = table:new(
             1436 -- Infinite Archive
         ),
+
+        -- -----------------
+        --  @SECTION Arenas
+        -- -----------------
 
         ARENA = {
             SOLO = table:new(
@@ -19,6 +27,10 @@ function XelosesContacts:LoadZonesData()
                 1082 -- Blackrose Prison
             ),
         },
+
+        -- -------------------------
+        --  @SECTION Group dungeons
+        -- -------------------------
 
         DUNGEON = table:new(
             11,   -- Vaults of Madness
@@ -79,6 +91,10 @@ function XelosesContacts:LoadZonesData()
             1497  -- ? (new dungeon)
         ),
 
+        -- -----------------
+        --  @SECTION Trials
+        -- -----------------
+
         TRIAL = table:new(
             636,  -- HCR (Hel Ra Citadel)
             638,  -- AA  (Aetherian Archive)
@@ -94,6 +110,10 @@ function XelosesContacts:LoadZonesData()
             1427, -- SE  (Sanity's Edge)
             1478  -- LC  (Lucent Citadel)
         ),
+
+        -- --------------------
+        --  @SECTION PvP zones
+        -- --------------------
 
         PVP = table:new(
             181,                                        -- Cyrodiil

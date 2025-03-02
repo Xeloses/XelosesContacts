@@ -23,6 +23,8 @@ function XelosesContacts:Initialize()
     self.defaults      = self:getDefaultSettings()
     self.SV            = LSV:NewAccountWide(self.__namespace .. "Data", self.svVersion, "Account", { config = self.defaults, contacts = {}, }, nil, "$MultiAccountWide"):EnableDefaultsTrimming()
     self.config        = self.SV.config
+    self:UpdateConfig()
+
     self:LoadContacts()
 
     self:InitCache()

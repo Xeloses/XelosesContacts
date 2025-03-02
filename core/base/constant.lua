@@ -9,36 +9,38 @@ function XelosesContacts:LoadConstants()
     local L    = self.getString
 
     self.CONST = {
-        COLOR                   = {
+        COLOR                      = {
             DEFAULT   = "dddddd",
             TAG       = "ee55ee", -- color of addon tag
-            INFO      = "66ffff", -- color of informational messages
-            NOTE      = "999999", -- color of informational notes
+            INFO      = "66eeee", -- color of informational messages
+            NOTE      = "bbbbbb", -- color of informational notes
             WARNING   = "ff3010", -- color of warnings
-            DANGER    = "dd3333", -- color of dangerous warnings
+            DANGER    = "ee3333", -- color of dangerous warnings
             ERROR     = "ee3333", -- color of errors
             CHAT_LINK = "eeeeee", -- color of chat links
         },
 
-        ACCOUNT_NAME_MIN_LENGTH = 3,
-        ACCOUNT_NAME_MAX_LENGTH = 20,
-        GROUP_NAME_MAX_LENGTH   = 20,
-        CONTACT_NOTE_MAX_LENGTH = 500,
+        ACCOUNT_NAME_MIN_LENGTH    = 3,
+        ACCOUNT_NAME_MAX_LENGTH    = 20,
+        GROUP_NAME_MAX_LENGTH      = 20,
+        CONTACT_NOTE_MAX_LENGTH    = 500,
 
-        CONTACTS_FRIENDS_ID     = FRIENDS_ID,
-        CONTACTS_VILLAINS_ID    = VILLAINS_ID,
-        CONTACTS_CATEGORIES     = {
+        CONTACTS_FRIENDS_ID        = FRIENDS_ID,
+        CONTACTS_VILLAINS_ID       = VILLAINS_ID,
+        CONTACTS_CATEGORIES        = {
             [FRIENDS_ID]  = L("FRIENDS"),
             [VILLAINS_ID] = L("VILLAINS"),
         },
+        CONTACT_GROUPS_MAX         = 25,
+        CONTACT_GROUPS_PREDEFINDED = 5,
 
-        NOTIFICATION_CHANNELS   = {
+        NOTIFICATION_CHANNELS      = {
             BOTH = 1,
             CHAT = 2,
             SCREEN = 3,
         },
 
-        UI                      = {
+        UI                         = {
             TAB_NAME       = "Contacts",
             FONT_STYLE     = {
                 "normal",
@@ -63,13 +65,13 @@ function XelosesContacts:LoadConstants()
             },
         },
 
-        SOUND                   = {
+        SOUND                      = {
             NOTIFICATION = {
                 DEFAULT = SOUNDS.DUEL_START,
             },
         },
 
-        CHAT                    = {
+        CHAT                       = {
             CHANNELS = {
                 SAY     = {
                     CHAT_CHANNEL_SAY,

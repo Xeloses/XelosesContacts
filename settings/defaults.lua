@@ -3,40 +3,37 @@
 -- ---------------------------
 
 function XelosesContacts:getDefaultSettings()
-    local L = self.getString
+    local L           = self.getString
 
-    local defaults = {
+    local FRIENDS_ID  = self.CONST.CONTACTS_FRIENDS_ID
+    local VILLAINS_ID = self.CONST.CONTACTS_VILLAINS_ID
+
+    local defaults    = {
+        default_category = FRIENDS_ID,
         groups = {
-            [self.CONST.CONTACTS_FRIENDS_ID] = {
-                [1] = L("GROUP_11"),
-                [2] = L("GROUP_12"),
-                [3] = L("GROUP_13"),
-                [4] = L("GROUP_14"),
-                [5] = L("GROUP_15"),
+            [FRIENDS_ID] = {
+                [1] = { id = 1, name = L("GROUP_11"), icon = "/esoui/art/armory/buildicons/buildicon_49.dds" },
+                [2] = { id = 2, name = L("GROUP_12"), icon = "/esoui/art/armory/buildicons/buildicon_33.dds" },
+                [3] = { id = 3, name = L("GROUP_13"), icon = "/esoui/art/treeicons/gamepad/gp_collectionicon_housing.dds" },
+                [4] = { id = 4, name = L("GROUP_14"), icon = "/esoui/art/armory/buildicons/buildicon_4.dds" },
+                [5] = { id = 5, name = L("GROUP_15"), icon = "/esoui/art/tutorial/achievements_indexicon_summary_up.dds" },
             },
-            [self.CONST.CONTACTS_VILLAINS_ID] = {
-                [1] = L("GROUP_21"),
-                [2] = L("GROUP_22"),
-                [3] = L("GROUP_23"),
-                [4] = L("GROUP_24"),
-                [5] = L("GROUP_25"),
+            [VILLAINS_ID] = {
+                [1] = { id = 1, name = L("GROUP_21"), icon = "/esoui/art/treeicons/gamepad/gp_tutorial_idexicon_death.dds", mute = false },
+                [2] = { id = 2, name = L("GROUP_22"), icon = "/esoui/art/armory/buildicons/buildicon_13.dds", mute = true },
+                [3] = { id = 3, name = L("GROUP_23"), icon = "/esoui/art/contacts/tabicon_ignored_up.dds", mute = true },
+                [4] = { id = 4, name = L("GROUP_24"), icon = "/esoui/art/armory/buildicons/buildicon_59.dds", mute = false },
+                [5] = { id = 5, name = L("GROUP_25"), icon = "/esoui/art/armory/buildicons/buildicon_51.dds", mute = false },
             },
         },
         colors = {
-            [self.CONST.CONTACTS_FRIENDS_ID] = "33e033",
-            [self.CONST.CONTACTS_VILLAINS_ID] = "e03333",
+            [FRIENDS_ID]  = "33e033",
+            [VILLAINS_ID] = "e03333",
         },
         ui = {
             search_note = true,
         },
         chat = {
-            block_groups = {
-                [1] = false,
-                [2] = true,
-                [3] = true,
-                [4] = false,
-                [5] = false,
-            },
             block_channels = {
                 SAY     = true,
                 ZONE    = true,
@@ -79,6 +76,10 @@ function XelosesContacts:getDefaultSettings()
         confirmation = {
             -- add villain to ESO ingame friends
             friend = true,
+        },
+        contextmenu = {
+            enabled = true,
+            submenu = true,
         },
         reticle = {
             enabled  = true,

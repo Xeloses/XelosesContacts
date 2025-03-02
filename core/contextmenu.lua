@@ -1,5 +1,6 @@
 local LCM = LibCustomMenu
 local L   = XelosesContacts.getString
+local F   = XelosesContacts.formatString
 
 -- ---------------
 --  @SECTION Init
@@ -19,7 +20,11 @@ end
 
 function XelosesContacts:CreateContactMenuItem(account_name, note, category)
     if (not account_name or self:isInContacts(account_name)) then return end
-    local item = { name = L("MENU_ADD_CONTACT") }
+
+    local item = {
+        name = L("MENU_ADD_CONTACT"),
+    }
+
     if (category) then
         if (category == self.CONST.CONTACTS_FRIENDS_ID) then
             item.callback = function() self:AddContact_Friend(account_name, note) end
@@ -27,20 +32,54 @@ function XelosesContacts:CreateContactMenuItem(account_name, note, category)
             item.callback = function() self:AddContact_Villain(account_name, note) end
         end
     else
-        item.callback = function() self:AddContact(account_name, { note = note }) end
+        item.callback = function()
+            self:AddContact(account_name, {
+                category = self.config.default_category,
+                note = note,
+            })
+        end
     end
+
     return item
 end
 
+function XelosesContacts:CreateContactSubmenuItem(account_name, note)
+    if (not account_name or self:isInContacts(account_name)) then return end
+
+    local entries = {
+        {
+            label = F(L("MENU_ADD_CONTACT_SUBMENU"), L("FRIEND")),
+            callback = function() self:AddContact_Friend(account_name, note) end,
+        },
+        {
+            label = F(L("MENU_ADD_CONTACT_SUBMENU"), L("VILLAIN")),
+            callback = function() self:AddContact_Villain(account_name, note) end,
+        }
+    }
+
+    return entries
+end
+
 function XelosesContacts:addContactMenuItem(data, category)
+    if (not self.config.contextmenu.enabled) then return end
+
     local target_name = data.displayName
     if (not IsDecoratedDisplayName(target_name)) then
         target_name = self.Chat.cache:Get(target_name)
     end
 
-    local menu_item = self:CreateContactMenuItem(target_name, data.note, category)
-    if (menu_item) then
-        return AddCustomMenuItem(menu_item.name, menu_item.callback)
+    if (not target_name) then return end
+
+    if (not self.config.contextmenu.submenu or category) then
+        local menu_item = self:CreateContactMenuItem(target_name, data.note, category)
+        if (menu_item) then
+            return AddCustomMenuItem(menu_item.name, menu_item.callback)
+        end
+    else
+        local submenu_entries = self:CreateContactSubmenuItem(target_name, data.note)
+        if (submenu_entries) then
+            return AddCustomSubMenuItem(L("MENU_ADD_CONTACT"), submenu_entries)
+        end
     end
 end
 

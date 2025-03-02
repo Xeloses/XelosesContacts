@@ -1,137 +1,6 @@
 local L = XelosesContacts.getString
 local T = type
 
--- -----------------------
---  @SECTION Contact data
--- -----------------------
-
-function XelosesContacts:getContactData(contact)
-    if (T(contact) == "table" and contact.account) then
-        return contact
-    elseif (T(contact) == "string") then
-        local data = self.contacts:get(contact)
-        if (data) then
-            data.account = contact
-            return data
-        end
-    end
-end
-
--- -----------------------
-
-function XelosesContacts:getContactName(contact, colorize, with_icon)
-    local contact_data = self:getContactData(contact)
-    if (not contact_data) then return "" end
-
-    local contact_name = contact_data.account
-
-    if (colorize) then
-        contact_name = contact_name:colorize(self:getCategoryColor(contact_data.category))
-    end
-
-    if (with_icon) then
-        local icon = self:getContactGroupIcon(contact, colorize)
-        if (not icon) then
-            return contact_name
-        end
-        contact_name = icon .. contact_name
-    end
-
-    return contact_name
-end
-
-function XelosesContacts:getContactLink(contact, colorize, with_icon)
-    local contact_data = self:getContactData(contact)
-    if (not contact_data) then return "" end
-
-    local contact_link = self:getAccountLink(contact_data.account)
-    if (colorize) then
-        contact_link = contact_link:colorize(self:getCategoryColor(contact_data.category))
-    end
-
-    if (with_icon) then
-        local icon = self:getContactGroupIcon(contact, colorize)
-        if (not icon) then
-            return contact_link
-        end
-        contact_link = icon .. contact_link
-    end
-
-    return contact_link
-end
-
-function XelosesContacts:getContactCategoryName(contact, colorize)
-    local contact_data = self:getContactData(contact)
-    if (not contact_data) then return "" end
-
-    local category_name = self:getCategoryName(contact_data.category)
-    if (category_name == "") then
-        return category_name
-    end
-
-    if (colorize) then
-        category_name = category_name:colorize(self:getCategoryColor(contact_data.category))
-    end
-
-    return category_name
-end
-
-function XelosesContacts:getContactGroupName(contact, colorize, with_icon)
-    local contact_data = self:getContactData(contact)
-    if (not contact_data) then return "" end
-
-    local group_name = self:getGroupName(contact_data.category, contact_data.group)
-    if (group_name == "") then return end
-
-    if (colorize) then
-        group_name = group_name:colorize(self:getCategoryColor(contact_data.category))
-    end
-
-    if (with_icon) then
-        local icon = self:getContactGroupIcon(contact, colorize)
-        if (not icon) then
-            return group_name
-        end
-        group_name = icon .. group_name
-    end
-
-    return group_name
-end
-
-function XelosesContacts:getContactGroupIcon(contact, colorize)
-    local contact_data = self:getContactData(contact)
-    if (not contact_data) then return end
-
-    local icon = self:getGroupIcon(contact_data.category, contact_data.group)
-    if (not icon) then return end
-
-    if (colorize) then
-        return (""):addIcon(icon, self:getCategoryColor(contact_data.category))
-    end
-
-    return icon
-end
-
--- -----------------------
-
-function XelosesContacts:getContactsCount()
-    local counter = {
-        total = 0,
-        friends = 0,
-        villains = 0,
-    }
-
-    for _, data in pairs(self.contacts) do
-        counter.total = counter.total + 1
-        if (data.category == self.CONST.CONTACTS_FRIENDS_ID) then
-            counter.friends = counter.friends + 1
-        elseif (data.category == self.CONST.CONTACTS_VILLAINS_ID) then
-            counter.villains = counter.villains + 1
-        end
-    end
-    return counter
-end
-
 -- ---------------------------
 --  @SECTION Checkups / Tests
 -- ---------------------------
@@ -155,6 +24,135 @@ end
 function XelosesContacts:isChatBlocked(contact)
     local contact_data = self:getContactData(contact)
     return (contact_data and self:isVillain(contact_data) and self:isChatBlockedForGroup(contact_data.group)) or false
+end
+
+-- -----------------------
+--  @SECTION Contact data
+-- -----------------------
+
+function XelosesContacts:getContactData(contact)
+    if (T(contact) == "table" and contact.account) then
+        return contact
+    elseif (T(contact) == "string") then
+        local data = self.contacts:get(contact)
+        if (data) then
+            data.account = contact
+            return data
+        end
+    end
+end
+
+-- -----------------------
+
+function XelosesContacts:getContactName(contact, colorize, with_icon)
+    local contact_data = self:getContactData(contact)
+    if (not contact_data) then return end
+
+    local contact_name = contact_data.account
+
+    if (colorize) then
+        contact_name = contact_name:colorize(self:getCategoryColor(contact_data.category))
+    end
+
+    if (with_icon) then
+        local icon = self:getContactGroupIcon(contact, colorize)
+        if (not icon) then
+            return contact_name
+        end
+        contact_name = icon .. contact_name
+    end
+
+    return contact_name
+end
+
+function XelosesContacts:getContactLink(contact, colorize, with_icon)
+    local contact_data = self:getContactData(contact)
+    if (not contact_data) then return end
+
+    local contact_link = self:getAccountLink(contact_data.account)
+    if (colorize) then
+        contact_link = contact_link:colorize(self:getCategoryColor(contact_data.category))
+    end
+
+    if (with_icon) then
+        local icon = self:getContactGroupIcon(contact, colorize)
+        if (not icon) then
+            return contact_link
+        end
+        contact_link = icon .. contact_link
+    end
+
+    return contact_link
+end
+
+function XelosesContacts:getContactCategoryName(contact, colorize)
+    local contact_data = self:getContactData(contact)
+    if (not contact_data) then return end
+
+    local category_name = self:getCategoryName(contact_data.category)
+    if (not category_name or category_name:isEmpty()) then return category_name end
+
+    if (colorize) then
+        category_name = category_name:colorize(self:getCategoryColor(contact_data.category))
+    end
+
+    return category_name
+end
+
+function XelosesContacts:getContactGroupName(contact, colorize, with_icon, icon_size)
+    local contact_data = self:getContactData(contact)
+    if (not contact_data) then return end
+
+    local group_name = self:getGroupName(contact_data.category, contact_data.group)
+    if (not group_name or group_name:isEmpty()) then return end
+
+    if (colorize) then
+        group_name = group_name:colorize(self:getCategoryColor(contact_data.category))
+    end
+
+    if (with_icon) then
+        local icon = self:getContactGroupIcon(contact, colorize, icon_size)
+        if (not icon) then
+            return group_name
+        end
+        group_name = icon .. group_name
+    end
+
+    return group_name
+end
+
+function XelosesContacts:getContactGroupIcon(contact, colorize, icon_size)
+    local contact_data = self:getContactData(contact)
+    if (not contact_data) then return end
+
+    local icon = self:getGroupIcon(contact_data.category, contact_data.group)
+    if (not icon) then return end
+
+    if (colorize) then
+        return (""):addIcon(icon, self:getCategoryColor(contact_data.category), icon_size)
+    end
+
+    return icon
+end
+
+-- -----------------------
+
+function XelosesContacts:getContactsCount()
+    local counter = {
+        total = 0,
+        friends = 0,
+        villains = 0,
+    }
+
+    for _, data in pairs(self.contacts) do
+        counter.total = counter.total + 1
+        if (data.category == self.CONST.CONTACTS_FRIENDS_ID) then
+            counter.friends = counter.friends + 1
+        elseif (data.category == self.CONST.CONTACTS_VILLAINS_ID) then
+            counter.villains = counter.villains + 1
+        end
+    end
+    return counter
 end
 
 -- --------------------------
@@ -266,21 +264,58 @@ function XelosesContacts:CreateOrUpdateContact(contact_data)
 end
 
 function XelosesContacts:RenameContact(contact, new_name)
-    local contact_data = XelosesContacts:getContactData(contact)
+    local contact_data = self:getContactData(contact)
     local new_contact_data = table.clone(contact_data)
 
     local old_name = contact_data.account
-    XelosesContacts:DeleteContact(contact_data, true)
+    self:DeleteContact(contact_data, true)
 
-    new_contact_data.account = new_name
-    XelosesContacts:SaveContact(new_contact_data, true)
+    self:SaveContact(new_contact_data, true)
 
     -- @LOG Contact renamed
-    XelosesContacts:Log("Contact %s renamed to %s", old_name, new_name)
+    self.parent:Log("Rename contact [%s] -> [%s].", old_name, new_name)
 
-    self.DataChanged = true -- signal data was changed (to refresh contacts list UI on show)
-    self:RefreshUI()
+    self:RefreshContactsList() -- do refresh here because SaveContact() was called with silent=true
 end
+
+function XelosesContacts:MoveContacts(category_id, from_group_id, to_group_id)
+    if (not self:validateContactGroup(category_id, from_group_id) or not self:validateContactGroup(category_id, to_group_id)) then return end
+    self.processing = true -- indicates possibly long process started
+
+    local n = 0
+    for contact_name, contact_data in pairs(self.contacts) do
+        if (contact_data.group == from_group_id) then
+            contact_data.group   = to_group_id
+            contact_data.account = contact_name -- necessary for SaveContact() method
+            self:SaveContact(contact_data, true)
+            n = n + 1
+        end
+    end
+
+    if (n > 0) then
+        self:RefreshContactsList() -- do refresh here because SaveContact() was called with silent=true
+    end
+
+    self.processing = false -- indicates possibly long process ended
+    return n
+end
+
+function XelosesContacts:RemoveContact(contact_data, params)
+    local contact = self:getContactData(contact_data)
+    if (not contact) then
+        -- @LOG error: contact does not exists
+        self:LogError("Error attempt to remove contact: contact does not exists.")
+        return false
+    end
+
+    if (params and params.confirmed) then
+        return self:DeleteContact(contact)
+    else
+        self:ShowDialog(self.CONST.UI.DIALOGS.CONFIRM_CONTACT_REMOVE, contact.account, contact)
+    end
+end
+
+-- -----------------------
 
 function XelosesContacts:SaveContact(contact_data, silent)
     local function createDataStr(data)
@@ -299,28 +334,13 @@ function XelosesContacts:SaveContact(contact_data, silent)
 
     self.SV.contacts[contact_name] = createDataStr(new_contact_data)
     self.contacts[contact_name] = new_contact_data
+    self.DataChanged = true -- signal data was changed (to refresh contacts list UI on show)
 
     if (not silent) then
         -- @LOG Contact created
         self:Log("Contact %s: %s%s", isNew and "added" or "updated", contact_name, isNew and (" <%s::%s>"):format(self:getCategoryName(contact_data.category), self:getGroupName(contact_data.category, contact_data.group)) or "")
 
-        self.DataChanged = true -- signal data was changed (to refresh contacts list UI on show)
-        self:RefreshUI()
-    end
-end
-
-function XelosesContacts:RemoveContact(contact_data, params)
-    local contact = self:getContactData(contact_data)
-    if (not contact) then
-        -- @LOG error: contact does not exists
-        self:LogError("Error attempt to remove contact: contact does not exists.")
-        return false
-    end
-
-    if (params and params.confirmed) then
-        return self:DeleteContact(contact)
-    else
-        self:ShowDialog(self.CONST.UI.DIALOGS.CONFIRM_CONTACT_REMOVE, contact.account, contact)
+        self:RefreshContactsList()
     end
 end
 
@@ -334,7 +354,7 @@ function XelosesContacts:DeleteContact(contact_data, silent)
         self:Log("Player [%s] has been removed from Contacts.", contact_data.account)
 
         self:Notify(L("CONTACT_REMOVED"), contact_data.account)
-        self:RefreshUI()
+        self:RefreshContactsList()
     end
 
     return true
@@ -344,33 +364,39 @@ end
 --  @SECTION Load data
 -- --------------------
 
-function XelosesContacts:LoadContacts()
-    local function parseDataStr(data_str)
-        local data        = data_str:split(";")
-        local timestamp   = data[1] and tonumber(data[1]) or nil
-        local category_id = data[2] and tonumber(data[2]) or nil
-        local group_id    = data[3] and tonumber(data[3]) or nil
-        local note        = data[4] and data[4]:trim() or nil
+local function parseDataStr(data_str)
+    local data        = data_str:split(";")
+    local timestamp   = data[1] and tonumber(data[1]) or nil
+    local category_id = data[2] and tonumber(data[2]) or nil
+    local group_id    = data[3] and tonumber(data[3]) or nil
+    local note        = data[4] and data[4]:trim() or nil
 
-        if (not category_id or not group_id or not timestamp) then return end
-        if (#data > 4) then note = data:concat(";", 4) end
-        local result = {
-            category  = category_id,
-            group     = group_id,
-            timestamp = timestamp,
-        }
-        if (note and not note:isEmpty()) then
-            result.note = note
-        end
-        return result
+    if (not category_id or not group_id or not timestamp) then return end
+
+    local result = {
+        category  = category_id,
+        group     = group_id,
+        timestamp = timestamp,
+    }
+
+    if (#data > 4) then
+        note = data:concat(";", 4)
+    end
+    if (note and not note:isEmpty()) then
+        result.note = note
     end
 
-    self.contacts = table:new()
+    return result
+end
 
+function XelosesContacts:LoadContacts()
+    self.contacts = table:new()
     for contact_name, data_str in pairs(self.SV.contacts) do
         local contact_data = parseDataStr(data_str)
         if (contact_data) then
             self.contacts:insertElem(contact_name, contact_data)
         end
     end
+
+    self.DataChanged = true -- indicate data loaded from SV
 end

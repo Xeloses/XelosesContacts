@@ -1,4 +1,4 @@
-local LUI                                    = LibExtendedJournal
+local LEJ                                    = LibExtendedJournal
 
 local L                                      = XelosesContacts.getString
 local F                                      = XelosesContacts.formatString
@@ -23,7 +23,7 @@ XELOSES_CONTACTS_LIST_CELL_GROUP_WIDTH       = XELOSES_CONTACTS_LIST_COLUMN_GROU
 local DATA_TYPE                              = 1
 local DEFAULT_SORT_ORDER                     = ZO_SORT_ORDER_UP
 
-local self_instance
+local SELF_INSTANCE
 local CONST
 
 -- ---------------
@@ -32,13 +32,10 @@ local CONST
 
 XelosesContactsList                          = ExtendedJournalSortFilterList:Subclass()
 
-function XelosesContactsList:New(parent)
-    CONST              = parent.CONST -- store pointer to CONSTANTS table
+function XelosesContactsList:New(parent_obj)
+    CONST              = parent_obj.CONST -- store pointer to CONSTANTS table
 
-    local list         = ExtendedJournalSortFilterList.New(self, XelosesContactsFrame, nil, parent)
-
-    list.categoryID    = CONST.CONTACTS_FRIENDS_ID
-    list.groupID       = 0
+    local list         = ExtendedJournalSortFilterList.New(self, XelosesContactsFrame, nil, parent_obj)
 
     list.index_columns = table:new({
         [1] = "Account",
@@ -47,7 +44,7 @@ function XelosesContactsList:New(parent)
         [4] = "Timestamp",
     })
 
-    self_instance      = list -- store object instance to use in places where "self" is not available
+    SELF_INSTANCE      = list -- store object instance to use in places where "self" is not available
 
     return list
 end
@@ -73,17 +70,25 @@ function XelosesContactsList:Setup(parent)
     self.sortHeaderGroup:SelectAndResetSortForKey(self.currentSortKey)
 
     self.sortFunction = function(a, b)
+        if (not self.initialized or not self:isShown()) then return end -- prevent unnecessary updates
+
         -- sort by Group name instead of Group ID
         local group_name_a = self.parent:getContactGroupName(a.data) or ""
         local group_name_b = self.parent:getContactGroupName(b.data) or ""
         local term_a = { account = a.data.account, group = group_name_a:upper(), note = a.data.note, timestamp = a.data.timestamp }
         local term_b = { account = b.data.account, group = group_name_b:upper(), note = b.data.note, timestamp = b.data.timestamp }
+
         return ZO_TableOrderingFunction(term_a, term_b, self.currentSortKey, sort_keys, self.currentSortOrder)
     end
+
+    self.categoryID   = self.parent.config.default_category
+    self.groupID      = 0
 
     self:InitContextMenu()
     self:InitKeybinds()
     self:SetupControls()
+
+    self.initialized = true
 end
 
 function XelosesContactsList:SetupControls()
@@ -112,15 +117,36 @@ function XelosesContactsList:SetupControls()
     self.UI.btnSearchReset:SetHandler("OnClicked", function() self:SearchReset() end)
     self.UI.searchBox:SetHandler("OnTextChanged", function() self:onSearchTextChanged() end)
 
-    self:InitializeComboBox(
-        self.UI.cbCategory,
-        { list = CONST.CONTACTS_CATEGORIES },
-        CONST.CONTACTS_FRIENDS_ID,
-        true,
-        function(...)
-            self:onCategorySelect(...)
-        end
-    )
+    self:SetupCategoryList()
+end
+
+-- ----------------
+--  @SECTION State
+-- ----------------
+
+function XelosesContactsList:Show()
+    if (not self.initialized) then return end
+
+    LEJ.Show(CONST.UI.TAB_NAME)
+end
+
+function XelosesContactsList:Hide()
+    if (not self.initialized) then return end
+
+    if (self:isShown()) then
+        self:Toggle()
+    end
+end
+
+function XelosesContactsList:Toggle()
+    if (not self.initialized) then return end
+
+    LEJ.Show(CONST.UI.TAB_NAME, true) -- second param of LEJ.Show() method is a "Toggle" flag
+end
+
+function XelosesContactsList:isShown()
+    local _LEJ = LibExtendedJournalInternal
+    return LEJ.IsTabActive(CONST.UI.TAB_NAME) and SCENE_MANAGER:IsShowing(_LEJ.SCENE_NAME)
 end
 
 -- ----------------------
@@ -138,6 +164,145 @@ function XelosesContactsList:BuildMasterList()
             note      = data.note,
         }
         self.masterList:insert(entry)
+    end
+end
+
+function XelosesContactsList:RefreshList()
+    self:RefreshData()
+    self:RefreshContactsCounter()
+end
+
+-- ------------------------
+--  @SECTION Category list
+-- ------------------------
+
+function XelosesContactsList:SetupCategoryList()
+    local category_list = self.parent:getCategoryList(true)
+
+    self:InitializeComboBox(
+        self.UI.cbCategory,
+        { list = category_list },
+        self.categoryID,
+        true,
+        function(...)
+            self:onCategorySelect(...)
+        end
+    )
+end
+
+function XelosesContactsList:getSelectedCategory()
+    return self.categoryID or self.parent.config.default_category
+end
+
+function XelosesContactsList:SetSelectedCategory(category_id)
+    if (not category_id) then return end
+
+    local category_name = self.parent:getCategoryName(category_id, true)
+    if (not category_name) then return end
+
+    self.categoryID = category_id
+    self:SetTitle(category_name)
+    self:SetupGroupsList(category_id)
+    self:UpdateKeybinds()
+end
+
+-- -----------------------
+--  @SECTION Groups lists
+-- -----------------------
+
+function XelosesContactsList:SetupGroupsList(category_id)
+    local groups_list = table:new()
+    groups_list:insert({
+        id = 0,
+        label = "<" .. L("ALL") .. ">",
+    })
+
+    local gList = self.parent:getGroupsList(category_id, true, true)
+    for gID, gName in ipairs(gList) do
+        local entry = {
+            id = gID,
+            label = gName,
+        }
+
+        groups_list:insert(entry)
+    end
+
+    groups_list:sort(
+        function(a, b)
+            return a.id < b.id
+        end
+    )
+
+    self:InitializeComboBox(
+        self.UI.cbGroup,
+        {
+            list = groups_list,
+            key = "label",
+            dataKey = "id",
+        },
+        1,
+        true,
+        function(...)
+            self:onGroupSelect(...)
+        end
+    )
+end
+
+function XelosesContactsList:RefreshGroupsList()
+    self:SetupGroupsList(self.categoryID)
+end
+
+function XelosesContactsList:getSelectedGroup()
+    return self.groupID or 0
+end
+
+function XelosesContactsList:SetSelectedGroup(group_id)
+    if (group_id ~= 0 and not self.parent:validateContactGroup(self.categoryID, group_id)) then return end
+
+    self.groupID = group_id
+
+    -- change sort order depends on current sort order and "Group" column visibility
+    local sort
+    if (group_id ~= 0 and self.currentSortKey == "group") then
+        sort = "account"
+    elseif (group_id == 0 and self.currentSortKey == "account") then
+        sort = "group"
+    end
+    if (sort) then
+        self.currentSortKey = sort
+        self.sortHeaderGroup:SelectAndResetSortForKey(self.currentSortKey)
+    end
+
+    self:SetColumnVisibility("Group", self.groupID == 0) -- hide "Group" column if list was filtered by contact group
+end
+
+-- ----------------------
+--  @SECTION UI controls
+-- ----------------------
+
+function XelosesContactsList:SetTitle(title)
+    if (not title) then return end
+
+    --[[
+    local topBar = LibExtendedJournalInternal.controls.frame.menu
+    if (not topBar) then return end
+
+    local lbTitle = topBar and topBar:GetNamedChild("Label")
+    ]]
+    local lbTitle = LibExtendedJournalInternal.controls.subtitle
+    if (not lbTitle) then return end
+
+    lbTitle:SetText(title)
+end
+
+function XelosesContactsList:RefreshContactsCounter()
+    local counter = self.parent:getContactsCount()
+
+    self.UI.lbCountContacts:SetHidden(counter.total == 0)
+
+    if (counter.total > 0) then
+        local s = F(L("UI_CONTACTS_COUNT"), counter.friends, counter.villains)
+        self.UI.lbCountContacts:SetText(s)
     end
 end
 
@@ -182,6 +347,11 @@ function XelosesContactsList:FilterScrollList()
     end
 end
 
+function XelosesContactsList:getSearchTerm()
+    local s = self.UI.searchBox:GetText():trim()
+    return (s ~= "") and s or ""
+end
+
 function XelosesContactsList:SearchReset()
     self.UI.searchBox:SetText("")
 end
@@ -204,7 +374,7 @@ function XelosesContactsList:SetupItemRow(control, data)
     self:SetupCellDisplay(cell, "Group", showGroup)
     if (showGroup) then
         cell.normalColor = ZO_DEFAULT_TEXT
-        cell:SetText(self.parent:getGroupName(data.category, data.group))
+        cell:SetText(self.parent:getContactGroupName(data))
     end
 
     -- Group icon
@@ -220,7 +390,7 @@ function XelosesContactsList:SetupItemRow(control, data)
     -- Date/time added
     cell = control:GetNamedChild("Timestamp")
     cell.normalColor = ZO_DEFAULT_TEXT
-    cell:SetText(self.parent:formatTimestamp(data.timestamp))
+    cell:SetText(self.parent:formatTimestamp(data.timestamp)) -- TimeFunctions_GetLocalizedDateTime(data.timestamp)
 
     self:SetupRow(control, data)
 end
@@ -230,29 +400,46 @@ end
 -- ------------------
 
 function XelosesContactsList:ShowContactTooltip(contact_data)
-    local tooltip = LUI.InitializeTooltip()
-    local r, g, b = ZO_ColorDef:New(self.parent:getCategoryColor(contact_data.category)):UnpackRGB()
+    local color_note    = ZO_ColorDef:New(CONST.COLOR.DEFAULT)
+    local r, g, b       = ZO_TOOLTIP_DEFAULT_COLOR:UnpackRGB()
+    local icon_size     = 28
+
+    local category_name = self.parent:getContactCategoryName(contact_data, true)
+    local group_name    = self.parent:getContactGroupName(contact_data, true, true, icon_size)
+    local date_added    = self.parent:formatTimestamp(contact_data.timestamp):colorize(CONST.COLOR.NOTE)
+
+    local tooltip       = LEJ.InitializeTooltip()
+
+    -- Header (category & date added)
+    local tooltip_ext   = LEJ.TooltipExtensionInitialize(
+        false,                                      -- show divider
+        date_added,                                 -- top-left text
+        category_name,                              -- top-right text
+        self.parent.__namespace .. "ContactTooltip" -- tooltip object internal name
+    )
+    tooltip_ext:Finalize(tooltip, true)
+
+    local function AddEmptyLine()
+        tooltip:AddLine("", "ZoFontWinH4")
+    end
 
     -- Account name
-    tooltip:AddLine(" ", "ZoFontWinH4")
+    AddEmptyLine()
     tooltip:AddLine(contact_data.account, "ZoFontWinH1", r, g, b)
-    tooltip:AddLine("", "ZoFontWinH4")
+    AddEmptyLine()
 
     -- Group
-    tooltip:AddLine(("• %s •"):format(self.parent:getContactGroupName(contact_data)), "ZoFontWinH3", r, g, b)
-    tooltip:AddLine("", "ZoFontWinH4")
-
-    -- Date/time added
-    tooltip:AddLine("Added: " .. self.parent:formatTimestamp(contact_data.timestamp), "ZoFontWinH4", ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
-    tooltip:AddLine("", "ZoFontWinH4")
+    tooltip:AddLine(group_name, "ZoFontWinH3")
+    AddEmptyLine()
 
     -- <divider>
     ZO_Tooltip_AddDivider(tooltip)
 
     -- Note
-    r, g, b = ZO_TOOLTIP_DEFAULT_COLOR:UnpackRGB()
-    tooltip:AddLine(L(SI_GAMEPAD_CONTACTS_NOTES_TITLE), "ZoFontWinH3")
-    tooltip:AddLine(contact_data.note, nil, r, g, b, LEFT, MODIFY_TEXT_TYPE_NONE, TEXT_ALIGN_LEFT, true)
+    tooltip:AddLine(L(SI_GAMEPAD_CONTACTS_NOTES_TITLE), "ZoFontWinT2", r, g, b)
+
+    r, g, b = ZO_ColorDef:New(CONST.COLOR.DEFAULT):UnpackRGB()
+    tooltip:AddLine(contact_data.note, nil, nil, nil, nil, CENTER, MODIFY_TEXT_TYPE_NONE, TEXT_ALIGN_LEFT)
 
     self.contactTooltip = tooltip
 end
@@ -396,7 +583,7 @@ function XelosesContactsList:ShowContextMenu(control, row_data)
     end
 
     if (not self.list) then
-        -- variable "self" can be somehow empty here, so we set the "list" field to prevent errors in the ShowMenu() call
+        -- variable "self" can be empty here, so we set the "list" field to prevent errors in the ShowMenu() call
         self.list = (self.UI and self.UI.list) or (self.control and self.control:GetNamedChild("List")) or (self.frame and self.frame:GetNamedChild("List")) or XelosesContactsFrame:GetNamedChild("List")
     end
 
@@ -523,30 +710,7 @@ function XelosesContactsList:onSearchTextChanged()
 end
 
 function XelosesContactsList:onCategorySelect(control, name, data)
-    local groups_list = table:new()
-
     self:SetSelectedCategory(data.id)
-
-    groups_list:insert({
-        id = 0,
-        label = "<" .. L("ALL") .. ">",
-    })
-
-    local gList = self.parent:getGroupsList(data.id, true, true)
-    for gID, gName in ipairs(gList) do
-        local entry = { id = gID, label = gName }
-        groups_list:insert(entry)
-    end
-
-    self:InitializeComboBox(
-        self.UI.cbGroup,
-        { list = groups_list, key = "label", dataKey = "id" },
-        1,
-        true,
-        function(...)
-            self:onGroupSelect(...)
-        end
-    )
 end
 
 function XelosesContactsList:onGroupSelect(control, name, data)
@@ -557,21 +721,23 @@ function XelosesContactsList:onGroupSelect(control, name, data)
     end
 end
 
+-- -------------------------
+
 function XelosesContactsList.onRowMouseEnter(control)
-    self_instance:Row_OnMouseEnter(control)
+    SELF_INSTANCE:Row_OnMouseEnter(control)
 
     local data = ZO_ScrollList_GetData(control)
     if (not data.note or data.note == "") then return end
 
     local lbNote = control:GetNamedChild("Note")
     if (lbNote and lbNote:WasTruncated()) then
-        self_instance:ShowContactTooltip(data)
+        SELF_INSTANCE:ShowContactTooltip(data)
     end
 end
 
 function XelosesContactsList.onRowMouseExit(control)
-    self_instance:Row_OnMouseExit(control)
-    self_instance:ClearContactTooltip()
+    SELF_INSTANCE:Row_OnMouseExit(control)
+    SELF_INSTANCE:ClearContactTooltip()
 end
 
 function XelosesContactsList.onRowMouseUp(control, button, upInside)
@@ -580,85 +746,15 @@ function XelosesContactsList.onRowMouseUp(control, button, upInside)
     local data = ZO_ScrollList_GetData(control)
 
     if (button == MOUSE_BUTTON_INDEX_LEFT) then
-        self_instance.parent:EditContact(data)
+        SELF_INSTANCE.parent:EditContact(data)
     elseif (button == MOUSE_BUTTON_INDEX_RIGHT) then
-        self_instance:ShowContextMenu(control, data)
+        SELF_INSTANCE:ShowContextMenu(control, data)
     end
 end
 
 -- ------------------
 --  @SECTION Utility
 -- ------------------
-
-function XelosesContactsList:RefreshList()
-    self:RefreshData()
-    self:RefreshCounter()
-end
-
-function XelosesContactsList:RefreshCounter()
-    local counter = self.parent:getContactsCount()
-
-    self.UI.lbCountContacts:SetHidden(counter.total == 0)
-
-    if (counter.total > 0) then
-        local s = F(L("UI_CONTACTS_COUNT"), counter.friends, counter.villains)
-        self.UI.lbCountContacts:SetText(s)
-    end
-end
-
-function XelosesContactsList:getSearchTerm()
-    local s = self.UI.searchBox:GetText():trim()
-    return (s ~= "") and s:lower() or ""
-end
-
-function XelosesContactsList:getSelectedCategory()
-    return self.categoryID or CONST.CONTACTS_FRIENDS_ID
-end
-
-function XelosesContactsList:getSelectedGroup()
-    return self.groupID or 0
-end
-
-function XelosesContactsList:SetTitle(title)
-    if (not title or not self.parent:isUIShown()) then return end
-
-    local topBar  = ExtendedJournalFrame:GetNamedChild("MenuBar")
-    local lbTitle = topBar and topBar:GetNamedChild("Label")
-
-    if (lbTitle) then
-        lbTitle:SetText(title)
-    end
-end
-
-function XelosesContactsList:SetSelectedCategory(category_id)
-    if (not category_id) then return end
-
-    local category_name = self.parent:getCategoryName(category_id)
-    if (not category_name) then return end
-
-    self.categoryID = category_id
-    self:SetTitle(category_name)
-    self:UpdateKeybinds()
-end
-
-function XelosesContactsList:SetSelectedGroup(group_id)
-    if (group_id ~= 0 and not self.parent:getGroupName(self.categoryID, group_id)) then return end
-    self.groupID = group_id
-    local sort
-
-    -- change sort order depends on current sort order and "Group" column visibility
-    if (group_id ~= 0 and self.currentSortKey == "group") then
-        sort = "account"
-    elseif (group_id == 0 and self.currentSortKey == "account") then
-        sort = "group"
-    end
-    if (sort) then
-        self.currentSortKey = sort
-        self.sortHeaderGroup:SelectAndResetSortForKey(self.currentSortKey)
-    end
-
-    self:SetColumnVisibility("Group", self.groupID == 0) -- hide "Group" column if list was filtered by contact group
-end
 
 function XelosesContactsList:SetColumnVisibility(column_name, visible)
     if (not column_name) then return end

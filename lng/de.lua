@@ -111,9 +111,14 @@ L("MENU_REMOVE_CONTACT", "Aus Kontakten entfernen")
 L("SETTINGS_GENERAL", "Allgemein")
 L("SETTINGS_UI_SEARCH_NOTE", "Suche nach persönlichen Notizen des Kontakts zulassen")
 L("SETTINGS_UI_SEARCH_NOTE_TOOLTIP", "Kontakte nach Kontonamen und persönlichen Notizen in der Kontaktliste suchen. Schalten Sie diese Einstellung AUS, um nur nach dem Kontonamen zu suchen.")
+
 L("SETTINGS_COLORS", "Farben")
 L("SETTINGS_COLORS_DESCRIPTION", "Hervorhebungsfarben für Kontakte.")
 L("SETTINGS_COLOR", "<<1>> Farbe")
+
+L("SETTINGS_GROUPS", "Gruppen")
+L("SETTINGS_GROUPS_DESCRIPTION", "Kontaktgruppen bearbeiten.")
+
 L("SETTINGS_RETICLE_MARKER", "Fadenkreuz-Zielmarkierung")
 L("SETTINGS_RETICLE_MARKER_DESCRIPTION", "Zeige eine Markierung neben dem Fadenkreuz, wenn du Freunde oder Schurken anvisierst.")
 L("SETTINGS_RETICLE_MARKER_ENABLE", "Aktivieren")
@@ -147,6 +152,7 @@ L("SETTINGS_RETICLE_MARKER_ADDITIONAL_IGNORED", "Markierung für <<1>>ignorierte
 L("SETTINGS_RETICLE_MARKER_ADDITIONAL_IGNORED_COLOR", "Markierungsfarbe für ignorierte Spieler")
 L("SETTINGS_RETICLE_MARKER_ADDITIONAL_GUILDMATE", "Markierung für <<1>>Gildenmitglieder hinzufügen")
 L("SETTINGS_RETICLE_MARKER_ADDITIONAL_GUILDMATE_COLOR", "Markierungsfarbe für Gildenmitglieder")
+
 L("SETTINGS_NOTIFICATION", "Benachrichtigungen und Warnungen")
 L("SETTINGS_NOTIFICATION_DESCRIPTION", "Bildschirm- und Chat-Benachrichtigungen/Warnungen für Kontakte.")
 L("SETTINGS_NOTIFICATION_CHANNEL", "Kanal für Benachrichtigungen und Infonachrichten")
@@ -176,6 +182,7 @@ L("SETTINGS_AUTODECLINE_GROUP_INVITE", "Gruppeneinladungen von Bösewichten auto
 L("SETTINGS_AUTODECLINE_GROUP_INVITE_TOOLTIP", "Gruppeneinladungen automatisch ablehnen, wenn der Einladende ein Bösewicht.")
 L("SETTINGS_CONFIRM_ADD_FRIEND", "Hinzufügen von Bösewicht als Freund bestätigen")
 L("SETTINGS_CONFIRM_ADD_FRIEND_TOOLTIP", "Bestätigungsdialog anzeigen, wenn versucht wird, Bösewicht zu den ESO-Freunden im Spiel hinzuzufügen.")
+
 L("SETTINGS_CHAT", "Chat")
 L("SETTINGS_CHAT_DESCRIPTION", "Chat-Einstellungen.")
 L("SETTINGS_CHAT_BLOCK", "Chat-Blockierung")
@@ -193,9 +200,7 @@ L("SETTINGS_CHAT_BLOCK_CHANNEL_WHISPER", S(SI_CHAT_CHANNEL_NAME_WHISPER))
 L("SETTINGS_CHAT_BLOCK_CHANNEL_TOOLTIP", "Chatnachrichten von Schurken in diesem Kanal blockieren.")
 L("SETTINGS_CHAT_INFO", "Keine Informationsnachrichten im Chat drucken")
 L("SETTINGS_CHAT_INFO_TOOLTIP", "Keine Informationsnachrichten ('Kontakt hinzugefügt', 'Kontakt entfernt' usw.) im Chat drucken.")
-L("SETTINGS_GROUPS", "Gruppen")
-L("SETTINGS_GROUPS_DESCRIPTION", "Kontaktgruppen bearbeiten.")
-L("SETTINGS_GROUP_NAME", "Gruppe <<1>> Name:")
+
 L("SETTINGS_IMPORT", "Importieren")
 L("SETTINGS_IMPORT_DESCRIPTION", "Freunde und Bösewichte aus der ESO-Freundesliste und der Ignorierten-Liste im Spiel importieren.")
 L("SETTINGS_IMPORT_BUTTON", "Importieren")

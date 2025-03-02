@@ -178,6 +178,32 @@ function table:removeElem(elem)
 end
 
 --[[
+Sort table by keys/indexes.
+
+```
+Table:sortByKeys(?fn_sorter: Function) -> Table
+
+@param fn_sorter = function(key1: Any, key2: Any) -> Boolean
+```
+]]
+function table:sortByKeys(fn_sorter)
+    local _r = table:new()
+    for k, v in pairs(self) do
+        _r:insertElem(v, k)
+    end
+    _r:sort()
+
+    local fn_sort_helper = function(k1, k2)
+        return k1 < k2
+    end
+
+    if (T(fn_sorter) ~= "function") then fn_sorter = fn_sort_helper end
+
+    self:sort(function(a, b) return fn_sorter(_r[a], _r[b]) end)
+    return self
+end
+
+--[[
 Get list (indexed table) of table keys.
 
 ```
@@ -348,6 +374,18 @@ String:split(Delimiter: string?) -> Table
 ]]
 function string:split(delimiter)
     return table:new(zo_strsplit(delimiter or ";", self))
+end
+
+--[[
+Wraps string with quotes.
+
+```
+String:enquote() -> String
+```
+]]
+function string:enquote()
+    local quote = "\""
+    return quote .. self .. quote
 end
 
 --[[

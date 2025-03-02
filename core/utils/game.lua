@@ -59,7 +59,10 @@ function XelosesContacts.Game:isInTrial(zone_id)
 end
 
 function XelosesContacts.Game:isInPvPZone(zone_id)
-    return self:isPvPZone(zone_id or XelosesContacts.zoneID) or IsPlayerInAvAWorld() --  or IsInAvAZone()
+    return
+        self:isPvPZone(zone_id or XelosesContacts.zoneID) or -- check zoneID
+        IsPlayerInAvAWorld() or                              -- detects Cyrodiil Overworld, Cyrodiil Delve, Imperial City, Imperial City Sewers
+        IsActiveWorldBattleground()                          -- detects Battleground areas
 end
 
 function XelosesContacts.Game:GetZoneInfo(zone_id)
@@ -356,7 +359,6 @@ function XelosesContacts.Game:loadGuildData(reset_data)
         EM:RegisterForEvent(
             self.__namespace,
             EVENT_GUILD_MEMBER_REMOVED,
-            --function(_, guild_id, display_name, character_name) --[[ ... ]] end
             function() self:loadGuildData(true) end
         )
 

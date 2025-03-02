@@ -31,12 +31,12 @@ XelosesContacts = XelosesContacts or {
     inCombat          = false,
     inGroup           = false,
 
-    UI                = {},
+    UI                = { isReady = false },
     Chat              = {},
     Game              = {},
     --Integrations = {}
 
-    debug             = false,
+    debug             = true,
 }
 
 -- ------------------

@@ -6,15 +6,15 @@ XELOSES_CONTACT_DIALOG_CONTROL_HEIGHT = 26
 XELOSES_CONTACT_DIALOG_BTN_PADDING    = 4
 XELOSES_CONTACT_DIALOG_BTN_SIZE       = 26
 
-local XelosesContactDialog            = {}
+local XelosesContactDialog            = ZO_Object:Subclass()
 
 -- ----------------------
 --  @SECTION Show dialog
 -- ----------------------
 
 function XelosesContacts:ShowContactDialog(data)
-    if (not XelosesContactDialog.initialized) then
-        XelosesContactDialog:Initialize(self) -- Lazy loading
+    if (not self.UI.ContactDialog or not self.UI.ContactDialog.initialized) then
+        self.UI.ContactDialog = XelosesContactDialog:New(self) -- Lazy loading
     end
 
     ZO_Dialogs_ShowDialog(self.CONST.UI.DIALOGS.CONTACT_EDIT.name, data)
@@ -24,13 +24,20 @@ end
 --  @SECTION Init
 -- ---------------
 
+function XelosesContactDialog:New(parent_control)
+    local dlg = ZO_Object.New(self)
+    dlg:Initialize(parent_control)
+
+    return dlg
+end
+
 function XelosesContactDialog:Initialize(parent)
     self.initialized    = false
 
     self.parent         = parent
-    self.control        = XelosesContactDialogFrame
+    self.frame          = XelosesContactDialogFrame
 
-    local dialogContent = GetControl(self.control, "XelosesContactDialogContent")
+    local dialogContent = GetControl(self.frame, "XelosesContactDialogContent")
 
     self.UI             = {
         lbAccountName = GetControl(dialogContent, "AccountNameLabel"),
@@ -42,25 +49,28 @@ function XelosesContactDialog:Initialize(parent)
         cbGroup = GetControl(dialogContent, "Group"),
         lbNote = GetControl(dialogContent, "NoteLabel"),
         edNote = GetControl(dialogContent, "Note"),
-        btnSave = GetControl(self.control, "Save"),
-        btnCancel = GetControl(self.control, "Cancel"),
+        btnSave = GetControl(self.frame, "Save"),
+        btnCancel = GetControl(self.frame, "Cancel"),
     }
 
     self.UI.lbAccountName:SetText(L("UI_DIALOG_CONTACT_ACCOUNT_NAME"))
     self.UI.edAccountName:SetHandler("OnTextChanged", function(...) self:TestAccountName() end)
     self.UI.btnEditAccountName:SetHandler("OnClicked", function(...) self:btnEditAccountName_onClick() end)
+    self.parent:SetControlTooltip(self.UI.btnEditAccountName, "UI_BTN_EDIT_ACCOUNT_NAME_TOOLTIP")
 
     self.UI.lbCategory:SetText(L("UI_DIALOG_CONTACT_CATEGORY"))
     self.UI.lbGroup:SetText(L("UI_DIALOG_CONTACT_GROUP"))
     self.UI.lbNote:SetText(L("UI_DIALOG_CONTACT_NOTE"))
 
-    XelosesContacts:SetControlTooltip(self.UI.btnEditAccountName, "UI_BTN_EDIT_ACCOUNT_NAME_TOOLTIP")
+    self.UI.cbCategory.m_comboBox:SetSortsItems(false) -- disable sorting
+    self.UI.cbGroup.m_comboBox:SetSortsItems(false)    -- disable sorting
+
     self:SetupContactCategories()
 
     ZO_Dialogs_RegisterCustomDialog(
         self.parent.CONST.UI.DIALOGS.CONTACT_EDIT.name,
         {
-            customControl = self.control,
+            customControl = self.frame,
             setup = function(dialog, data)
                 self:SetupDialog(dialog, data)
             end,
@@ -112,8 +122,10 @@ function XelosesContactDialog:SetupDialog(dialog, data)
     self:HideEditAccountNameButton(not hasAccountName)
 
     -- Category & Group
-    self:SelectCategory(data.category or self.parent.CONST.CONTACTS_FRIENDS_ID)
-    self:SelectGroup(data.group or 1)
+    self:SelectCategory(data.category or self.parent.config.default_category)
+    if (data.group) then
+        self:SelectGroup(data.group)
+    end
 
     -- Note
     if (data.note) then
@@ -190,65 +202,64 @@ end
 
 function XelosesContactDialog:SetupContactCategories()
     local function onCategorySelect(control, name, data)
-        self:SelectCategory(data.data.id)
+        self:SelectCategory(data.id)
     end
 
     self.UI.cbCategory.m_comboBox:ClearItems()
 
-    for cID, cName in pairs(self.parent.CONST.CONTACTS_CATEGORIES) do
-        local item = self.UI.cbCategory.m_comboBox:CreateItemEntry(cName, onCategorySelect)
+    local category_list = self.parent:getCategoryList(true)
 
-        item.data = { id = cID, name = cName }
-        self.UI.cbCategory.m_comboBox:AddItem(item)
+    for category_id, category_name in pairs(category_list) do
+        local item = ZO_ComboBox:CreateItemEntry(category_name, onCategorySelect)
+        item.id = category_id
+        self.UI.cbCategory.m_comboBox:AddItem(item, ZO_COMBOBOX_SUPRESS_UPDATE)
     end
 
-    self:SelectCategory(self.currentCategory or self.parent.CONST.CONTACTS_FRIENDS_ID)
+    self:SelectCategory(self.currentCategory)
 end
 
 function XelosesContactDialog:SetupContactGroups()
     local function onGroupSelect(control, name, data)
-        self:SelectGroup(data.data.id)
+        self:SelectGroup(data.id)
     end
 
-    local cID = self.currentCategory
+    local category_id = self.currentCategory
 
     self.UI.cbGroup.m_comboBox:ClearItems()
-    for gID, gName in pairs(self.parent.config.groups[cID]) do
-        local gTitle = gName:addIcon(XelosesContacts:getGroupIcon(cID, gID), XelosesContacts:getCategoryColor(cID))
-        local item = self.UI.cbCategory.m_comboBox:CreateItemEntry(gTitle, onGroupSelect)
 
-        item.data = { id = gID, name = gName }
-        self.UI.cbGroup.m_comboBox:AddItem(item)
+    local groups_list = self.parent:getGroupsList(category_id, true, true)
+    for group_id, group_name in ipairs(groups_list) do
+        local item = ZO_ComboBox:CreateItemEntry(group_name, onGroupSelect)
+        item.id = group_id
+        self.UI.cbGroup.m_comboBox:AddItem(item, ZO_COMBOBOX_SUPRESS_UPDATE)
     end
 
-    self:SelectGroup(self.currentGroup or 1)
+    self:SelectGroup(self.currentGroup)
 end
 
 function XelosesContactDialog:SelectCategory(category_id)
-    if (not category_id or not self.parent.CONST.CONTACTS_CATEGORIES[category_id]) then
-        category_id = self.parent.CONST.CONTACTS_FRIENDS_ID
+    if (not category_id or not self.parent:validateContactCategory(category_id)) then
+        category_id = self.parent.config.default_category
     end
 
     if (not self.currentCategory or self.currentCategory ~= category_id) then
         if (self.currentCategory) then
-            self.currentGroup = 0 -- reset group if Category was changed manually by user
+            self.currentGroup = nil -- reset selected group if Category was changed manually by user
         end
 
         self.currentCategory = category_id
-        self.UI.cbCategory.m_comboBox:SetSelectedItem(self.parent.CONST.CONTACTS_CATEGORIES[category_id])
-
+        self.UI.cbCategory.m_comboBox:SelectItemByIndex(category_id, true)
         self:SetupContactGroups()
     end
 end
 
 function XelosesContactDialog:SelectGroup(group_id)
-    if (not group_id or not self.parent:validateContactGroup(self.currentCategory, group_id)) then
-        group_id = 1
-    end
+    if (not group_id) then group_id = 1 end
+    if (not self.parent:getGroupIndexByID(self.currentCategory, group_id)) then return end
 
     if (not self.currentGroup or self.currentGroup ~= group_id) then
         self.currentGroup = group_id
-        self.UI.cbGroup.m_comboBox:SetSelectedItem(self.parent:getGroupName(self.currentCategory, group_id))
+        self.UI.cbGroup.m_comboBox:SetSelectedItemByEval(function(item) return item.id == group_id end, true)
     end
 end
 
@@ -260,9 +271,7 @@ function XelosesContactDialog:SaveContact(dialog)
     local account_name = self.UI.edAccountName:GetText()
 
     if (self.oldAccountName) then
-        XelosesContacts:DeleteContact({ account = self.oldAccountName }, true)
-        -- @LOG Rename contact
-        XelosesContacts:Log("Rename contact [%s] -> [%s].", self.oldAccountName, account_name)
+        self.parent:RenameContact(self.oldAccountName, account_name)
         self.oldAccountName = nil
     end
 

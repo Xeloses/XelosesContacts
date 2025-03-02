@@ -2,8 +2,8 @@
 ## Title: |cee55eeXeloses|r' Contacts
 ## Description: Unlimited Friends and Villains list with additional features.
 ## Author: |cee55eeXeloses|r (|c7799ee@Savaoth|r [PC/EU])
-## Version: 1.1.4
-## AddOnVersion: 10104
+## Version: 1.2.0
+## AddOnVersion: 10200
 ## APIVersion: 101044
 ## DependsOn: LibAddonMenu-2.0>=37 LibCustomMenu>=730 LibSavedVars>=60005 LibExtendedJournal>=203020
 ## OptionalDependsOn: LibChatMessage>=113 LibDebugLogger>=263 LibSlashCommander>=36
@@ -42,6 +42,7 @@ core/import.lua
 core/hooks.lua
 core/contextmenu.lua
 core/slashcmd.lua
+core/updater.lua
 
 settings/defaults.lua
 settings/settings.lua

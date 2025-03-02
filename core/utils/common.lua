@@ -189,8 +189,6 @@ end
 
 function XelosesContacts:validateAccountName(name)
     if (T(name) == "string" and not name:isEmpty()) then
-        --name = zo_strformat("<<C:1>>", name)
-
         if (name:sub(1, 1) ~= "@") then return end
         if (name == self.accountName) then return end -- do not process local player
 
