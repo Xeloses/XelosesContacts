@@ -4,17 +4,17 @@
 * **New features:**
   * **Custom contact groups**:
     * add/remove custom contact groups:
-      * maximum of 40 additional groups can be created *(up to 20 for friends and up to 20 for Villains);*
+      * up to 40 additional custom groups can be created *(up to 20 for friends and up to 20 for Villains);*
       * any custom group can be removed;
         * existing contacts from removed group will be automatically moved to the first predefined group;
         * predefined groups can not be removed;
     * edit name and icon of any contact group (include predefined);
     * setup chat blocking for any Villain group (include newly created custom groups).
 * **Misc.:**
-  * Updated Contact tooltip appearance.
   * Colorized Contacts category dropdowns.
+  * Updated Contact tooltip appearance.
   * Improved PvP-zones detection for battlegrounds.
-  * Settings panel elements has been reorganized.
+  * Reorganized Settings panel elements.
 
 ### Version 1.1.4 *(2025-02-22)*
 * **Features:**
