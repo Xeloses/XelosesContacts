@@ -38,7 +38,7 @@ function XelosesContacts:CreateConfigMenu()
     local CONTROL_REF_TEMPLATE = self.__prefix .. "LAM_%s"
 
     local groups_editor_data   = {
-        selected_category = self.CONST.CONTACTS_FRIENDS_ID,
+        selected_category = 0,
         selected_group = 0,
     }
 
@@ -47,7 +47,7 @@ function XelosesContacts:CreateConfigMenu()
     local changed_colors       = table:new()
     local changed_groups       = table:new()
 
-    local loading_state        = 0 --[[ 0 = not loaded (controls not exist), 1 = loading process (controls created), 2 = ready (controls ready) ]]
+    local __initialized        = false
 
     -- ---------
     --  Strings
@@ -107,42 +107,52 @@ function XelosesContacts:CreateConfigMenu()
     -- ---------------------------------
 
     --[[
-        utilize custom properties to format panel item's text:
-            panel_item.color     : String         = "HEX color"            -- text color
-            panel_item.icon      : String|Boolean = "/path/to/texture.dds" -- icon to be placed before text or
+        Service functions below utilizes custom field ITEM_DATA.customData :
+            customData.color     : String         = "HEX color"            -- text color
+            customData.icon      : String|Boolean = "/path/to/texture.dds" -- icon to be placed before text or
                                                                               boolean indicates icon should be taken from CONST data table
-            panel_item.icon_size : Number         = 24                     -- specify size of icon (optional)
+            customData.iconSize : Number         = 24                      -- specify size of icon (optional)
+            customData.postInit : Boolean        = true                    -- flag indcates component requires post-initialization
     ]]
     local function formatItemText(item_data, text)
-        if (T(text) == "string" and not text:isEmpty()) then
-            if (not item_data.data_name) then
-                item_data.data_name = text
+        local error_str = "<<MISSING_STRING>>"
+        if (not text) then
+            if (item_data.customData and item_data.customData.name) then
+                text = item_data.customData.name
+            else
+                return error_str
             end
-        else
-            text = item_data.data_name
         end
 
         local result = text:match("[^A-Z0-9_]+") and text or L(text)
-        if (not result) then return "" end
+        if (not result) then return error_str end
 
-        if (T(item_data) == "table") then
-            if (T(item_data.color) == "string") then
-                result = result:colorize(item_data.color)
+        if (not item_data.customData) then
+            item_data.customData = {}
+        end
+        if (not item_data.customData.name) then
+            item_data.customData.name = text
+        end
+
+        if (T(item_data.customData) == "table") then
+            if (T(item_data.customData.color) == "string") then
+                result = result:colorize(item_data.customData.color)
             end
 
-            if (item_data.icon) then
-                if (T(item_data.icon) == "boolean" and item_data.icon) then
-                    item_data.icon = self.CONST.ICONS.UI.CONFIG_PANEL[item_data.data_name]
-                elseif (T(item_data.icon) ~= "string") then
-                    item_data.icon = nil
+            if (item_data.customData.icon) then
+                if (T(item_data.customData.icon) == "boolean") then
+                    item_data.customData.icon = self.CONST.ICONS.UI.CONFIG_PANEL[item_data.customData.name]
                 end
 
-                if (not item_data.icon_size or T(item_data.icon_size) ~= "number") then
-                    item_data.icon_size = (item_data.type == "header" or item_data.type == "submenu") and ICON_SIZE_HEADER or ICON_SIZE_TEXT
-                end
+                if (T(item_data.customData.icon) == "string") then
+                    if (not item_data.customData.iconSize or T(item_data.customData.iconSize) ~= "number") then
+                        item_data.customData.iconSize = (item_data.type == "header" or item_data.type == "submenu") and ICON_SIZE_HEADER or ICON_SIZE_TEXT
+                    end
 
-                if (item_data.type ~= "submenu") then
-                    result = result:addIcon(item_data.icon, item_data.color, item_data.icon_size, true)
+                    result = result:addIcon(item_data.customData.icon, item_data.customData.color, item_data.customData.iconSize, true)
+                else
+                    item_data.customData.icon     = nil
+                    item_data.customData.iconSize = nil
                 end
             end
         end
@@ -151,7 +161,7 @@ function XelosesContacts:CreateConfigMenu()
     end
 
     -- create control's data structure
-    local function createItem(item_type, text, params)
+    local function createItem(item_type, text, params, custom_params)
         local item = { type = item_type }
 
         if (item_type == "divider") then
@@ -183,7 +193,6 @@ function XelosesContacts:CreateConfigMenu()
                 local warn = L(text .. "_WARNING")
                 if (warn) then
                     if (params.isDangerous) then
-                        ---@diagnostic disable-next-line: cast-local-type
                         warn = "\n\n" .. warn:colorize(self.CONST.COLOR.DANGER)
                     end
                     params.warning = self.getString("WARNING"):colorize(self.CONST.COLOR.WARNING) .. " " .. warn
@@ -193,16 +202,32 @@ function XelosesContacts:CreateConfigMenu()
             for key, val in pairs(params) do
                 item[key] = val
             end
+        end
 
-            if (item_type == "dropdown") then
-                if (params.choices == nil) then
-                    item.choices       = {}
-                    item.choicesValues = {}
-                end
-            elseif (item_type == "iconpicker") then
-                if (params.choices == nil) then
-                    item.choices = {}
-                end
+        if (T(custom_params) == "table") then
+            if (not item.customData) then item.customData = {} end
+
+            for key, val in pairs(custom_params) do
+                item.customData[key] = val
+            end
+        end
+
+        if (item.customData and item.customData.postInit) then
+            if (item.disabled ~= nil and T(item.disabled) == "function") then
+                item.customData.fn_disabled = item.disabled -- store "disabled" callback function
+            end
+
+            item.disabled = true -- temporary disable control if it requires post-initialization
+        end
+
+        if (item_type == "dropdown") then
+            if (item.choices == nil) then
+                item.choices       = {}
+                item.choicesValues = {}
+            end
+        elseif (item_type == "iconpicker") then
+            if (item.choices == nil) then
+                item.choices = {}
             end
         end
 
@@ -216,14 +241,16 @@ function XelosesContacts:CreateConfigMenu()
     end
 
     -- create control and add it to the panel
-    local function addItem(item_type, text_id, params)
-        config_data:insert(createItem(item_type, text_id, params))
+    local function addItem(item_type, text_id, params, custom_params)
+        config_data:insert(createItem(item_type, text_id, params, custom_params))
     end
 
     -- create submenu and add it to the panel
-    local function addSubmenu(title, submenu, params)
+    local function addSubmenu(title, submenu, params, custom_params)
+        if (not params) then params = {} end
         params.controls = submenu
-        addItem("submenu", title, params)
+
+        addItem("submenu", title, params, custom_params)
     end
 
     -- ---------------------------------
@@ -246,37 +273,44 @@ function XelosesContacts:CreateConfigMenu()
         end
     end
 
+    local function updateDropdownList(control_ref_name, choices_list, choices_values_list, reset_value)
+        local control = getLAMControl(control_ref_name)
+        if (control) then
+            control.data.choices       = choices_list
+            control.data.choicesValues = choices_values_list
+            control:UpdateChoices()
+
+            if (__initialized and control.data.customData.postInit) then
+                control.data.customData.postInit = false
+
+                if (control.data.customData.fn_disabled) then
+                    control.data.disabled = control.data.customData.fn_disabled -- restore "disabled" callback
+                else
+                    control.data.disabled = false                               -- undo temporary "disabled" state
+                end
+
+                control:UpdateDisabled() -- update control state
+            end
+
+            if (reset_value) then
+                resetSelection(control_ref_name)
+            end
+        end
+    end
+
     -- refresh (reload) contact category selection dropdown lists
     local function refreshCategorySelectionControls(reset_value)
         local category_list  = self:getCategoryList(true)
         local category_ids   = category_list:keys()
         local category_names = category_list:values()
 
-        local function refreshControl(_control_ref_name)
-            local control = getLAMControl(_control_ref_name)
-
-            if (control) then
-                control.data.choices       = category_names
-                control.data.choicesValues = category_ids
-                control:UpdateChoices()
-
-                if (reset_value) then
-                    resetSelection(_control_ref_name)
-                end
-
-                if (loading_state == 1) then
-                    LAM.util.RequestRefreshIfNeeded(control)
-                end
-            end
-        end
-
-        local controls = {
+        local controls       = {
             "GENERAL_SELECT_CATEGORY",
             "GROUPS_EDIT_SELECT_CATEGORY",
         }
 
         for _, control_name in ipairs(controls) do
-            refreshControl(control_name)
+            updateDropdownList(control_name, category_names, category_ids, reset_value)
         end
     end
 
@@ -286,38 +320,19 @@ function XelosesContacts:CreateConfigMenu()
             category_id = groups_editor_data.selected_category
         end
 
-        reset_value        = reset_value or
-            (T(control_ref_name) == "boolean" and control_ref_name)
+        reset_value        = reset_value or (T(control_ref_name) == "boolean" and control_ref_name)
 
         local groups_list  = self:getGroupsList(category_id, true, true)
         local groups_ids   = groups_list:keys()
         local groups_names = groups_list:values()
 
-        local function refreshControl(_control_ref_name)
-            local control = getLAMControl(_control_ref_name)
-
-            if (control) then
-                control.data.choices       = groups_names
-                control.data.choicesValues = groups_ids
-                control:UpdateChoices()
-
-                if (reset_value) then
-                    resetSelection(_control_ref_name)
-                end
-
-                if (loading_state == 1) then
-                    LAM.util.RequestRefreshIfNeeded(control)
-                end
-            end
-        end
-
         if (T(control_ref_name) == "string") then
             -- refresh only one specific control
-            refreshControl(control_ref_name)
+            updateDropdownList(control_ref_name, groups_names, groups_ids, reset_value)
         else
             -- refresh all group selection controls
             if (groups_editor_data.selected_category == category_id) then
-                refreshControl("GROUPS_EDIT_SELECT_GROUP") -- refresh group edit dropdown only if it necessary
+                updateDropdownList("GROUPS_EDIT_SELECT_GROUP", groups_names, groups_ids, reset_value) -- refresh group edit dropdown only if it necessary
             end
 
             local controls = {
@@ -325,7 +340,7 @@ function XelosesContacts:CreateConfigMenu()
             }
 
             for _, control_name in ipairs(controls) do
-                refreshControl(control_name:format(category_id))
+                updateDropdownList(control_name:format(category_id), groups_names, groups_ids, reset_value)
             end
         end
     end
@@ -388,7 +403,7 @@ function XelosesContacts:CreateConfigMenu()
     end
 
     local function GroupsEditor_CreateGroup()
-        local c_id = groups_editor_data.selected_category
+        local c_id = groups_editor_data.selected_category or self.CONST.CONTACTS_FRIENDS_ID
 
         local g = self:CreateGroup(c_id)
         registerGroupChanges(c_id)
@@ -429,7 +444,7 @@ function XelosesContacts:CreateConfigMenu()
     --  @SECTION GENERAL
     -- ------------------
 
-    addItem("header", "GENERAL", { icon = true })
+    addItem("header", "GENERAL", nil, { icon = true })
 
     addItem("checkbox", "UI_SEARCH_NOTE", {
         getFunc = function() return self.config.ui.search_note end,
@@ -438,19 +453,21 @@ function XelosesContacts:CreateConfigMenu()
     })
 
     addItem("dropdown", "DEFAULT_CATEGORY", {
-        sort      = "numericvalue-up",
-        getFunc   = function() return self.config.default_category end,
-        setFunc   = function(val) self.config.default_category = val end,
-        disabled  = function() return loading_state == 0 end,
-        default   = self.CONST.CONTACTS_FRIENDS_ID,
-        reference = CONTROL_REF_TEMPLATE:format("GENERAL_SELECT_CATEGORY"),
+        sort       = "numericvalue-up",
+        getFunc    = function() return self.config.default_category end,
+        setFunc    = function(val) self.config.default_category = val end,
+        default    = self.CONST.CONTACTS_FRIENDS_ID,
+        reference  = CONTROL_REF_TEMPLATE:format("GENERAL_SELECT_CATEGORY"),
+        customData = {
+            postInit = true,
+        },
     })
 
     -- -----------------
     --  @SECTION COLORS
     -- -----------------
 
-    addItem("header", "COLORS", { icon = true })
+    addItem("header", "COLORS", nil, { icon = true })
     addItem("description", "COLORS_DESCRIPTION")
 
     for category_id, category_name in ipairs(self.CONST.CONTACTS_CATEGORIES) do
@@ -469,18 +486,20 @@ function XelosesContacts:CreateConfigMenu()
     --  @SECTION GROUPS
     -- -----------------
 
-    addItem("header", "GROUPS", { icon = true })
+    addItem("header", "GROUPS", nil, { icon = true })
     addItem("description", "GROUPS_DESCRIPTION")
 
     -- Category & Group selector
     addItem("dropdown", "GROUPS_SELECT_CATEGORY", {
-        width     = "half",
-        sort      = "numericvalue-up",
-        getFunc   = function() return groups_editor_data.selected_category end,
-        setFunc   = GroupsEditor_SelectCategory,
-        disabled  = function() return loading_state == 0 end,
-        default   = self.CONST.CONTACTS_FRIENDS_ID,
-        reference = CONTROL_REF_TEMPLATE:format("GROUPS_EDIT_SELECT_CATEGORY"),
+        width      = "half",
+        sort       = "numericvalue-up",
+        getFunc    = function() return groups_editor_data.selected_category end,
+        setFunc    = GroupsEditor_SelectCategory,
+        default    = self.CONST.CONTACTS_FRIENDS_ID,
+        reference  = CONTROL_REF_TEMPLATE:format("GROUPS_EDIT_SELECT_CATEGORY"),
+        customData = {
+            postInit = true,
+        },
     })
 
     addItem("dropdown", "GROUPS_SELECT_GROUP", {
@@ -489,9 +508,11 @@ function XelosesContacts:CreateConfigMenu()
         scrollable = 7,
         getFunc    = function() return groups_editor_data.selected_group end,
         setFunc    = GroupsEditor_SelectGroup,
-        disabled   = function() return loading_state == 0 end,
         default    = 0,
         reference  = CONTROL_REF_TEMPLATE:format("GROUPS_EDIT_SELECT_GROUP"),
+        customData = {
+            postInit = true,
+        },
     })
 
     -- Manage group buttons
@@ -501,7 +522,6 @@ function XelosesContacts:CreateConfigMenu()
         disabled = function()
             return
                 self.processing or
-                loading_state == 0 or
                 self:getGroupsCount(groups_editor_data.selected_category) >= self.CONST.CONTACT_GROUPS_MAX -- limit groups amount
         end,
     })
@@ -512,14 +532,13 @@ function XelosesContacts:CreateConfigMenu()
         disabled    = function()
             return
                 self.processing or
-                loading_state == 0 or
                 groups_editor_data.selected_group <= self.CONST.CONTACT_GROUPS_PREDEFINDED -- disallow removing for predefined groups
         end,
     })
 
-    addItem("description", L("GROUPS_NOTE"), {
-        color = self.CONST.COLOR.NOTE,
+    addItem("description", L("GROUPS_NOTE"), nil, {
         icon  = self.CONST.ICONS.UI.NOTE,
+        color = self.CONST.COLOR.NOTE,
     })
     addItem("divider")
 
@@ -550,7 +569,6 @@ function XelosesContacts:CreateConfigMenu()
         end,
         setFunc     = function(val) GroupsEditor_UpdateGroup({ icon = val }) end,
         disabled    = function() return groups_editor_data.selected_group == 0 end,
-        default     = self.CONST.ICONS.LIST[1],
         reference   = CONTROL_REF_TEMPLATE:format("GROUPS_EDIT_ICON"),
     })
     addItem("checkbox", "GROUPS_EDIT_BLOCK_CHAT", {
@@ -574,7 +592,7 @@ function XelosesContacts:CreateConfigMenu()
     --  @SECTION CONTEXT MENU
     -- ------------------------
 
-    addItem("header", "CONTEXT_MENU", { icon = true })
+    addItem("header", "CONTEXT_MENU", nil, { icon = true })
 
     addItem("checkbox", "CONTEXT_MENU_TOGGLE", {
         getFunc = function() return self.config.contextmenu.enabled end,
@@ -593,7 +611,7 @@ function XelosesContacts:CreateConfigMenu()
     --  @SECTION CHAT
     -- ---------------
 
-    addItem("header", "CHAT", { icon = true })
+    addItem("header", "CHAT", nil, { icon = true })
     addItem("description", "CHAT_DESCRIPTION")
 
     -- Chat cache
@@ -636,7 +654,7 @@ function XelosesContacts:CreateConfigMenu()
             }))
         end
 
-        addSubmenu("CHAT_BLOCK", chat_block_submenu, {
+        addSubmenu("CHAT_BLOCK", chat_block_submenu, nil, {
             icon  = true,
             color = self.CONST.COLOR.DANGER,
         })
@@ -652,7 +670,7 @@ function XelosesContacts:CreateConfigMenu()
     --  @SECTION NOTIFICATIONS
     -- ------------------------
 
-    addItem("header", "NOTIFICATION", { icon = true })
+    addItem("header", "NOTIFICATION", nil, { icon = true })
 
     do
         local channel_indexes = table:new()
@@ -769,7 +787,7 @@ function XelosesContacts:CreateConfigMenu()
     --  @SECTION RETICLE MARKER
     -- -------------------------
 
-    addItem("header", "RETICLE_MARKER", { icon = true })
+    addItem("header", "RETICLE_MARKER", nil, { icon = true })
     addItem("description", "RETICLE_MARKER_DESCRIPTION")
 
     addItem("checkbox", "RETICLE_MARKER_ENABLE", {
@@ -925,10 +943,10 @@ function XelosesContacts:CreateConfigMenu()
             }))
         end
 
-        addSubmenu("RETICLE_MARKER_ADDITIONAL_MARKERS", markers_submenu, {
-            icon      = self.CONST.ICONS.UI.CONFIG_PANEL.MARKERS,
-            icon_size = 28,
-            disabled  = function() return not self.config.reticle.enabled end,
+        addSubmenu("RETICLE_MARKER_ADDITIONAL_MARKERS", markers_submenu, nil, {
+            icon     = self.CONST.ICONS.UI.CONFIG_PANEL.MARKERS,
+            iconSize = 28,
+            disabled = function() return not self.config.reticle.enabled end,
         })
     end
 
@@ -936,7 +954,7 @@ function XelosesContacts:CreateConfigMenu()
     --  @SECTION IMPORT
     -- -----------------
 
-    addItem("header", "IMPORT", { icon = true })
+    addItem("header", "IMPORT", nil, { icon = true })
 
     do
         local category_ref = {
@@ -957,9 +975,11 @@ function XelosesContacts:CreateConfigMenu()
                 scrollable = 7,
                 getFunc    = function() return import_target_group[category_id] end,
                 setFunc    = function(val) import_target_group[category_id] = val end,
-                disabled   = function() return loading_state == 0 end,
                 default    = 1,
                 reference  = CONTROL_REF_TEMPLATE:format("IMPORT_GROUP_SELECT_" .. tostring(category_id)),
+                customData = {
+                    postInit = true,
+                },
             })
             addItem("button", "IMPORT_BUTTON", {
                 func = function()
@@ -1001,18 +1021,14 @@ function XelosesContacts:CreateConfigMenu()
 
     -- handle create settings panel controls
     CALLBACK_MANAGER:RegisterCallback("LAM-PanelControlsCreated", function(panel)
-        if (panel ~= self.UI.SettingsPanel or loading_state > 0) then return end
-
-        -- initialize controls / fill controls with values
-        loading_state = 1 -- controls created
+        if (panel ~= self.UI.SettingsPanel or __initialized) then return end
+        __initialized = true
 
         refreshCategorySelectionControls(true)
 
         for i, _ in ipairs(self:getCategoryList()) do
             refreshGroupSelectionControls(i, true)
         end
-
-        loading_state = 2 -- controls ready
     end)
 
     -- handle close settings panel
