@@ -47,7 +47,7 @@ function XelosesContacts:CreateConfigMenu()
     local changed_colors       = table:new()
     local changed_groups       = table:new()
 
-    local loading_state        = 0 -- 0 = not loaded, 1 = loading process, 2 = ready
+    local loading_state        = 0 --[[ 0 = not loaded (controls not exist), 1 = loading process (controls created), 2 = ready (controls ready) ]]
 
     -- ---------
     --  Strings
@@ -1001,10 +1001,10 @@ function XelosesContacts:CreateConfigMenu()
 
     -- handle create settings panel controls
     CALLBACK_MANAGER:RegisterCallback("LAM-PanelControlsCreated", function(panel)
-        if (panel ~= self.UI.SettingsPanel or loading_state == 2) then return end
+        if (panel ~= self.UI.SettingsPanel or loading_state > 0) then return end
 
         -- initialize controls / fill controls with values
-        loading_state = 1 -- <loading process>
+        loading_state = 1 -- controls created
 
         refreshCategorySelectionControls(true)
 
@@ -1012,7 +1012,7 @@ function XelosesContacts:CreateConfigMenu()
             refreshGroupSelectionControls(i, true)
         end
 
-        loading_state = 2 -- <ready>
+        loading_state = 2 -- controls ready
     end)
 
     -- handle close settings panel
