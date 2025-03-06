@@ -158,6 +158,7 @@ L("SETTINGS_NOTIFICATION_CHANNEL_TOOLTIP", "Where to send notifications and info
 L("SETTINGS_NOTIFICATION_CHANNEL_OPTION_BOTH", "Both (chat+screen)")
 L("SETTINGS_NOTIFICATION_CHANNEL_OPTION_CHAT", "Chat")
 L("SETTINGS_NOTIFICATION_CHANNEL_OPTION_SCREEN", "Screen")
+L("SETTINGS_NOTIFICATION_SETUP", "Setup notifications")
 L("SETTINGS_NOTIFICATION_GROUP_JOIN", "Show warning when join a group with Villain")
 L("SETTINGS_NOTIFICATION_GROUP_JOIN_TOOLTIP", "Show warning (depends on selection above) when join a group with Villain.")
 L("SETTINGS_NOTIFICATION_GROUP_MEMBER", "Show warning when Villain joined your group")
