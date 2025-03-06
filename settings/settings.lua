@@ -693,7 +693,6 @@ function XelosesContacts:CreateConfigMenu()
             default       = self.defaults.notifications.channel,
         })
     end
-    addItem("divider")
 
     do
         local notifications_submenu = table:new()
@@ -792,7 +791,7 @@ function XelosesContacts:CreateConfigMenu()
             default  = self.defaults.notifications.groupMember.announce,
         })
 
-        addSubmenu("CHAT_BLOCK", notifications_submenu)
+        addSubmenu("NOTIFICATION_SETUP", notifications_submenu)
     end
     --[[
     addItem("checkbox", "CONFIRM_ADD_FRIEND", {
