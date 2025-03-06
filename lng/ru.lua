@@ -157,6 +157,7 @@ L("SETTINGS_NOTIFICATION_CHANNEL_TOOLTIP", "Куда отправлять опо
 L("SETTINGS_NOTIFICATION_CHANNEL_OPTION_BOTH", "Чат + Экран")
 L("SETTINGS_NOTIFICATION_CHANNEL_OPTION_CHAT", "Чат")
 L("SETTINGS_NOTIFICATION_CHANNEL_OPTION_SCREEN", "Экран")
+L("SETTINGS_NOTIFICATION_SETUP", "Установки оповещений")
 L("SETTINGS_NOTIFICATION_GROUP_JOIN", "Оповещать о вступлении в группу с недругом")
 L("SETTINGS_NOTIFICATION_GROUP_JOIN_TOOLTIP", "Показывать оповещение при вступлении в группу, в которой есть игроки из списка недругов.")
 L("SETTINGS_NOTIFICATION_GROUP_MEMBER", "Оповещать когда недруг присоединяется к группе")

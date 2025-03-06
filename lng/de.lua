@@ -45,6 +45,7 @@ L("SETTINGS_CHAT_CACHE_SIZE", "Chat cache max size")
 L("SETTINGS_CHAT_CACHE_SIZE_TOOLTIP", "Maximum accounts (with associated characters) stored in the cache.")
 L("SETTINGS_CHAT_CACHE_SIZE_WARNING", "Bigger cache size may have increased performance impact on old low-end PC. Don't change cache size if you are unsure about it.")
 
+L("SETTINGS_NOTIFICATION_SETUP", "Setup notifications")
 L("SETTINGS_NOTIFICATION_SCREEN_WARNING", "Big onsreen warning")
 L("SETTINGS_NOTIFICATION_SCREEN_WARNING_TOOLTIP", "Show big center screen warning.")
 -- // End of Untranslated strings
