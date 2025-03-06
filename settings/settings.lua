@@ -245,6 +245,11 @@ function XelosesContacts:CreateConfigMenu()
         config_data:insert(createItem(item_type, text_id, params, custom_params))
     end
 
+    -- create control and add it to the submenu
+    local function addSubmenuItem(submenu, item_type, text_id, params, custom_params)
+        submenu:insert(createItem(item_type, text_id, params, custom_params))
+    end
+
     -- create submenu and add it to the panel
     local function addSubmenu(title, submenu, params, custom_params)
         if (not params) then params = {} end
@@ -647,11 +652,11 @@ function XelosesContacts:CreateConfigMenu()
 
         local chat_channels = self.CONST.CHAT.CHANNELS
         for channel_name, _ in pairs(chat_channels) do
-            chat_block_submenu:insert(createItem("checkbox", "CHAT_BLOCK_CHANNEL_" .. channel_name:upper(), {
+            addSubmenuItem(chat_block_submenu, "checkbox", "CHAT_BLOCK_CHANNEL_" .. channel_name:upper(), {
                 getFunc = function() return self.config.chat.block_channels[channel_name] end,
                 setFunc = function(val) self.config.chat.block_channels[channel_name] = val end,
                 default = self.defaults.chat.block_channels[channel_name],
-            }))
+            })
         end
 
         addSubmenu("CHAT_BLOCK", chat_block_submenu, nil, {
@@ -690,6 +695,106 @@ function XelosesContacts:CreateConfigMenu()
     end
     addItem("divider")
 
+    do
+        local notifications_submenu = table:new()
+
+        -- Confirm adding Villain to ESO ingame friends
+        addSubmenuItem(notifications_submenu, "checkbox", "CONFIRM_ADD_FRIEND", {
+            getFunc = function() return self.config.confirmation.friend end,
+            setFunc = function(val)
+                self.config.confirmation.friend = val
+                self:ToggleHook("AddFriend")
+            end,
+            default = self.defaults.confirmation.friend,
+        })
+        addSubmenuItem(notifications_submenu, "divider")
+
+        -- Friend invite fron Villain
+        addSubmenuItem(notifications_submenu, "checkbox", "NOTIFICATION_FRIEND_INVITE", {
+            getFunc = function() return self.config.notifications.friendInvite.enabled end,
+            setFunc = function(val)
+                self.config.notifications.friendInvite.enabled = val
+                self:ToggleHook("IncomingFriendInvite")
+            end,
+            default = self.defaults.notifications.friendInvite.enabled,
+        })
+        addSubmenuItem(notifications_submenu, "checkbox", "NOTIFICATION_SCREEN_WARNING", {
+            width    = "half",
+            getFunc  = function() return self.config.notifications.friendInvite.announce end,
+            setFunc  = function(val) self.config.notifications.friendInvite.announce = val end,
+            disabled = function() return not self.config.notifications.friendInvite.enabled or self.config.notifications.friendInvite.decline end,
+            default  = self.defaults.notifications.friendInvite.announce,
+        })
+        addSubmenuItem(notifications_submenu, "checkbox", "AUTODECLINE_FRIEND_INVITE", {
+            width   = "half",
+            getFunc = function() return self.config.notifications.friendInvite.decline end,
+            setFunc = function(val) self.config.notifications.friendInvite.decline = val end,
+            default = self.defaults.notifications.friendInvite.decline,
+        })
+        addSubmenuItem(notifications_submenu, "divider")
+
+        -- Group invite fron Villain
+        addSubmenuItem(notifications_submenu, "checkbox", "NOTIFICATION_GROUP_INVITE", {
+            getFunc = function() return self.config.notifications.groupInvite.enabled end,
+            setFunc = function(val)
+                self.config.notifications.groupInvite.enabled = val
+                self:ToggleHook("IncomingGroupInvite")
+            end,
+            default = self.defaults.notifications.groupInvite.enabled,
+        })
+        addSubmenuItem(notifications_submenu, "checkbox", "NOTIFICATION_SCREEN_WARNING", {
+            width    = "half",
+            getFunc  = function() return self.config.notifications.groupInvite.announce end,
+            setFunc  = function(val) self.config.notifications.groupInvite.announce = val end,
+            disabled = function() return not self.config.notifications.groupInvite.enabled or self.config.notifications.groupInvite.decline end,
+            default  = self.defaults.notifications.groupInvite.announce,
+        })
+        addSubmenuItem(notifications_submenu, "checkbox", "AUTODECLINE_GROUP_INVITE", {
+            width   = "half",
+            getFunc = function() return self.config.notifications.groupInvite.decline end,
+            setFunc = function(val) self.config.notifications.groupInvite.decline = val end,
+            default = self.defaults.notifications.groupInvite.decline,
+        })
+        addSubmenuItem(notifications_submenu, "divider")
+
+        -- Join existing group with Villain
+        addSubmenuItem(notifications_submenu, "checkbox", "NOTIFICATION_GROUP_JOIN", {
+            getFunc = function() return self.config.notifications.groupJoin.enabled end,
+            setFunc = function(val)
+                self.config.notifications.groupJoin.enabled = val
+                self:ToggleHook("GroupChange")
+            end,
+            default = self.defaults.notifications.groupJoin.enabled,
+        })
+        addSubmenuItem(notifications_submenu, "checkbox", "NOTIFICATION_SCREEN_WARNING", {
+            width    = "half",
+            getFunc  = function() return self.config.notifications.groupJoin.announce end,
+            setFunc  = function(val) self.config.notifications.groupJoin.announce = val end,
+            disabled = function() return not self.config.notifications.groupJoin.enabled end,
+            default  = self.defaults.notifications.groupJoin.announce,
+        })
+        addSubmenuItem(notifications_submenu, "divider")
+
+        -- Villain joins player's group
+        addSubmenuItem(notifications_submenu, "checkbox", "NOTIFICATION_GROUP_MEMBER", {
+            getFunc = function() return self.config.notifications.groupMember.enabled end,
+            setFunc = function(val)
+                self.config.notifications.groupMember.enabled = val
+                self:ToggleHook("GroupChange")
+            end,
+            default = self.defaults.notifications.groupMember.enabled,
+        })
+        addSubmenuItem(notifications_submenu, "checkbox", "NOTIFICATION_SCREEN_WARNING", {
+            width    = "half",
+            getFunc  = function() return self.config.notifications.groupMember.announce end,
+            setFunc  = function(val) self.config.notifications.groupMember.announce = val end,
+            disabled = function() return not self.config.notifications.groupMember.enabled end,
+            default  = self.defaults.notifications.groupMember.announce,
+        })
+
+        addSubmenu("CHAT_BLOCK", notifications_submenu)
+    end
+    --[[
     addItem("checkbox", "CONFIRM_ADD_FRIEND", {
         getFunc = function() return self.config.confirmation.friend end,
         setFunc = function(val)
@@ -782,6 +887,7 @@ function XelosesContacts:CreateConfigMenu()
         disabled = function() return not self.config.notifications.groupMember.enabled end,
         default  = self.defaults.notifications.groupMember.announce,
     })
+    ]]
 
     -- -------------------------
     --  @SECTION RETICLE MARKER
@@ -927,20 +1033,20 @@ function XelosesContacts:CreateConfigMenu()
             local uname = marker_name:upper()
             local icon = (""):addIcon(self.CONST.ICONS.SOCIAL[uname])
             local text = F(L("RETICLE_MARKER_ADDITIONAL_" .. uname), icon)
-            markers_submenu:insert(createItem("divider"))
-            markers_submenu:insert(createItem("checkbox", text, {
+            addSubmenuItem(markers_submenu, "divider")
+            addSubmenuItem(markers_submenu, "checkbox", text, {
                 tooltip = "RETICLE_MARKER_ADDITIONAL_" .. uname .. "_TOOLTIP",
                 getFunc = function() return self.config.reticle.markers[marker_name].enabled end,
                 setFunc = function(val) self.config.reticle.markers[marker_name].enabled = val end,
                 disabled = function() return not self.config.reticle.enabled end,
                 default = self.defaults.reticle.markers[marker_name].enabled,
-            }))
-            markers_submenu:insert(createItem("colorpicker", L("RETICLE_MARKER_ADDITIONAL_" .. uname .. "_COLOR"), {
+            })
+            addSubmenuItem(markers_submenu, "colorpicker", L("RETICLE_MARKER_ADDITIONAL_" .. uname .. "_COLOR"), {
                 getFunc = function() return ColorFromHex(self.config.reticle.markers[marker_name].color) end,
                 setFunc = function(r, g, b, a) self.config.reticle.markers[marker_name].color = ColorToHex(r, g, b, a) end,
                 disabled = function() return not self.config.reticle.enabled or not self.config.reticle.markers[marker_name].enabled end,
                 default = function() return ZO_ColorDef:New(self.defaults.reticle.markers[marker_name].color) end,
-            }))
+            })
         end
 
         addSubmenu("RETICLE_MARKER_ADDITIONAL_MARKERS", markers_submenu, nil, {
