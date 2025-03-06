@@ -339,7 +339,7 @@ String:trim() -> String
 ```
 ]]
 function string:trim()
-    return tostring(self):gsub("^%s*(.-)%s*$", "%1")
+    return zo_strtrim(self)
 end
 
 --[[
