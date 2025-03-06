@@ -9,7 +9,7 @@
         * existing contacts from removed group will be automatically moved to the first predefined group;
         * predefined groups can not be removed;
     * edit name and icon of any contact group (include predefined);
-    * setup chat blocking for any Villain group (include newly created custom groups).
+    * setup chat blocking for any custom Villain group.
 * **Misc.:**
   * Colorized Contacts category dropdowns.
   * Updated Contact tooltip appearance.
