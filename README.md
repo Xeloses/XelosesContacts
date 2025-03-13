@@ -8,7 +8,7 @@
 
 ## Description
 
-**Xeloses' Contacts** is an [Elder Scrolls Online](https://www.elderscrollsonline.com) addon that provides unlimited Friends and Villains list with UI and additional features.
+**Xeloses' Contacts** is an [Elder Scrolls Online](https://www.elderscrollsonline.com) addon that provides unlimited Friends and Villains list with UI and extended features.
 
 This addon works with account names, not character names, so no matter which character your contacts loggen in, they are still be accessible!
 
