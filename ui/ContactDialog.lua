@@ -263,6 +263,12 @@ function XelosesContactDialog:SelectGroup(group_id)
     end
 end
 
+function XelosesContactDialog:RefreshGroupsList(category_id)
+    if (not self.initialized or self.currentCategory ~= category_id) then return end
+    
+    self:SetupContactGroups()
+end
+
 -- --------------------
 --  @SECTION Save data
 -- --------------------

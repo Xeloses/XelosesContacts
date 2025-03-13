@@ -246,6 +246,8 @@ Returns formatted addon version.
 ```
 ]]
 function XelosesContacts:getVersion()
+    if (not self.version) then return "1" end
+
     local vMajor = math.floor(self.version / 10000)
     local vMinor = math.floor((self.version - vMajor * 10000) / 100)
     local vPatch = math.floor(self.version - vMajor * 10000 - vMinor * 100)

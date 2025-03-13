@@ -72,12 +72,12 @@ function XelosesContacts:RefreshContactGroups(category_id)
 		end
 	end
 
-	if (self.UI.isReady and self.UI.ContactsList.initialized and self.UI.ContactsList.categoryID == category_id) then
-		self.UI.ContactsList:RefreshGroupsList()
+	if (self.UI.isReady) then
+		self.UI.ContactsList:RefreshGroupsList(category_id)
 	end
 
-	if (self.UI.ContactDialog and self.UI.ContactDialog.initialized and self.UI.ContactDialog.currentCategory == category_id) then
-		self.UI.ContactDialog:RefreshGroupsList()
+	if (self.UI.ContactDialog) then
+		self.UI.ContactDialog:RefreshGroupsList(category_id)
 	end
 end
 

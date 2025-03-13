@@ -107,34 +107,45 @@ end
 --  @SECTION Manage hooks
 -- -----------------------
 
+function XelosesContacts:isHookEnabled(hook_name)
+    local hook = self.__hooks[hook_name]
+    if (not hook) then return false end
+
+    return
+        (hook.enabled == nil) or
+        (T(hook.enabled) == "function" and hook.enabled()) or
+        hook.enabled
+end
+
 function XelosesContacts:SetupHook(hook_name)
     local hook = self.__hooks[hook_name]
     if (not hook or hook.injected) then return end
-
-    local hook_enabled = (hook.enabled) == nil or (T(hook.enabled) == "function" and hook.enabled()) or hook.enabled
-    if (not hook_enabled) then return end
+    if (not self:isHookEnabled(hook_name)) then return end
+    
+    if (not hook.namespace) then
+        hook.namespace = self.__namespace .. "_" .. hook_name -- generate unique namespace for hook
+    end
 
     local fn_callback = function(...) return hook.callback(self, ...) end
 
     if (hook.fn_name) then
+        -- function hook
         ZO_PreHook(hook.fn_name, fn_callback)
     elseif (hook.event) then
-        EM:RegisterForEvent(self.__namespace, hook.event, fn_callback)
+        -- event handler
+        EM:RegisterForEvent(hook.namespace, hook.event, fn_callback)
+
+        if (hook.filter and T(hook.filter) == "table") then
+            for filter_key, filter_value in pairs(hook.filter) do
+                EM:AddFilterForEvent(hook.namespace, hook.event, filter_key, filter_value)
+            end
+        end
+    elseif (hook.interval) then
+        -- timer
+        EM:RegisterForUpdate(hook.namespace, hook.interval, hook.callback)
     end
 
     hook.injected = true -- flag to prevent duplicate hooks
-end
-
-function XelosesContacts:ToggleHook(hook_name)
-    local hook = self.__hooks[hook_name]
-    if (not hook) then return end
-
-    local hook_enabled = hook.enabled == nil or (T(hook.enabled) == "function" and hook.enabled()) or hook.enabled
-    if (hook_enabled) then
-        self:SetupHook(hook_name)
-    else
-        self:RemoveHook(hook_name)
-    end
 end
 
 function XelosesContacts:RemoveHook(hook_name)
@@ -142,10 +153,20 @@ function XelosesContacts:RemoveHook(hook_name)
     if (not hook or not hook.injected) then return end
 
     if (hook.event) then
-        EM:UnregisterForEvent(self.__namespace, hook.event)
+        EM:UnregisterForEvent(hook.namespace, hook.event)
+    elseif (hook.interval) then
+        EM:UnregisterForUpdate(hook.namespace)
     end
 
     hook.injected = false
+end
+
+function XelosesContacts:ToggleHook(hook_name)
+    if (self:isHookEnabled(hook_name)) then
+        self:SetupHook(hook_name)
+    else
+        self:RemoveHook(hook_name)
+    end
 end
 
 -- ----------------

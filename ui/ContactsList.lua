@@ -81,7 +81,7 @@ function XelosesContactsList:Setup(parent)
         return ZO_TableOrderingFunction(term_a, term_b, self.currentSortKey, sort_keys, self.currentSortOrder)
     end
 
-    self.categoryID   = self.parent.config.default_category
+    self.categoryID   = CONST.CONTACTS_FRIENDS_ID -- self.parent.config.default_category
     self.groupID      = 0
 
     self:InitContextMenu()
@@ -191,7 +191,7 @@ function XelosesContactsList:SetupCategoryList()
 end
 
 function XelosesContactsList:getSelectedCategory()
-    return self.categoryID or self.parent.config.default_category
+    return self.categoryID or CONST.CONTACTS_FRIENDS_ID -- self.parent.config.default_category
 end
 
 function XelosesContactsList:SetSelectedCategory(category_id)
@@ -248,7 +248,9 @@ function XelosesContactsList:SetupGroupsList(category_id)
     )
 end
 
-function XelosesContactsList:RefreshGroupsList()
+function XelosesContactsList:RefreshGroupsList(category_id)
+    if (not self.initialized or self.categoryID ~= category_id) then return end
+
     self:SetupGroupsList(self.categoryID)
 end
 

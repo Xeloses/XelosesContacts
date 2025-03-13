@@ -6,7 +6,7 @@ local T = type
 -- --------------------
 
 function XelosesContacts:UpdateConfig()
-    if (self.config.v >= self.version) then return end
+    if (self.config.v and self.config.v >= self.version) then return end
 
     if (not self.config.v or self.config.v < 10200) then
         -- @since 1.2.0
@@ -27,7 +27,7 @@ function XelosesContacts:UpdateConfig()
                     }
                 end
 
-                if (category_id == self.CONST.CONTACTS_VILLAINS_ID) then
+                if (category_id == self.CONST.CONTACTS_VILLAINS_ID and self.config.chat and self.config.chat.block_groups) then
                     local block_chat = (self.config.chat.block_groups[i] == true)
                     self.config.groups[category_id][i].mute = block_chat
                 end

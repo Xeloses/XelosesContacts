@@ -2,8 +2,10 @@ local LAM = LibAddonMenu2
 local F   = XelosesContacts.formatString
 local T   = type
 
+local __panel
+
 function XelosesContacts:OpenSettings()
-    LAM:OpenToPanel(self.UI.SettingsPanel)
+    LAM:OpenToPanel(__panel)
 end
 
 function XelosesContacts:CreateConfigMenu()
@@ -264,7 +266,9 @@ function XelosesContacts:CreateConfigMenu()
 
     -- get control by reference name
     local function getLAMControl(control_ref_name)
-        return _G[CONTROL_REF_TEMPLATE:format(control_ref_name)]
+        local control_name = CONTROL_REF_TEMPLATE:format(control_ref_name)
+        return WINDOW_MANAGER:GetControlByName(control_name)
+        --return _G[control_name]
     end
 
     -- ----------------
@@ -793,100 +797,6 @@ function XelosesContacts:CreateConfigMenu()
 
         addSubmenu("NOTIFICATION_SETUP", notifications_submenu)
     end
-    --[[
-    addItem("checkbox", "CONFIRM_ADD_FRIEND", {
-        getFunc = function() return self.config.confirmation.friend end,
-        setFunc = function(val)
-            self.config.confirmation.friend = val
-            self:ToggleHook("AddFriend")
-        end,
-        default = self.defaults.confirmation.friend,
-    })
-    addItem("divider")
-
-    -- Friend invite fron Villain
-    addItem("checkbox", "NOTIFICATION_FRIEND_INVITE", {
-        getFunc = function() return self.config.notifications.friendInvite.enabled end,
-        setFunc = function(val)
-            self.config.notifications.friendInvite.enabled = val
-            self:ToggleHook("IncomingFriendInvite")
-        end,
-        default = self.defaults.notifications.friendInvite.enabled,
-    })
-    addItem("checkbox", "NOTIFICATION_SCREEN_WARNING", {
-        width    = "half",
-        getFunc  = function() return self.config.notifications.friendInvite.announce end,
-        setFunc  = function(val) self.config.notifications.friendInvite.announce = val end,
-        disabled = function() return not self.config.notifications.friendInvite.enabled or self.config.notifications.friendInvite.decline end,
-        default  = self.defaults.notifications.friendInvite.announce,
-    })
-    addItem("checkbox", "AUTODECLINE_FRIEND_INVITE", {
-        width   = "half",
-        getFunc = function() return self.config.notifications.friendInvite.decline end,
-        setFunc = function(val) self.config.notifications.friendInvite.decline = val end,
-        default = self.defaults.notifications.friendInvite.decline,
-    })
-    addItem("divider")
-
-    -- Group invite fron Villain
-    addItem("checkbox", "NOTIFICATION_GROUP_INVITE", {
-        getFunc = function() return self.config.notifications.groupInvite.enabled end,
-        setFunc = function(val)
-            self.config.notifications.groupInvite.enabled = val
-            self:ToggleHook("IncomingGroupInvite")
-        end,
-        default = self.defaults.notifications.groupInvite.enabled,
-    })
-    addItem("checkbox", "NOTIFICATION_SCREEN_WARNING", {
-        width    = "half",
-        getFunc  = function() return self.config.notifications.groupInvite.announce end,
-        setFunc  = function(val) self.config.notifications.groupInvite.announce = val end,
-        disabled = function() return not self.config.notifications.groupInvite.enabled or self.config.notifications.groupInvite.decline end,
-        default  = self.defaults.notifications.groupInvite.announce,
-    })
-    addItem("checkbox", "AUTODECLINE_GROUP_INVITE", {
-        width   = "half",
-        getFunc = function() return self.config.notifications.groupInvite.decline end,
-        setFunc = function(val) self.config.notifications.groupInvite.decline = val end,
-        default = self.defaults.notifications.groupInvite.decline,
-    })
-    addItem("divider")
-
-    -- Join existing group with Villain
-    addItem("checkbox", "NOTIFICATION_GROUP_JOIN", {
-        getFunc = function() return self.config.notifications.groupJoin.enabled end,
-        setFunc = function(val)
-            self.config.notifications.groupJoin.enabled = val
-            self:ToggleHook("GroupChange")
-        end,
-        default = self.defaults.notifications.groupJoin.enabled,
-    })
-    addItem("checkbox", "NOTIFICATION_SCREEN_WARNING", {
-        width    = "half",
-        getFunc  = function() return self.config.notifications.groupJoin.announce end,
-        setFunc  = function(val) self.config.notifications.groupJoin.announce = val end,
-        disabled = function() return not self.config.notifications.groupJoin.enabled end,
-        default  = self.defaults.notifications.groupJoin.announce,
-    })
-    addItem("divider")
-
-    -- Villain joins player's group
-    addItem("checkbox", "NOTIFICATION_GROUP_MEMBER", {
-        getFunc = function() return self.config.notifications.groupMember.enabled end,
-        setFunc = function(val)
-            self.config.notifications.groupMember.enabled = val
-            self:ToggleHook("GroupChange")
-        end,
-        default = self.defaults.notifications.groupMember.enabled,
-    })
-    addItem("checkbox", "NOTIFICATION_SCREEN_WARNING", {
-        width    = "half",
-        getFunc  = function() return self.config.notifications.groupMember.announce end,
-        setFunc  = function(val) self.config.notifications.groupMember.announce = val end,
-        disabled = function() return not self.config.notifications.groupMember.enabled end,
-        default  = self.defaults.notifications.groupMember.announce,
-    })
-    ]]
 
     -- -------------------------
     --  @SECTION RETICLE MARKER
@@ -1126,7 +1036,7 @@ function XelosesContacts:CreateConfigMenu()
 
     -- handle create settings panel controls
     CALLBACK_MANAGER:RegisterCallback("LAM-PanelControlsCreated", function(panel)
-        if (panel ~= self.UI.SettingsPanel or __initialized) then return end
+        if (panel.data.name ~= self.name or __initialized) then return end
         __initialized = true
 
         refreshCategorySelectionControls(true)
@@ -1138,7 +1048,8 @@ function XelosesContacts:CreateConfigMenu()
 
     -- handle close settings panel
     CALLBACK_MANAGER:RegisterCallback("LAM-PanelClosed", function(panel)
-        if (panel ~= self.UI.SettingsPanel) then return end
+        if (panel.data.name ~= self.name) then return end
+        -- or: if (panel.data.name ~= self.name) then return end
 
         for _, category_id in ipairs(changed_groups) do
             self:RefreshContactGroups(category_id)
@@ -1154,6 +1065,6 @@ function XelosesContacts:CreateConfigMenu()
         changed_groups = table:new()
     end)
 
-    self.UI.SettingsPanel = LAM:RegisterAddonPanel(self.__namespace .. "_Config", panel_data)
+    __panel = LAM:RegisterAddonPanel(self.__namespace .. "_Config", panel_data)
     LAM:RegisterOptionControls(self.__namespace .. "_Config", config_data)
 end
