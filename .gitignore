@@ -1,5 +1,5 @@
-.cache
-.vscode
+/.cache
+/.vscode
 .editorconfig
 ~*
 **/TODO.*
@@ -8,3 +8,4 @@
 **/*.log
 **/*.tmp
 **/*.zip
+
