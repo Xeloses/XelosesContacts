@@ -1,5 +1,12 @@
 # CHANGELOG
 
+### Version 1.2.2 *(2025-03-07)*
+* API bump for Update 45;
+* Minor bug fixes.
+
+### Version 1.2.1 *(2025-03-07)*
+* Bug fixes.
+
 ### Version 1.2.0 *(2025-03-02)*
 * **New features:**
   * **Custom contact groups**:
