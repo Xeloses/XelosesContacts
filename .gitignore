@@ -1,4 +1,6 @@
 .cache
+.vscode
+.editorconfig
 ~*
 **/TODO.*
 **/*.cmd
