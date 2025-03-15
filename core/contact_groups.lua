@@ -166,6 +166,11 @@ function XelosesContacts:CreateGroup(category_id, name, icon)
         name = group_name,
         icon = group_icon,
     }
+    
+    if (category_id == self.CONST.CONTACTS_VILLAINS_ID) then
+        group.mute = true
+    end
+    
     table.insert(self.config.groups[category_id], group)
 
     return group

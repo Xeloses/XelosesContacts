@@ -1,5 +1,11 @@
 # CHANGELOG
 
+### Version 1.2.3 *(2025-03-15)*
+* **QoL changes**:
+  * initially selected category in Contacts list UI no more affected by "Default category for **__new__** contacts" option;
+  * newly created Villain groups now have chat blocking turned ON by default *(it will not affect previously created custom groups)*.
+* Minor bug fixes.
+
 ### Version 1.2.2 *(2025-03-07)*
 * API bump for Update 45;
 * Minor bug fixes.

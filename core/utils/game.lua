@@ -1,4 +1,5 @@
 local EM = GetEventManager()
+local CONST = XelosesContacts.CONST
 
 -- ------------------
 --  @SECTION Players
@@ -27,19 +28,19 @@ end
 -- ----------------
 
 function XelosesContacts.Game:isSoloDungeon(zone_id)
-    return zone_id and XelosesContacts.CONST.ZONES.ARENA.SOLO:has(zone_id)
+    return zone_id and CONST.ZONES.ARENA.SOLO:has(zone_id)
 end
 
 function XelosesContacts.Game:isGroupDungeon(zone_id)
-    return zone_id and (XelosesContacts.CONST.ZONES.DUNGEON:has(zone_id) or XelosesContacts.CONST.ZONES.ARENA.GROUP:has(zone_id))
+    return zone_id and (CONST.ZONES.DUNGEON:has(zone_id) or XelosesContacts.CONST.ZONES.ARENA.GROUP:has(zone_id))
 end
 
 function XelosesContacts.Game:isTrial(zone_id)
-    return zone_id and XelosesContacts.CONST.ZONES.TRIAL:has(zone_id)
+    return zone_id and CONST.ZONES.TRIAL:has(zone_id)
 end
 
 function XelosesContacts.Game:isPvPZone(zone_id)
-    return zone_id and XelosesContacts.CONST.ZONES.PVP:has(zone_id)
+    return zone_id and CONST.ZONES.PVP:has(zone_id)
 end
 
 function XelosesContacts.Game:isInIA()
@@ -87,6 +88,30 @@ function XelosesContacts.Game:GetZoneInfo(zone_id)
     end
 
     return zone_info
+end
+
+-- --------------------
+--  @SECTION Game chat
+-- --------------------
+
+function XelosesContacts.Game:getChatChannelCategory(chat_channel)
+    for category_name, channels in pairs(CONST.CHAT.CHANNELS) do
+        local channels_list = table:new(channels)
+        if (channels_list:has(chat_channel)) then
+            return category_name
+        end
+    end
+end
+
+function XelosesContacts.Game:isChatCategoryBlocked(category_name)
+    return XelosesContacts.config.chat.block_channels[category_name]
+end
+
+function XelosesContacts.Game:isChatChannelBlocked(chat_channel)
+    local category = self:getChatChannelCategory(chat_channel)
+    if (category) then
+        return self:isChatCategoryBlocked(category)
+    end
 end
 
 -- ----------------

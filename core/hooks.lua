@@ -121,7 +121,7 @@ function XelosesContacts:SetupHook(hook_name)
     local hook = self.__hooks[hook_name]
     if (not hook or hook.injected) then return end
     if (not self:isHookEnabled(hook_name)) then return end
-    
+
     if (not hook.namespace) then
         hook.namespace = self.__namespace .. "_" .. hook_name -- generate unique namespace for hook
     end
@@ -192,31 +192,27 @@ end
 -- ---------------
 
 function XelosesContacts:handleChatMessage(_, event_code, channel, from_name, raw_message_text, is_customer_service, from_display_name)
-    if (is_customer_service) then return end -- do not process customer service
-    if (event_code ~= EVENT_CHAT_MESSAGE_CHANNEL) then return end
-    if (not from_display_name or not IsDecoratedDisplayName(from_display_name)) then return end
-    if (from_display_name == self.accountName) then return end -- do not process self
+    local skip =
+        is_customer_service or -- do not process customer service
+        event_code ~= EVENT_CHAT_MESSAGE_CHANNEL or
+        not from_display_name or not IsDecoratedDisplayName(from_display_name) or
+        from_display_name == self.accountName -- do not process self
+    if (skip) then return end
 
     local contact = self:getContactData(from_display_name)
-    if (contact) then
-        if (self:isChatBlocked(contact)) then
-            -- get chat channel type
-            local channel_category
-            for category_name, channels in pairs(self.CONST.CHAT.CHANNELS) do
-                local channels_list = table:new(channels)
-                if (channels_list:has(channel)) then
-                    channel_category = category_name
-                    break
-                end
-            end
 
-            -- check chat channel blocking rules
-            if (channel_category and self.config.chat.block_channels[channel_category]) then
-                -- @LOG blocked message
-                self:Log("[Chat::%s] Block message from %s [%s]: %s", channel_category, self:getContactGroupName(contact), contact.account, GetString(SI_CHAT_MESSAGE_FORMATTER):zo_format(raw_message_text))
-                return true -- flag indicates message should be blocked
-            end
-        end
+    -- @DEBUG
+    if (contact and self.Game:getChatChannelCategory(channel) == "GROUP") then
+        self:Debug("ChatBlocker [CHAT:GROUP] => sender: \"%s@%s\"", from_name, from_display_name)
+        self:Debug("  -> contact info: %s/%s (block: %s)", self:getContactCategoryName(contact), self:getContactGroupName(contact), tostring(self:isChatBlocked(contact)):upper())
+        self:Debug("  -> is blocked channel: %s", tostring(self.Game:isChatChannelBlocked(channel)):upper())
+    end
+
+    if (contact and self:isChatBlocked(contact) and self.Game:isChatChannelBlocked(channel)) then
+        -- @LOG blocked message
+        self:Log("[Chat::%s] Block message from %s [%s]: %s", self.Game:getChatChannelCategory(channel), self:getContactGroupName(contact), contact.account, zo_strformat(GetString(SI_CHAT_MESSAGE_FORMATTER), raw_message_text))
+
+        return true -- flag indicates message should be blocked
     end
 end
 

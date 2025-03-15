@@ -9,7 +9,6 @@ LEJ.Used  = true -- libExtendedJournal usage flag (required by the library)
 -- ---------------
 
 function XelosesContacts:Initialize()
-    self:LoadConstants()
     self:getAddonVersionFromManifest()
 
     self:InitLibs()

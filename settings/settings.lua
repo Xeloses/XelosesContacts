@@ -40,7 +40,7 @@ function XelosesContacts:CreateConfigMenu()
     local CONTROL_REF_TEMPLATE = self.__prefix .. "LAM_%s"
 
     local groups_editor_data   = {
-        selected_category = 0,
+        selected_category = self.CONST.CONTACTS_FRIENDS_ID,
         selected_group = 0,
     }
 
@@ -268,7 +268,6 @@ function XelosesContacts:CreateConfigMenu()
     local function getLAMControl(control_ref_name)
         local control_name = CONTROL_REF_TEMPLATE:format(control_ref_name)
         return WINDOW_MANAGER:GetControlByName(control_name)
-        --return _G[control_name]
     end
 
     -- ----------------
@@ -278,11 +277,11 @@ function XelosesContacts:CreateConfigMenu()
     local function resetSelection(control_ref_name)
         local control = getLAMControl(control_ref_name)
         if (control) then
-            control:UpdateValue(true) -- force default value
+            control:UpdateValue(true) -- reset value
         end
     end
 
-    local function updateDropdownList(control_ref_name, choices_list, choices_values_list, reset_value)
+    local function updateDropdownList(control_ref_name, choices_list, choices_values_list)
         local control = getLAMControl(control_ref_name)
         if (control) then
             control.data.choices       = choices_list
@@ -301,14 +300,12 @@ function XelosesContacts:CreateConfigMenu()
                 control:UpdateDisabled() -- update control state
             end
 
-            if (reset_value) then
-                resetSelection(control_ref_name)
-            end
+            control:UpdateValue() -- reload selected value
         end
     end
 
     -- refresh (reload) contact category selection dropdown lists
-    local function refreshCategorySelectionControls(reset_value)
+    local function refreshCategorySelectionControls()
         local category_list  = self:getCategoryList(true)
         local category_ids   = category_list:keys()
         local category_names = category_list:values()
@@ -319,29 +316,27 @@ function XelosesContacts:CreateConfigMenu()
         }
 
         for _, control_name in ipairs(controls) do
-            updateDropdownList(control_name, category_names, category_ids, reset_value)
+            updateDropdownList(control_name, category_names, category_ids)
         end
     end
 
     -- refresh (reload) contact group selection dropdown lists
-    local function refreshGroupSelectionControls(category_id, control_ref_name, reset_value)
+    local function refreshGroupSelectionControls(category_id, control_ref_name)
         if (not category_id) then
             category_id = groups_editor_data.selected_category
         end
-
-        reset_value        = reset_value or (T(control_ref_name) == "boolean" and control_ref_name)
 
         local groups_list  = self:getGroupsList(category_id, true, true)
         local groups_ids   = groups_list:keys()
         local groups_names = groups_list:values()
 
-        if (T(control_ref_name) == "string") then
+        if (control_ref_name and T(control_ref_name) == "string") then
             -- refresh only one specific control
-            updateDropdownList(control_ref_name, groups_names, groups_ids, reset_value)
+            updateDropdownList(control_ref_name, groups_names, groups_ids)
         else
             -- refresh all group selection controls
             if (groups_editor_data.selected_category == category_id) then
-                updateDropdownList("GROUPS_EDIT_SELECT_GROUP", groups_names, groups_ids, reset_value) -- refresh group edit dropdown only if it necessary
+                updateDropdownList("GROUPS_EDIT_SELECT_GROUP", groups_names, groups_ids)
             end
 
             local controls = {
@@ -349,7 +344,7 @@ function XelosesContacts:CreateConfigMenu()
             }
 
             for _, control_name in ipairs(controls) do
-                updateDropdownList(control_name:format(category_id), groups_names, groups_ids, reset_value)
+                updateDropdownList(control_name:format(category_id), groups_names, groups_ids)
             end
         end
     end
@@ -412,7 +407,7 @@ function XelosesContacts:CreateConfigMenu()
     end
 
     local function GroupsEditor_CreateGroup()
-        local c_id = groups_editor_data.selected_category or self.CONST.CONTACTS_FRIENDS_ID
+        local c_id = groups_editor_data.selected_category
 
         local g = self:CreateGroup(c_id)
         registerGroupChanges(c_id)
@@ -468,7 +463,8 @@ function XelosesContacts:CreateConfigMenu()
         default    = self.CONST.CONTACTS_FRIENDS_ID,
         reference  = CONTROL_REF_TEMPLATE:format("GENERAL_SELECT_CATEGORY"),
         customData = {
-            postInit = true,
+            postInit     = true,
+            disableReset = true,
         },
     })
 
@@ -594,7 +590,7 @@ function XelosesContacts:CreateConfigMenu()
                 groups_editor_data.selected_category ~= self.CONST.CONTACTS_VILLAINS_ID or
                 groups_editor_data.selected_group == 0
         end,
-        default = false,
+        default = true,
     })
 
     -- ------------------------
@@ -1039,10 +1035,10 @@ function XelosesContacts:CreateConfigMenu()
         if (panel.data.name ~= self.name or __initialized) then return end
         __initialized = true
 
-        refreshCategorySelectionControls(true)
+        refreshCategorySelectionControls()
 
         for i, _ in ipairs(self:getCategoryList()) do
-            refreshGroupSelectionControls(i, true)
+            refreshGroupSelectionControls(i)
         end
     end)
 
