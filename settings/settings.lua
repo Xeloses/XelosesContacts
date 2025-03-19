@@ -8,7 +8,7 @@ function XelosesContacts:OpenSettings()
     LAM:OpenToPanel(__panel)
 end
 
-function XelosesContacts:CreateConfigMenu()
+function XelosesContacts:CreateConfigMenu(default_settings)
     -- ----------------
     --  @SECTION Panel
     -- ----------------
@@ -65,7 +65,7 @@ function XelosesContacts:CreateConfigMenu()
     --  Colors
 
     local function getColor(index)
-        local color = ZO_ColorDef:New(self:getCategoryColor(index) or self.defaults.colors[index])
+        local color = ZO_ColorDef:New(self:getCategoryColor(index) or default_settings.colors[index])
         return color.r, color.g, color.b, color.a
     end
 
@@ -453,7 +453,7 @@ function XelosesContacts:CreateConfigMenu()
     addItem("checkbox", "UI_SEARCH_NOTE", {
         getFunc = function() return self.config.ui.search_note end,
         setFunc = function(val) self.config.ui.search_note = val end,
-        default = self.defaults.ui.search_note,
+        default = default_settings.ui.search_note,
     })
 
     addItem("dropdown", "DEFAULT_CATEGORY", {
@@ -483,7 +483,7 @@ function XelosesContacts:CreateConfigMenu()
                 registerColorChanges(category_id)
                 refreshColors(category_id)
             end,
-            default = function() return ZO_ColorDef:New(self.defaults.colors[category_id]) end,
+            default = function() return ZO_ColorDef:New(default_settings.colors[category_id]) end,
         })
     end
 
@@ -602,14 +602,14 @@ function XelosesContacts:CreateConfigMenu()
     addItem("checkbox", "CONTEXT_MENU_TOGGLE", {
         getFunc = function() return self.config.contextmenu.enabled end,
         setFunc = function(val) self.config.contextmenu.enabled = val end,
-        default = self.defaults.contextmenu.enabled,
+        default = default_settings.contextmenu.enabled,
     })
 
     addItem("checkbox", "CONTEXT_MENU_SUBMENU", {
         getFunc  = function() return self.config.contextmenu.submenu end,
         setFunc  = function(val) self.config.contextmenu.submenu = val end,
         disabled = function() return not self.config.contextmenu.enabled end,
-        default  = self.defaults.contextmenu.submenu,
+        default  = default_settings.contextmenu.submenu,
     })
 
     -- ---------------
@@ -626,7 +626,7 @@ function XelosesContacts:CreateConfigMenu()
             self.config.chat.cache.enabled = val
             self.Chat.cache:Toggle(val)
         end,
-        default = self.defaults.chat.cache.enabled,
+        default = default_settings.chat.cache.enabled,
     })
     addItem("slider", "CHAT_CACHE_SIZE", {
         min        = self.CONST.CHAT.CACHE.MIN_SIZE,
@@ -639,7 +639,7 @@ function XelosesContacts:CreateConfigMenu()
             self.Chat.cache:SetMaxSize(val)
         end,
         disabled   = function() return not self.config.chat.cache.enabled end,
-        default    = self.defaults.chat.cache.maxsize,
+        default    = default_settings.chat.cache.maxsize,
     })
 
     -- Chat blocking submenu
@@ -647,15 +647,20 @@ function XelosesContacts:CreateConfigMenu()
         local chat_block_submenu = table:new()
 
         -- Chat channels
-        chat_block_submenu:insert(createItem("header", "CHAT_BLOCK_CHANNELS"))
-        chat_block_submenu:insert(createItem("description", "CHAT_BLOCK_CHANNELS_DESCRIPTION"))
+        addSubmenuItem(chat_block_submenu, "header", "CHAT_BLOCK_CHANNELS")
+        addSubmenuItem(chat_block_submenu, "description", "CHAT_BLOCK_CHANNELS_DESCRIPTION")
+
+        addSubmenuItem(chat_block_submenu, "description", "CHAT_BLOCK_CHANNELS_NOTE", nil, {
+            icon  = self.CONST.ICONS.UI.NOTE,
+            color = self.CONST.COLOR.NOTE,
+        })
 
         local chat_channels = self.CONST.CHAT.CHANNELS
         for channel_name, _ in pairs(chat_channels) do
             addSubmenuItem(chat_block_submenu, "checkbox", "CHAT_BLOCK_CHANNEL_" .. channel_name:upper(), {
                 getFunc = function() return self.config.chat.block_channels[channel_name] end,
                 setFunc = function(val) self.config.chat.block_channels[channel_name] = val end,
-                default = self.defaults.chat.block_channels[channel_name],
+                default = default_settings.chat.block_channels[channel_name],
             })
         end
 
@@ -668,7 +673,7 @@ function XelosesContacts:CreateConfigMenu()
     addItem("checkbox", "CHAT_INFO", {
         getFunc = function() return not self.config.chat.log end,
         setFunc = function(val) self.config.chat.log = not val end,
-        default = self.defaults.chat.log,
+        default = default_settings.chat.log,
     })
 
     -- ------------------------
@@ -690,7 +695,7 @@ function XelosesContacts:CreateConfigMenu()
             sort          = "numericvalue-up",
             getFunc       = function() return self.config.notifications.channel end,
             setFunc       = function(val) self.config.notifications.channel = val end,
-            default       = self.defaults.notifications.channel,
+            default       = default_settings.notifications.channel,
         })
     end
 
@@ -704,7 +709,7 @@ function XelosesContacts:CreateConfigMenu()
                 self.config.confirmation.friend = val
                 self:ToggleHook("AddFriend")
             end,
-            default = self.defaults.confirmation.friend,
+            default = default_settings.confirmation.friend,
         })
         addSubmenuItem(notifications_submenu, "divider")
 
@@ -715,20 +720,20 @@ function XelosesContacts:CreateConfigMenu()
                 self.config.notifications.friendInvite.enabled = val
                 self:ToggleHook("IncomingFriendInvite")
             end,
-            default = self.defaults.notifications.friendInvite.enabled,
+            default = default_settings.notifications.friendInvite.enabled,
         })
         addSubmenuItem(notifications_submenu, "checkbox", "NOTIFICATION_SCREEN_WARNING", {
             width    = "half",
             getFunc  = function() return self.config.notifications.friendInvite.announce end,
             setFunc  = function(val) self.config.notifications.friendInvite.announce = val end,
             disabled = function() return not self.config.notifications.friendInvite.enabled or self.config.notifications.friendInvite.decline end,
-            default  = self.defaults.notifications.friendInvite.announce,
+            default  = default_settings.notifications.friendInvite.announce,
         })
         addSubmenuItem(notifications_submenu, "checkbox", "AUTODECLINE_FRIEND_INVITE", {
             width   = "half",
             getFunc = function() return self.config.notifications.friendInvite.decline end,
             setFunc = function(val) self.config.notifications.friendInvite.decline = val end,
-            default = self.defaults.notifications.friendInvite.decline,
+            default = default_settings.notifications.friendInvite.decline,
         })
         addSubmenuItem(notifications_submenu, "divider")
 
@@ -739,20 +744,20 @@ function XelosesContacts:CreateConfigMenu()
                 self.config.notifications.groupInvite.enabled = val
                 self:ToggleHook("IncomingGroupInvite")
             end,
-            default = self.defaults.notifications.groupInvite.enabled,
+            default = default_settings.notifications.groupInvite.enabled,
         })
         addSubmenuItem(notifications_submenu, "checkbox", "NOTIFICATION_SCREEN_WARNING", {
             width    = "half",
             getFunc  = function() return self.config.notifications.groupInvite.announce end,
             setFunc  = function(val) self.config.notifications.groupInvite.announce = val end,
             disabled = function() return not self.config.notifications.groupInvite.enabled or self.config.notifications.groupInvite.decline end,
-            default  = self.defaults.notifications.groupInvite.announce,
+            default  = default_settings.notifications.groupInvite.announce,
         })
         addSubmenuItem(notifications_submenu, "checkbox", "AUTODECLINE_GROUP_INVITE", {
             width   = "half",
             getFunc = function() return self.config.notifications.groupInvite.decline end,
             setFunc = function(val) self.config.notifications.groupInvite.decline = val end,
-            default = self.defaults.notifications.groupInvite.decline,
+            default = default_settings.notifications.groupInvite.decline,
         })
         addSubmenuItem(notifications_submenu, "divider")
 
@@ -763,14 +768,14 @@ function XelosesContacts:CreateConfigMenu()
                 self.config.notifications.groupJoin.enabled = val
                 self:ToggleHook("GroupChange")
             end,
-            default = self.defaults.notifications.groupJoin.enabled,
+            default = default_settings.notifications.groupJoin.enabled,
         })
         addSubmenuItem(notifications_submenu, "checkbox", "NOTIFICATION_SCREEN_WARNING", {
             width    = "half",
             getFunc  = function() return self.config.notifications.groupJoin.announce end,
             setFunc  = function(val) self.config.notifications.groupJoin.announce = val end,
             disabled = function() return not self.config.notifications.groupJoin.enabled end,
-            default  = self.defaults.notifications.groupJoin.announce,
+            default  = default_settings.notifications.groupJoin.announce,
         })
         addSubmenuItem(notifications_submenu, "divider")
 
@@ -781,14 +786,14 @@ function XelosesContacts:CreateConfigMenu()
                 self.config.notifications.groupMember.enabled = val
                 self:ToggleHook("GroupChange")
             end,
-            default = self.defaults.notifications.groupMember.enabled,
+            default = default_settings.notifications.groupMember.enabled,
         })
         addSubmenuItem(notifications_submenu, "checkbox", "NOTIFICATION_SCREEN_WARNING", {
             width    = "half",
             getFunc  = function() return self.config.notifications.groupMember.announce end,
             setFunc  = function(val) self.config.notifications.groupMember.announce = val end,
             disabled = function() return not self.config.notifications.groupMember.enabled end,
-            default  = self.defaults.notifications.groupMember.announce,
+            default  = default_settings.notifications.groupMember.announce,
         })
 
         addSubmenu("NOTIFICATION_SETUP", notifications_submenu)
@@ -807,38 +812,59 @@ function XelosesContacts:CreateConfigMenu()
             self.config.reticle.enabled = val
             self:ToggleHook("ReticleTarget")
         end,
-        default = self.defaults.reticle.enabled,
+        default = default_settings.reticle.enabled,
     })
+
+    do
+        local display_modes = table:new()
+        local display_mode_names = table:new()
+        for display_mode_name, display_mode in pairs(XelosesReticleMarker.DISPLAY_MODE) do
+            display_mode_names:insert(L("RETICLE_MARKER_DISPLAY_MODE_" .. display_mode_name))
+            display_modes:insert(display_mode)
+        end
+        addItem("dropdown", "RETICLE_MARKER_DISPLAY_MODE", {
+            choices       = display_mode_names,
+            choicesValues = display_modes,
+            sort          = "numericvalue-down",
+            getFunc       = function() return self.config.reticle.mode end,
+            setFunc       = function(val)
+                self.config.reticle.mode = val
+                self.UI.ReticleMarker:SetDisplayMode(val)
+            end,
+            disabled      = function() return not self.config.reticle.enabled end,
+            default       = default_settings.reticle.mode,
+        })
+    end
 
     addItem("checkbox", "RETICLE_MARKER_DISABLE_COMBAT", {
         getFunc = function() return self.config.reticle.disable.combat end,
         setFunc = function(val) self.config.reticle.disable.combat = val end,
         disabled = function() return not self.config.reticle.enabled end,
-        default = self.defaults.reticle.disable.combat,
+        default = default_settings.reticle.disable.combat,
     })
     addItem("checkbox", "RETICLE_MARKER_DISABLE_GROUP_DUNGEON", {
         getFunc = function() return self.config.reticle.disable.group_dungeon end,
         setFunc = function(val) self.config.reticle.disable.group_dungeon = val end,
         disabled = function() return not self.config.reticle.enabled end,
-        default = self.defaults.reticle.disable.group_dungeon,
+        default = default_settings.reticle.disable.group_dungeon,
     })
     addItem("checkbox", "RETICLE_MARKER_DISABLE_TRIAL", {
         getFunc = function() return self.config.reticle.disable.trial end,
         setFunc = function(val) self.config.reticle.disable.trial = val end,
         disabled = function() return not self.config.reticle.enabled end,
-        default = self.defaults.reticle.disable.trial,
+        default = default_settings.reticle.disable.trial,
     })
     addItem("checkbox", "RETICLE_MARKER_DISABLE_PVP", {
         getFunc  = function() return self.config.reticle.disable.pvp end,
         setFunc  = function(val) self.config.reticle.disable.pvp = val end,
         disabled = function() return not self.config.reticle.enabled end,
-        default  = self.defaults.reticle.disable.pvp,
+        default  = default_settings.reticle.disable.pvp,
     })
 
     do
         local positions = table:new()
         local position_indexes = table:new()
-        for position, position_index in pairs(self.CONST.UI.RETICLE_MARKER.POSITION) do
+        for position, position_index in pairs(XelosesReticleMarker.POSITION) do
             positions:insert(L("RETICLE_MARKER_POSITION_" .. position))
             position_indexes:insert(position_index)
         end
@@ -852,13 +878,13 @@ function XelosesContacts:CreateConfigMenu()
                 self.UI.ReticleMarker:SetPosition(val)
             end,
             disabled      = function() return not self.config.reticle.enabled end,
-            default       = self.defaults.reticle.position,
+            default       = default_settings.reticle.position,
         })
     end
 
     addItem("slider", "RETICLE_MARKER_OFFSET", {
-        min        = self.CONST.UI.RETICLE_MARKER.MIN_OFFSET,
-        max        = self.CONST.UI.RETICLE_MARKER.MAX_OFFSET,
+        min        = XelosesReticleMarker.MIN_OFFSET,
+        max        = XelosesReticleMarker.MAX_OFFSET,
         step       = 5,
         clampInput = false,
         getFunc    = function() return self.config.reticle.offset end,
@@ -867,7 +893,7 @@ function XelosesContacts:CreateConfigMenu()
             self.UI.ReticleMarker:SetOffset(val)
         end,
         disabled   = function() return not self.config.reticle.enabled end,
-        default    = self.defaults.reticle.offset,
+        default    = default_settings.reticle.offset,
     })
 
     addItem("slider", "RETICLE_MARKER_FONT_SIZE", {
@@ -880,8 +906,8 @@ function XelosesContacts:CreateConfigMenu()
             self.config.reticle.font.size = val
             self.UI.ReticleMarker:SetCaptionFont({ size = val })
         end,
-        disabled   = function() return not self.config.reticle.enabled end,
-        default    = self.defaults.reticle.font.size,
+        disabled   = function() return not self.config.reticle.enabled or BitAnd(self.config.reticle.mode, XelosesReticleMarker.DISPLAY_MODE.TEXT) == 0 end,
+        default    = default_settings.reticle.font.size,
     })
     addItem("dropdown", "RETICLE_MARKER_FONT_STYLE", {
         choices  = self.CONST.UI.FONT_STYLE,
@@ -890,23 +916,25 @@ function XelosesContacts:CreateConfigMenu()
             self.config.reticle.font.style = val
             self.UI.ReticleMarker:SetCaptionFont({ style = val })
         end,
-        disabled = function() return not self.config.reticle.enabled end,
-        default  = self.defaults.reticle.font.style,
+        disabled = function() return not self.config.reticle.enabled or BitAnd(self.config.reticle.mode, XelosesReticleMarker.DISPLAY_MODE.TEXT) == 0 end,
+        default  = default_settings.reticle.font.style,
     })
 
+    --[[
     addItem("checkbox", "RETICLE_MARKER_ICON_ENABLE", {
         getFunc = function() return self.config.reticle.icon.enabled end,
         setFunc = function(val)
             self.config.reticle.icon.enabled = val
-            self.UI.ReticleMarker:SetIconVisibility(val)
+            --self.UI.ReticleMarker:SetIconVisibility(val)
         end,
-        default = self.defaults.reticle.icon.enabled,
+        default = default_settings.reticle.icon.enabled,
     })
+    ]]
 
     do
         local sizes = table:new()
         local size_titles = table:new()
-        for title, size in pairs(self.CONST.UI.RETICLE_MARKER.ICON_SIZE) do
+        for title, size in pairs(XelosesReticleMarker.ICON_SIZE) do
             size_titles:insert(L("RETICLE_MARKER_ICON_SIZE_" .. title))
             sizes:insert(size)
         end
@@ -919,17 +947,27 @@ function XelosesContacts:CreateConfigMenu()
                 self.config.reticle.icon.size = val
                 self.UI.ReticleMarker:SetIconSize(val)
             end,
-            disabled      = function() return not self.config.reticle.enabled or not self.config.reticle.icon.enabled end,
-            default       = self.defaults.reticle.icon.size,
+            disabled      = function() return not self.config.reticle.enabled or BitAnd(self.config.reticle.mode, XelosesReticleMarker.DISPLAY_MODE.ICON) == 0 end,
+            default       = default_settings.reticle.icon.size,
         })
     end
+
+    addItem("checkbox", "RETICLE_MARKER_COLORIZE_RETICLE", {
+        getFunc = function() return self.config.reticle.colorize_reticle end,
+        setFunc = function(val)
+            self.config.reticle.colorize_reticle = val
+            self.UI.ReticleMarker:ToggleReticleColorizer(val)
+        end,
+        disabled = function() return not self.config.reticle.enabled end,
+        default = default_settings.reticle.colorize_reticle,
+    })
 
     -- Additional markers submenu
     do
         local markers_submenu = table:new()
 
         local markers_info = self.getString("WARNING"):colorize(self.CONST.COLOR.WARNING) .. " " .. L("RETICLE_MARKER_ADDITIONAL_MARKERS_DESCRIPTION")
-        markers_submenu:insert(createItem("description", markers_info))
+        addSubmenuItem(markers_submenu, "description", markers_info)
 
         local marker_names = table:new(self.config.reticle.markers):keys()
         marker_names:sort()
@@ -944,13 +982,13 @@ function XelosesContacts:CreateConfigMenu()
                 getFunc = function() return self.config.reticle.markers[marker_name].enabled end,
                 setFunc = function(val) self.config.reticle.markers[marker_name].enabled = val end,
                 disabled = function() return not self.config.reticle.enabled end,
-                default = self.defaults.reticle.markers[marker_name].enabled,
+                default = default_settings.reticle.markers[marker_name].enabled,
             })
             addSubmenuItem(markers_submenu, "colorpicker", L("RETICLE_MARKER_ADDITIONAL_" .. uname .. "_COLOR"), {
                 getFunc = function() return ColorFromHex(self.config.reticle.markers[marker_name].color) end,
                 setFunc = function(r, g, b, a) self.config.reticle.markers[marker_name].color = ColorToHex(r, g, b, a) end,
                 disabled = function() return not self.config.reticle.enabled or not self.config.reticle.markers[marker_name].enabled end,
-                default = function() return ZO_ColorDef:New(self.defaults.reticle.markers[marker_name].color) end,
+                default = function() return ZO_ColorDef:New(default_settings.reticle.markers[marker_name].color) end,
             })
         end
 

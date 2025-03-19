@@ -1,42 +1,70 @@
 local T                       = type
 
+-- --------------------
+--  @SECTION Constants
+-- --------------------
+
 XELOSES_CONTACTS_RETICLE_SIZE = 40
+
+XelosesReticleMarker          = {
+    DISPLAY_MODE = {
+        TEXT = 1,
+        ICON = 2,
+        FULL = 255,
+    },
+
+    POSITION     = {
+        ABOVE = 1,
+        BELOW = 2,
+    },
+
+    ICON_SIZE    = {
+        SMALL  = 32,
+        MEDIUM = 48,
+        BIG    = 64,
+    },
+
+    MIN_OFFSET   = 0,
+    MAX_OFFSET   = 50,
+}
+
+local DEFAULTS                = {
+    DISPLAY_MODE = XelosesReticleMarker.DISPLAY_MODE.FULL,
+    POSITION     = XelosesReticleMarker.POSITION.BELOW,
+    ICON_SIZE    = XelosesReticleMarker.ICON_SIZE.MEDIUM,
+    OFFSET       = 10,
+    FONT_SIZE    = 20,
+    FONT_STYLE   = "outline",
+    COLOR        = ZO_ColorDef:New(ZO_ReticleContainerReticle:GetColor()) or ZO_ColorDef:New(1, 1, 1, 0.75)
+}
 
 -- ---------------
 --  @SECTION Init
 -- ---------------
 
-XelosesReticleMarker          = {}
-
 function XelosesReticleMarker:Initialize(parent, params)
-    self.parent        = parent
-    self.frame         = XelosesReticleMarkerFrame
+    local config = (T(params) == "table") and params or {}
 
-    self.UI            = {
+    self.parent  = parent
+    self.frame   = XelosesReticleMarkerFrame
+
+    self.UI      = {
         caption = GetControl(self.frame, "Caption"),
         icon    = GetControl(self.frame, "Icon")
     }
 
-    self.shown         = false
-    self.default_color = ZO_ColorDef:New(ZO_ReticleContainerReticle:GetColor()) or ZO_ColorDef:New(1, 1, 1, 0.75)
+    self.shown   = false
 
-    local p            = (T(params) == "table") and params or {}
+    self:SetDisplayMode(config.mode)
 
-    self:SetPosition(p.position or self.parent.CONST.UI.RETICLE_MARKER.POSITION.BELOW)
-    self:SetOffset(p.offset or 10)
+    self:SetPosition(config.position)
+    self:SetOffset(config.offset)
 
-    self.UI.caption:SetColor(self.default_color:UnpackRGBA())
-    self:SetCaptionFont({
-        size = p.font.size or 20,
-        style = p.font.style or "outline",
-    })
+    self.UI.caption:SetColor(DEFAULTS.COLOR:UnpackRGBA())
+    self:SetCaptionFont(config.font)
 
-    self:SetIconSize(p.icon and p.icon.size or 40)
-    if (p.icon and not p.icon.enabled) then
-        self:SetIconVisibility(false)
-    else
-        self:SetIconVisibility(true)
-    end
+    self:SetIconSize(config.icon and config.icon.size)
+    self:ToggleReticleColorizer(config.colorize_reticle)
 
     return self
 end
@@ -48,9 +76,11 @@ end
 function XelosesReticleMarker:Setup(text, icon, color)
     if (not text or text:isEmpty()) then return self:Reset() end
 
-    color = ZO_ColorDef:New(color) or self.default_color
+    color = ZO_ColorDef:New(color) or DEFAULTS.COLOR
 
-    ZO_ReticleContainerReticle:SetColor(color:UnpackRGBA())
+    if (self.colorize_reticle) then
+        ZO_ReticleContainerReticle:SetColor(color:UnpackRGBA())
+    end
 
     self:SetIcon(icon, color)
     self:SetCaption(text)
@@ -61,7 +91,9 @@ end
 function XelosesReticleMarker:Reset()
     if (not self.shown) then return end
 
-    ZO_ReticleContainerReticle:SetColor(self.default_color:UnpackRGBA())
+    if (self.colorize_reticle) then
+        ZO_ReticleContainerReticle:SetColor(DEFAULTS.COLOR:UnpackRGBA())
+    end
 
     self:SetIcon(nil)
     self:SetCaption("")
@@ -91,10 +123,10 @@ function XelosesReticleMarker:SetPosition(pos)
     self.UI.icon:ClearAnchors()
     self.UI.caption:ClearAnchors()
 
-    if (pos == self.parent.CONST.UI.RETICLE_MARKER.POSITION.ABOVE) then
+    if (pos == self.POSITION.ABOVE) then
         self.UI.caption:SetAnchor(BOTTOM, self.frame, TOP, 0, 0)
         self.UI.icon:SetAnchor(BOTTOM, self.UI.caption, TOP, 0, 0)
-    elseif (pos == self.parent.CONST.UI.RETICLE_MARKER.POSITION.BELOW) then
+    elseif (pos == self.POSITION.BELOW) then
         self.UI.caption:SetAnchor(TOP, self.frame, BOTTOM, 0, 0)
         self.UI.icon:SetAnchor(TOP, self.UI.caption, BOTTOM, 0, 0)
     end
@@ -103,7 +135,7 @@ function XelosesReticleMarker:SetPosition(pos)
 end
 
 function XelosesReticleMarker:SetOffset(offset)
-    local y = offset * ((self.position == self.parent.CONST.UI.RETICLE_MARKER.POSITION.ABOVE) and -1 or 1)
+    local y = offset * ((self.position == self.POSITION.ABOVE) and -1 or 1)
     if (self.offset == y) then return end
 
     self.frame:ClearAnchors()
@@ -122,51 +154,61 @@ end
 -- -------------------
 
 function XelosesReticleMarker:SetCaption(text)
-    local s = (T(text) == "string") and text:trim() or ""
+    local str     = (T(text) == "string") and text:trim()
+    local visible = self.show_caption and str and str:len() > 0
 
-    self.UI.caption:SetText(s)
-    self.UI.caption:SetDimensions(self.UI.caption:GetTextDimensions())
-    self.UI.caption:SetHidden(s:isEmpty())
+    if (visible) then
+        self.UI.caption:SetText(str)
+        self.UI.caption:SetDimensions(self.UI.caption:GetTextDimensions())
+    end
+
+    self.UI.caption:SetHidden(not visible)
+end
+
+function XelosesReticleMarker:SetCaptionFont(font_params)
+    if (self.font_size == font_params.size and self.font_style == font_params.style) then return end
+
+    self.font_size  = font_params.size
+    self.font_style = font_params.style
+
+    local font      = ("$(BOLD_FONT)|%s|%s"):format(font_params.size, font_params.style)
+    self.UI.caption:SetFont(font)
 end
 
 function XelosesReticleMarker:SetIcon(icon, color)
-    if (self.icon_show and icon) then
+    local visible = self.show_icon and icon
+
+    if (visible) then
         if (not color) then
-            color = self.default_color
+            color = DEFAULTS.COLOR
         elseif (T(color) == "string") then
             color = ZO_ColorDef:New(color)
         end
 
         self.UI.icon:SetColor(color:UnpackRGBA())
         self.UI.icon:SetTexture(icon)
-        self.UI.icon:SetHidden(false)
-    else
-        self.UI.icon:SetHidden(true)
     end
-end
 
-function XelosesReticleMarker:SetCaptionFont(font_params)
-    if (T(font_params) ~= "table") then return end
-
-    local font_size  = font_params.size or self.font_size
-    local font_style = font_params.style or self.font_style
-
-    if (self.font_size == font_size and self.font_style == font_style) then return end
-
-    self.font_size  = font_size
-    self.font_style = font_style
-
-    local font      = ("$(BOLD_FONT)|%s|%s"):format(font_size, font_style)
-    self.UI.caption:SetFont(font)
+    self.UI.icon:SetHidden(not visible)
 end
 
 function XelosesReticleMarker:SetIconSize(size)
-    if (not size or self.icon_size == size) then return end
+    if (self.icon_size == size) then return end
 
     self.icon_size = size
     self.UI.icon:SetDimensions(size, size)
 end
 
-function XelosesReticleMarker:SetIconVisibility(visible)
-    self.icon_show = visible
+-- -------------------------------
+--  @SECTION Utility & Properties
+-- -------------------------------
+
+function XelosesReticleMarker:SetDisplayMode(display_mode)
+    self.mode         = display_mode
+    self.show_icon    = BitAnd(display_mode, self.DISPLAY_MODE.ICON) > 0
+    self.show_caption = BitAnd(display_mode, self.DISPLAY_MODE.TEXT) > 0
+end
+
+function XelosesReticleMarker:ToggleReticleColorizer(enabled)
+    self.colorize_reticle = enabled or false
 end

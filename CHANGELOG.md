@@ -1,5 +1,13 @@
 # CHANGELOG
 
+### Version 1.2.4 *(2025-03-18)*
+* **Features:**:
+  * **Chat blocking** updates:
+    * disallow initiating private chat with Villains from blocked groups via chat links.
+  * **Reticle target marker** updates:
+    * added option "Display mode" to select display text only, icon only, or both text and icon for Reticle marker;
+    * added option to configure colorizing of game reticle when targeting Contacts.
+
 ### Version 1.2.3 *(2025-03-15)*
 * **QoL changes**:
   * initially selected category in Contacts list UI no more affected by "Default category for **__new__** contacts" option;

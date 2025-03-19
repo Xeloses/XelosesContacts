@@ -14,15 +14,15 @@ function XelosesContacts:Initialize()
     self:InitLibs()
     if (self.log) then self.log:SetEnabled(true) end
 
-    self.LNG           = GetCVar("language.2") -- en / de / fr / es / it / jp / ru
-    self.accountName   = GetDisplayName()
-    self.characterID   = GetCurrentCharacterId()
-    self.characterName = GetUnitName("player")
+    self.LNG               = GetCVar("language.2") -- en / de / fr / es / it / jp / ru
+    self.accountName       = GetDisplayName()
+    self.characterID       = GetCurrentCharacterId()
+    self.characterName     = GetUnitName("player")
 
-    self.defaults      = self:getDefaultSettings()
-    self.SV            = LSV:NewAccountWide(self.__namespace .. "Data", self.svVersion, "Account", { config = self.defaults, contacts = {}, }, nil, "$MultiAccountWide"):EnableDefaultsTrimming()
-    self.config        = self.SV.config
-    self:UpdateConfig()
+    local default_settings = self:getDefaultSettings()
+    self.SV                = LSV:NewAccountWide(self.__namespace .. "Data", self.svVersion, "Account", { config = default_settings, contacts = {}, }, nil, "$MultiAccountWide"):EnableDefaultsTrimming()
+    self.config            = self.SV.config
+    self:UpdateConfig(default_settings)
 
     self:LoadContacts()
 
@@ -34,7 +34,7 @@ function XelosesContacts:Initialize()
 
     self:SetupContextMenus()
     self:CreateSlashCmd()
-    self:CreateConfigMenu()
+    self:CreateConfigMenu(default_settings)
 
     self.initialised = true
 end

@@ -40,27 +40,14 @@ XelosesContacts.CONST = {
     },
 
     UI                         = {
-        TAB_NAME       = "Contacts",
-        FONT_STYLE     = {
+        TAB_NAME   = "Contacts",
+        FONT_STYLE = {
             "normal",
             "outline",
             "thick-outline",
             "shadow",
             "soft-shadow-thick",
             "soft-shadow-thin"
-        },
-        RETICLE_MARKER = {
-            MIN_OFFSET = 0,
-            MAX_OFFSET = 50,
-            POSITION = {
-                ABOVE = 1,
-                BELOW = 2,
-            },
-            ICON_SIZE = {
-                SMALL  = 32,
-                MEDIUM = 48,
-                BIG    = 64,
-            },
         },
     },
 

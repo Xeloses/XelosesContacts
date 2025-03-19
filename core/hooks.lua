@@ -26,6 +26,16 @@ function XelosesContacts:InitHooks()
             callback = self.handleStartChatInput,
         },
 
+        -- Handle click on link
+        LinkClicked = {
+            fn_name  = "ZO_LinkHandler_OnLinkClicked",
+            callback = self.handleLinkClicked,
+        },
+        LinkMouseUp = {
+            fn_name  = "ZO_LinkHandler_OnLinkMouseUp",
+            callback = self.handleLinkClicked,
+        },
+
         -- Handle attemp to add someone to ESO ingame friends to check if target is a Villain
         AddFriend = {
             fn_name  = "ZO_Dialogs_ShowDialog",
@@ -200,14 +210,6 @@ function XelosesContacts:handleChatMessage(_, event_code, channel, from_name, ra
     if (skip) then return end
 
     local contact = self:getContactData(from_display_name)
-
-    -- @DEBUG
-    if (contact and self.Game:getChatChannelCategory(channel) == "GROUP") then
-        self:Debug("ChatBlocker [CHAT:GROUP] => sender: \"%s@%s\"", from_name, from_display_name)
-        self:Debug("  -> contact info: %s/%s (block: %s)", self:getContactCategoryName(contact), self:getContactGroupName(contact), tostring(self:isChatBlocked(contact)):upper())
-        self:Debug("  -> is blocked channel: %s", tostring(self.Game:isChatChannelBlocked(channel)):upper())
-    end
-
     if (contact and self:isChatBlocked(contact) and self.Game:isChatChannelBlocked(channel)) then
         -- @LOG blocked message
         self:Log("[Chat::%s] Block message from %s [%s]: %s", self.Game:getChatChannelCategory(channel), self:getContactGroupName(contact), contact.account, zo_strformat(GetString(SI_CHAT_MESSAGE_FORMATTER), raw_message_text))
@@ -217,12 +219,28 @@ function XelosesContacts:handleChatMessage(_, event_code, channel, from_name, ra
 end
 
 function XelosesContacts:handleStartChatInput(text, channel, target)
-    if (target and target ~= "") then
-        local contact = self:getContactData(target)
-        if (contact and self:isChatBlocked(contact)) then
-            self:Warn(L("CHAT_WHISPER_BLOCKED"), contact)
-            return true -- block chat input
-        end
+    if (not target or target == "") then
+        channel, target = CHAT_ROUTER:GetCurrentChannelData()
+        if (not channel.target --[[ or channel.id ~= CHAT_CHANNEL_WHISPER ]]) then return end
+    end
+
+    local contact = self:getContactData(target)
+    if (contact and self:isChatBlocked(contact)) then
+        self:Warn(L("CHAT_WHISPER_BLOCKED"), contact)
+        return true -- flag indicates chat input should be blocked
+    end
+end
+
+function XelosesContacts:handleLinkClicked(link, button)
+    if (button ~= MOUSE_BUTTON_INDEX_LEFT) then return end
+
+    local _, _, link_type, link_data = ZO_LinkHandler_ParseLink(link)
+    if (link_type ~= DISPLAY_NAME_LINK_TYPE) then return end
+
+    local contact = self:getContactData("@" .. link_data)
+    if (contact and self:isChatBlocked(contact)) then
+        self:Warn(L("CHAT_WHISPER_BLOCKED"), contact)
+        return true -- flag indicates ... should be blocked
     end
 end
 

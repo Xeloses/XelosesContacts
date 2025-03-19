@@ -5,7 +5,7 @@ local T = type
 --  @SECTION Update SV
 -- --------------------
 
-function XelosesContacts:UpdateConfig()
+function XelosesContacts:UpdateConfig(default_settings)
     if (self.config.v and self.config.v >= self.version) then return end
 
     if (not self.config.v or self.config.v < 10200) then
@@ -17,13 +17,13 @@ function XelosesContacts:UpdateConfig()
                 if (T(group) == "string") then
                     local group_name =
                         (not group:isEmpty() and group) or
-                        (self.defaults.groups[category_id][i] and self.defaults.groups[category_id][i].name) or
+                        (default_settings.groups[category_id][i] and default_settings.groups[category_id][i].name) or
                         L("GROUP_NEW")
 
                     self.config.groups[category_id][i] = {
                         id   = i,
                         name = group_name,
-                        icon = self.defaults.groups[category_id][i].icon,
+                        icon = default_settings.groups[category_id][i].icon,
                     }
                 end
 
@@ -39,6 +39,18 @@ function XelosesContacts:UpdateConfig()
 
         -- remove old chat blocking settings for contact groups
         self.config.chat.block_groups = nil
+    elseif (self.config.v < 10204) then
+        -- @since 1.2.4
+        -- ============
+        -- Reticle marker: added "Display mode" option; removed "Show icon" option.
+        if (self.config.reticle) then
+            if (self.config.reticle.icon and self.config.reticle.icon.enabled ~= nil) then
+                self.config.reticle.mode = self.config.reticle.icon.enabled and XelosesReticleMarker.DISPLAY_MODE.FULL or XelosesReticleMarker.DISPLAY_MODE.TEXT
+                self.config.reticle.icon.enabled = nil
+            else
+                self.config.reticle.mode = XelosesReticleMarker.DISPLAY_MODE.FULL
+            end
+        end
     end
 
     -- Update version

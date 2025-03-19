@@ -48,6 +48,13 @@ L("SETTINGS_CHAT_CACHE_SIZE_WARNING", "Bigger cache size may have increased perf
 L("SETTINGS_NOTIFICATION_SETUP", "Setup notifications")
 L("SETTINGS_NOTIFICATION_SCREEN_WARNING", "Big onsreen warning")
 L("SETTINGS_NOTIFICATION_SCREEN_WARNING_TOOLTIP", "Show big center screen warning.")
+
+L("SETTINGS_RETICLE_MARKER_DISPLAY_MODE", "Display mode:")
+L("SETTINGS_RETICLE_MARKER_DISPLAY_MODE_FULL", "Full")
+L("SETTINGS_RETICLE_MARKER_DISPLAY_MODE_TEXT", "Text only")
+L("SETTINGS_RETICLE_MARKER_DISPLAY_MODE_ICON", "Big icon only")
+L("SETTINGS_RETICLE_MARKER_COLORIZE_RETICLE", "Change reticle color")
+L("SETTINGS_RETICLE_MARKER_COLORIZE_RETICLE_TOOLTIP", "Change reticle color when targeting Contacts.")
 -- // End of Untranslated strings
 -- ==============================
 
@@ -152,7 +159,8 @@ L("SETTINGS_CHAT", "Chat")
 L("SETTINGS_CHAT_DESCRIPTION", "Chat-Einstellungen.")
 L("SETTINGS_CHAT_BLOCK", "Chat-Blockierung")
 L("SETTINGS_CHAT_BLOCK_CHANNELS", "Chatkanäle")
-L("SETTINGS_CHAT_BLOCK_CHANNELS_DESCRIPTION", "Chatkanäle zum Blockieren von Nachrichten von Schurken einrichten (nur Nachrichten aus den oben ausgewählten Schurkenkategorien werden blockiert).")
+L("SETTINGS_CHAT_BLOCK_CHANNELS_DESCRIPTION", "Chatkanäle zum Blockieren von Nachrichten von Schurken einrichten.")
+L("SETTINGS_CHAT_BLOCK_CHANNELS_NOTE", "Note: nur Nachrichten aus den oben ausgewählten Schurkenkategorien werden blockiert.")
 L("SETTINGS_CHAT_BLOCK_CHANNEL_SAY", "%s, %s, %s", S(SI_CHAT_CHANNEL_NAME_SAY), S(SI_CHAT_CHANNEL_NAME_YELL), S(SI_CHAT_CHANNEL_NAME_EMOTE))
 L("SETTINGS_CHAT_BLOCK_CHANNEL_ZONE", S(SI_CHAT_CHANNEL_NAME_ZONE))
 L("SETTINGS_CHAT_BLOCK_CHANNEL_GROUP", S(SI_CHAT_CHANNEL_NAME_PARTY))

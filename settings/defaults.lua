@@ -82,24 +82,26 @@ function XelosesContacts:getDefaultSettings()
             submenu = true,
         },
         reticle = {
-            enabled  = true,
-            disable  = {
+            enabled          = true,
+            mode             = XelosesReticleMarker.DISPLAY_MODE.FULL,
+            colorize_reticle = true,
+            disable          = {
                 combat        = false,
                 group_dungeon = false,
                 trial         = true,
                 pvp           = true,
             },
-            position = self.CONST.UI.RETICLE_MARKER.POSITION.BELOW,
-            offset   = 5,
-            icon     = {
+            position         = XelosesReticleMarker.POSITION.BELOW,
+            offset           = 5,
+            icon             = {
                 enabled = true,
-                size    = 48,
+                size    = XelosesReticleMarker.ICON_SIZE.MEDIUM,
             },
-            font     = {
+            font             = {
                 size = 22,
                 style = "outline",
             },
-            markers  = {
+            markers          = {
                 friend    = { enabled = true, color = "FFFF33" },
                 ignored   = { enabled = true, color = "DD1188" },
                 guildmate = { enabled = true, color = "1188FF" },

@@ -34,7 +34,6 @@ XelosesContacts = XelosesContacts or {
     UI                = { isReady = false },
     Chat              = {},
     Game              = {},
-    --Integrations = {}
 
     debug             = true,
 }
