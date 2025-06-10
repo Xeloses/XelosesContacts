@@ -1,5 +1,8 @@
 # CHANGELOG
 
+### Version 1.2.7 *(2025-05-05)*
+* Updated required library versions.
+
 ### Version 1.2.6 *(2025-05-03)*
 * Minor bug fixes.
 
