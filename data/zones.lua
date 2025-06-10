@@ -109,7 +109,8 @@ CONST.ZONES = {
         1263, -- RG  (Rockgrove)
         1344, -- DSR (Dreadsail Reef)
         1427, -- SE  (Sanity's Edge)
-        1478  -- LC  (Lucent Citadel)
+        1478, -- LC  (Lucent Citadel)
+        1548  -- OC  (Ossein Cage)
     ),
 
     -- --------------------
