@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### Version 1.2.5 *(2025-04-13)*
+* **Bug fixes:**
+  * Fixed an issue with import.
+
 ### Version 1.2.4 *(2025-03-18)*
 * **Features:**:
   * **Chat blocking** updates:
