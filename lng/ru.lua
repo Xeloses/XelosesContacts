@@ -224,7 +224,7 @@ L("SETTINGS_IMPORT_BUTTON", "Импортировать")
 L("SETTINGS_IMPORT_DESTINATION", "Добавить в группу:")
 L("SETTINGS_IMPORT_DESTINATION_TOOLTIP", "Группа, в которую будут импортированы контакты.")
 L("SETTINGS_IMPORT_FRIENDS", "Импортировать игроков из списка друзей ESO.")
-L("SETTINGS_IMPORT_VILLAINS", "Импортировать игнорируемых игроков ESO.")
+L("SETTINGS_IMPORT_IGNORED", "Импортировать игнорируемых игроков ESO.")
 
 -- Slash commands:
 L("SLASHCMD_NEW_CONTACT_TOOLTIP", "Показать диалог добавления контакта")

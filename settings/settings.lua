@@ -1008,7 +1008,7 @@ function XelosesContacts:CreateConfigMenu(default_settings)
     do
         local category_ref = {
             [self.CONST.CONTACTS_FRIENDS_ID]  = "FRIENDS",
-            [self.CONST.CONTACTS_VILLAINS_ID] = "VILLAINS"
+            [self.CONST.CONTACTS_VILLAINS_ID] = "IGNORED"
         }
         local category_counter = {
             [self.CONST.CONTACTS_FRIENDS_ID]  = GetNumFriends,

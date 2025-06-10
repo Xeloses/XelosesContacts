@@ -232,7 +232,7 @@ L("SETTINGS_IMPORT_BUTTON", "Importieren")
 L("SETTINGS_IMPORT_DESTINATION", "Zur Gruppe hinzufügen:")
 L("SETTINGS_IMPORT_DESTINATION_TOOLTIP", "Spieler in ausgewählte Gruppe importieren.")
 L("SETTINGS_IMPORT_FRIENDS", "ESO-Freunde im Spiel in Kontakte importieren.")
-L("SETTINGS_IMPORT_VILLAINS", "ESO-Ignorierte Spieler im Spiel in Kontakte importieren.")
+L("SETTINGS_IMPORT_IGNORED", "ESO-Ignorierte Spieler im Spiel in Kontakte importieren.")
 
 -- Slash commands:
 L("SLASHCMD_NEW_CONTACT_TOOLTIP", "Dialogfeld \'Neuen Kontakt öffnen\'")

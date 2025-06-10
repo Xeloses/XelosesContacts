@@ -226,7 +226,7 @@ L("SETTINGS_IMPORT_BUTTON", "Import")
 L("SETTINGS_IMPORT_DESTINATION", "Add to group:")
 L("SETTINGS_IMPORT_DESTINATION_TOOLTIP", "Import players to selected group.")
 L("SETTINGS_IMPORT_FRIENDS", "Import ESO ingame friends into Contacts.")
-L("SETTINGS_IMPORT_VILLAINS", "Import ESO ingame ignored players into Contacts.")
+L("SETTINGS_IMPORT_IGNORED", "Import ESO ingame ignored players into Contacts.")
 
 -- Slash commands:
 L("SLASHCMD_NEW_CONTACT_TOOLTIP", "Open new contact dialog")
