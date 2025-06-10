@@ -273,7 +273,7 @@ function XelosesContacts:RenameContact(contact, new_name)
     self:SaveContact(new_contact_data, true)
 
     -- @LOG Contact renamed
-    self.parent:Log("Rename contact [%s] -> [%s].", old_name, new_name)
+    self:Log("Rename contact [%s] -> [%s].", old_name, new_name)
 
     self:RefreshContactsList() -- do refresh here because SaveContact() was called with silent=true
 end
