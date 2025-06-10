@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### Version 1.2.8 *(2025-06-05)*
+* API bump for Update 46;
+* Updated required library versions.
+
 ### Version 1.2.7 *(2025-05-05)*
 * Updated required library versions.
 
