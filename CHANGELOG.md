@@ -1,5 +1,8 @@
 # CHANGELOG
 
+### Version 1.2.6 *(2025-05-03)*
+* Minor bug fixes.
+
 ### Version 1.2.5 *(2025-04-13)*
 * **Bug fixes:**
   * Fixed an issue with import.
