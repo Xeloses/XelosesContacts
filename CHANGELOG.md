@@ -1,5 +1,10 @@
 # CHANGELOG
 
+### Version 1.2.9 *(2025-06-10)*
+* **Features:**:
+  * **Reticle target marker** updates:
+    * Ossein Cage added to the Trials list.
+
 ### Version 1.2.8 *(2025-06-05)*
 * API bump for Update 46;
 * Updated required library versions.
@@ -8,7 +13,8 @@
 * Updated required library versions.
 
 ### Version 1.2.6 *(2025-05-03)*
-* Minor bug fixes.
+* **Bug fixes:**
+  * Minor bug fixes.
 
 ### Version 1.2.5 *(2025-04-13)*
 * **Bug fixes:**
@@ -26,7 +32,8 @@
 * **QoL changes**:
   * initially selected category in Contacts list UI no more affected by "Default category for **__new__** contacts" option;
   * newly created Villain groups now have chat blocking turned ON by default *(it will not affect previously created custom groups)*.
-* Minor bug fixes.
+* **Bug fixes:**
+  * Minor bug fixes.
 
 ### Version 1.2.2 *(2025-03-07)*
 * API bump for Update 45;
@@ -71,16 +78,17 @@
   * Fixed an issue with chat blocking *(it should work again now)*.
 
 ### Version 1.1.1 *(2025-02-08)*
-* **Reticle target marker** updates:
-  * Added "Disable in Group dungeons" option.
-  * Added auto disable feature:
-    * auto disable reticle target tracking in solo arenas *(e.g. Maelstorm arena)*;
-    * auto disable reticle target tracking in Infinite archive;
-    * auto disable reticle target tracking in group dungeons, group arenas and trials if player is not in group;
-      * auto re-enable reticle target tracking when players joins group while in group dungeon, group arena or trial.
-  * Little perfomance optimizations for reticle target tracking.
-  * Improved PvP-zones detection.
-  * Slightly ajusted default settings.
+* **Features:**:
+  * **Reticle target marker** updates:
+    * Added "Disable in Group dungeons" option.
+    * Added auto disable feature:
+      * auto disable reticle target tracking in solo arenas *(e.g. Maelstorm arena)*;
+      * auto disable reticle target tracking in Infinite archive;
+      * auto disable reticle target tracking in group dungeons, group arenas and trials if player is not in group;
+        * auto re-enable reticle target tracking when players joins group while in group dungeon, group arena or trial.
+    * Little perfomance optimizations for reticle target tracking.
+    * Improved PvP-zones detection.
+    * Slightly ajusted default settings.
 * **Bug fixes:**
   * Fixed an issue with context menu of ESO friends list and ignored players list.
   * Fixed duplicate contacts issue.
