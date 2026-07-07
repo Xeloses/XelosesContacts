@@ -88,8 +88,10 @@ CONST.ZONES = {
         1390, -- Scrivener's Hall
         1470, -- Oathsworn Pit
         1471, -- Bedlam Veil
-        1496, -- ? (new dungeon)
-        1497  -- ? (new dungeon)
+        1496, -- Exiled Redoubt
+        1497, -- Lep Seclusa
+        1551, -- Naj-Caldeesh
+        1552  -- Black Gem Foundry
     ),
 
     -- -----------------
