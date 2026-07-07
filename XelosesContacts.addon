@@ -12,10 +12,10 @@
 ## Title: |cee55eeXeloses|r' Contacts
 ## Description: Unlimited Friends and Villains list with extended features.
 ## Author: |cee55eeXeloses|r (|c7799ee@Savaoth|r [PC/EU])
-## Version: 1.2.9
-## AddOnVersion: 10209
-## APIVersion: 101046
-## DependsOn: LibAddonMenu-2.0>=40 LibCustomMenu>=730 LibSavedVars>=60007 LibExtendedJournal>=203030
+## Version: 1.2.11
+## AddOnVersion: 10211
+## APIVersion: 101049
+## DependsOn: LibAddonMenu-2.0>=41 LibCustomMenu>=730 LibSavedVars>=60007 LibExtendedJournal>=203050
 ## OptionalDependsOn: LibChatMessage>=113 LibDebugLogger>=263 LibSlashCommander>=36
 ## SavedVariables: XelosesContactsData
 
