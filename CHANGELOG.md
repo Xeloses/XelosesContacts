@@ -1,5 +1,15 @@
 # CHANGELOG
 
+### Version 1.2.11 *(2026-04-13)*
+* API bump for Update 49;
+* Updated required library versions.
+
+### Version 1.2.10 *(2025-08-27)*
+* API bump for Update 47;
+* **Features**:
+  * **Reticle target marker** updates:
+    * **Naj-Caldeesh** and **Black Gem Foundry** added to the Dungeons list.
+
 ### Version 1.2.9 *(2025-06-10)*
 * **Features:**:
   * **Reticle target marker** updates:
