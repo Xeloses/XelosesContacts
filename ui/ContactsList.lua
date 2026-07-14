@@ -145,8 +145,7 @@ function XelosesContactsList:Toggle()
 end
 
 function XelosesContactsList:isShown()
-    local _LEJ = LibExtendedJournalInternal
-    return LEJ.IsTabActive(CONST.UI.TAB_NAME) and SCENE_MANAGER:IsShowing(_LEJ.SCENE_NAME)
+    return LEJ.IsTabActive(CONST.UI.TAB_NAME)
 end
 
 -- ----------------------
@@ -285,14 +284,20 @@ end
 function XelosesContactsList:SetTitle(title)
     if (not title) then return end
 
-    --[[
-    local topBar = LibExtendedJournalInternal.controls.frame.menu
-    if (not topBar) then return end
+    local lbTitle
 
-    local lbTitle = topBar and topBar:GetNamedChild("Label")
-    ]]
-    local lbTitle = LibExtendedJournalInternal.controls.subtitle
-    if (not lbTitle) then return end
+    local LEJ_Frame = LEJ.GetFrame()
+    if (not LEJ_Frame) then return end
+
+    local LEJ_Menu = LEJ_Frame:GetNamedChild("MenuBar")
+    if (LEJ_Menu) then
+        lbTitle = LEJ_Menu:GetNamedChild("Label")
+    end
+
+    if (not lbTitle) then
+        lbTitle = LEJ_Frame:GetNamedChild("Subtitle") or LEJ_Frame:GetNamedChild("Title")
+        if (not lbTitle) then return end
+    end
 
     lbTitle:SetText(title)
 end
