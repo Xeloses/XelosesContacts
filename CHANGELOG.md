@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### Version 1.2.12 *(2026-07-12)*
+* Fixes for LEJ usage according to LEJ API updates;
+* API bump.
+
 ### Version 1.2.11 *(2026-04-13)*
 * API bump for Update 49;
 * Updated required library versions.
